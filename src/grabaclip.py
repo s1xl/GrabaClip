@@ -23,6 +23,7 @@ import sonidos as SND
 import voz as VZ
 import actualizador as ACT
 import bandeja as BJ
+import recortes as RC
 
 try:
     import keyboard  # teclas rapidas globales
@@ -119,6 +120,8 @@ class Api:
         self._fallos = []
         self._bandeja = None
         self._saliendo = False
+        self._servidor_video = RC.ServidorVideo()
+        self._recortando = False
         self._update = None         # info de una version nueva encontrada en GitHub
         self._actualizando = False
         self._perdidas = []         # reinicios por "se perdio la pantalla" en el ultimo minuto
@@ -677,6 +680,45 @@ class Api:
     def reproducir(self, ruta):
         if self._ruta_valida(ruta):
             os.startfile(ruta)
+
+    # ---------- recortar ----------
+    def abrir_editor(self, ruta):
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        return {"ok": True, "url": self._servidor_video.url(ruta)}
+
+    def cerrar_editor(self):
+        self._servidor_video.olvidar()
+
+    def recortar(self, ruta, inicio, fin, reemplazar=False):
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        if self._recortando:
+            return {"ok": False, "msg": "Ya hay un recorte en marcha"}
+        self._recortando = True
+        threading.Thread(target=self._hacer_recorte, args=(ruta, inicio, fin, bool(reemplazar)), daemon=True).start()
+        return {"ok": True}
+
+    def _hacer_recorte(self, ruta, inicio, fin, reemplazar):
+        try:
+            nueva = RC.recortar(ruta, inicio, fin, self._encoder, self._cfg.get("calidad"),
+                                lambda x: self._emitir("recorte", {"pct": round(x * 100)}))
+            if reemplazar:
+                self._servidor_video.olvidar()
+                time.sleep(0.6)  # que el reproductor suelte el archivo
+                if mandar_a_papelera(ruta):  # el original queda en la Papelera por si acaso
+                    os.replace(nueva, ruta)
+                    nueva = ruta
+            self._ultimo = nueva
+            self._emitir("recorte", {"fin": True, "ok": True, "ruta": nueva})
+            self._aviso("Recorte guardado: " + os.path.basename(nueva) +
+                        (" (el original está en la Papelera)" if reemplazar and nueva == ruta else ""), "ok")
+            self._emitir("biblioteca")
+        except Exception as ex:
+            self._emitir("recorte", {"fin": True, "ok": False, "msg": str(ex)})
+            self._aviso(str(ex), "error")
+        finally:
+            self._recortando = False
 
     def mostrar_en_carpeta(self, ruta):
         if self._ruta_valida(ruta):

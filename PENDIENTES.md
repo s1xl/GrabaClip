@@ -18,7 +18,7 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## 3. Recortar y compartir clips
 
-- [ ] Recortar un clip desde la biblioteca (inicio y fin) sin volver a comprimir.
+- [x] Recortar un clip desde la biblioteca (inicio y fin), exacto y con todas las pistas (0.14.0).
 - [ ] "Preparar para Discord": versión comprimida de menos de 10 MB.
 - [ ] Copiar el clip al portapapeles para pegarlo con Ctrl+V.
 

@@ -220,6 +220,9 @@
   .ocupado .pista { cursor: default; }
   .grupo-pistas { margin: 14px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tenue); }
   .grupo-pistas span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .grupo-apps { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--borde); }
+  .grupo-apps + .fila { border-top: 0; }
+  .app-inactiva .app-ini, .app-inactiva h3 { opacity: .55; }
   .pista.inactiva { opacity: .55; cursor: default; border-style: dashed; }
   .pista.inactiva .num { color: var(--tenue); }
   .modo-una .solo-separadas { display: none !important; }
@@ -286,6 +289,35 @@
   .aviso.error::before { background: var(--rojo); }
   .aviso.fuera { opacity: 0; transform: translateY(6px); transition: .3s; }
   @keyframes sube { from { opacity: 0; transform: translateY(10px); } }
+  #editor { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 8; }
+  #editor.abierto { display: grid; }
+  .ed-caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 18px 20px; width: min(880px, 94vw);
+             box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sube .2s ease; }
+  .ed-cab { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .ed-cab h3 { font-size: 16px; }
+  .ed-cab p { color: var(--tenue); font-size: 12.5px; }
+  .ed-x { width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; color: var(--tenue); }
+  .ed-x:hover { background: var(--campo); color: var(--fg); }
+  .ed-x svg { width: 16px; height: 16px; }
+  .ed-video { position: relative; background: #000; border-radius: 6px; overflow: hidden; aspect-ratio: 16 / 9; max-height: 52vh; margin: 0 auto; }
+  .ed-video video { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .ed-cargando { position: absolute; inset: 0; display: grid; place-items: center; color: #aaa; font-size: 13px; }
+  .ed-linea { position: relative; height: 44px; margin: 14px 8px 6px; border-radius: 6px; background: var(--campo); border: 1px solid var(--borde); cursor: pointer; touch-action: none; }
+  .ed-rango { position: absolute; top: -1px; bottom: -1px; border: 2px solid var(--acento); border-radius: 6px;
+              background: color-mix(in srgb, var(--acento) 18%, transparent); pointer-events: none; }
+  .ed-fuera { position: absolute; top: 0; bottom: 0; left: 0; background: repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,.18) 6px 12px); pointer-events: none; }
+  .ed-fuera.der { left: auto; right: 0; }
+  .ed-asa { position: absolute; top: -4px; bottom: -4px; width: 14px; margin-left: -7px; border-radius: 4px; background: var(--acento); cursor: ew-resize; }
+  .ed-asa::after { content: ""; position: absolute; left: 5px; top: 30%; bottom: 30%; width: 4px; border-left: 1px solid var(--acento-fg); border-right: 1px solid var(--acento-fg); opacity: .8; }
+  .ed-cabezal { position: absolute; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background: var(--fg); pointer-events: none; border-radius: 1px; }
+  .ed-tiempos { display: flex; justify-content: space-between; color: var(--tenue); font-size: 12.5px; margin: 0 8px 12px; }
+  .ed-tiempos b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .ed-controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ed-controles .mini-boton svg { width: 14px; height: 14px; }
+  .ed-espacio { flex: 1; }
+  .ed-reemplazar { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--tenue); margin-right: 6px; cursor: pointer; }
+  #ed-barra { margin: 12px 0 0; }
+  #ed-nota { margin-top: 10px; }
   #dialogo { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; place-items: center; z-index: 9; }
   #dialogo.abierto { display: grid; }
   .caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 22px; width: 380px;
@@ -556,6 +588,28 @@
 </footer>
 
 <div id="avisos"></div>
+<div id="editor"><div class="ed-caja">
+  <div class="ed-cab"><div><h3>Recortar</h3><p id="ed-nombre"></p></div>
+    <button class="ed-x" id="ed-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="ed-video"><video id="ed-v" preload="auto"></video><div class="ed-cargando" id="ed-cargando">Cargando video…</div></div>
+  <div class="ed-linea" id="ed-linea">
+    <div class="ed-fuera" id="ed-fuera-i"></div><div class="ed-fuera der" id="ed-fuera-f"></div>
+    <div class="ed-rango" id="ed-rango"></div>
+    <div class="ed-asa" id="ed-asa-i" title="Inicio"></div><div class="ed-asa" id="ed-asa-f" title="Fin"></div>
+    <div class="ed-cabezal" id="ed-cabezal"></div>
+  </div>
+  <div class="ed-tiempos"><span>Inicio <b id="ed-t-i">0:00.0</b></span><span>Duración <b id="ed-t-d">0:00.0</b></span><span>Fin <b id="ed-t-f">0:00.0</b></span></div>
+  <div class="ed-controles">
+    <button class="mini-boton" id="ed-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Reproducir</button>
+    <button class="mini-boton" id="ed-marca-i" title="Tecla I">Inicio aquí</button>
+    <button class="mini-boton" id="ed-marca-f" title="Tecla O">Fin aquí</button>
+    <span class="ed-espacio"></span>
+    <label class="ed-reemplazar"><label class="switch"><input type="checkbox" id="ed-reemplazar"><span></span></label>Reemplazar el original</label>
+    <button class="mini-boton primario" id="ed-guardar">Guardar recorte</button>
+  </div>
+  <div class="upd-barra oculto" id="ed-barra"><i></i></div>
+  <p class="nota" id="ed-nota">Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.</p>
+</div></div>
 <div id="dialogo"><div class="caja"><h3 id="dlg-t"></h3><p id="dlg-p"></p>
   <div class="botones"><button id="dlg-no">Cancelar</button><button class="rojo" id="dlg-si">Eliminar</button></div></div></div>
 
@@ -567,6 +621,7 @@ let videos = [], filtro = 'todos', juegoSel = '*';
 
 const api = (n, ...a) => window.pywebview.api[n](...a);
 const ICON = {
+  tijera: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
   jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
   carpeta: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
   basura: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
@@ -599,9 +654,9 @@ function aviso(texto, clase = 'info') {
   while ($('#avisos').children.length > 3) $('#avisos').firstChild.remove();
   setTimeout(() => { d.classList.add('fuera'); setTimeout(() => d.remove(), 300); }, 3200);
 }
-function confirmar(titulo, texto) {
+function confirmar(titulo, texto, boton = 'Eliminar') {
   return new Promise(ok => {
-    $('#dlg-t').textContent = titulo; $('#dlg-p').textContent = texto;
+    $('#dlg-t').textContent = titulo; $('#dlg-p').textContent = texto; $('#dlg-si').textContent = boton;
     $('#dialogo').classList.add('abierto');
     const fin = r => { $('#dialogo').classList.remove('abierto'); ok(r); };
     $('#dlg-si').onclick = () => fin(true); $('#dlg-no').onclick = () => fin(false);
@@ -656,6 +711,7 @@ function pintarVideos() {
       </div>
       <div class="tv-abajo">
         <span class="pistas">${v.pistas ? ICON.audio + `${v.pistas} ${v.pistas === 1 ? 'pista' : 'pistas'}` : ''}</span>
+        <button class="accion" title="Recortar">${ICON.tijera}</button>
         <button class="accion" title="Mostrar en la carpeta">${ICON.carpeta}</button>
         <button class="accion peligro" title="Enviar a la Papelera">${ICON.basura}</button>
         <button class="play">Reproducir</button>
@@ -665,8 +721,9 @@ function pintarVideos() {
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
     if (v.mini) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
-    t.querySelectorAll('.accion')[0].onclick = () => api('mostrar_en_carpeta', v.ruta);
-    t.querySelectorAll('.accion')[1].onclick = async () => {
+    t.querySelectorAll('.accion')[0].onclick = () => abrirEditor(v);
+    t.querySelectorAll('.accion')[1].onclick = () => api('mostrar_en_carpeta', v.ruta);
+    t.querySelectorAll('.accion')[2].onclick = async () => {
       if (!await confirmar('¿Enviar a la Papelera?', v.nombre)) return;
       if (await api('eliminar', v.ruta)) { videos = videos.filter(x => x.ruta !== v.ruta); pintarVideos(); }
     };
@@ -866,6 +923,135 @@ $('#b-carpeta-def').onclick = async () => {
   cfg.carpeta = ''; pintarCarpeta(r.carpeta); aviso(r.msg, 'ok');
 };
 
+// ---------- editor para recortar ----------
+const ED = {v: null, ini: 0, fin: 0, dur: 0, guardando: false};
+const edv = () => $('#ed-v');
+function tiempoFino(s) {
+  s = Math.max(0, s || 0);
+  const m = Math.floor(s / 60), x = s - m * 60;
+  return m + ':' + x.toFixed(1).padStart(4, '0');
+}
+async function abrirEditor(v) {
+  const r = await api('abrir_editor', v.ruta);
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false});
+  $('#ed-nombre').textContent = (v.juego ? v.juego + ' · ' : '') + v.nombre;
+  $('#ed-reemplazar').checked = false;
+  $('#ed-barra').classList.add('oculto');
+  $('#ed-guardar').disabled = true;
+  $('#ed-cargando').classList.remove('oculto');
+  $('#ed-cargando').textContent = 'Cargando video…';
+  edv().src = r.url;
+  $('#editor').classList.add('abierto');
+}
+function cerrarEditor() {
+  if (ED.guardando) return;
+  const v = edv(); v.pause(); v.removeAttribute('src'); v.load();
+  $('#editor').classList.remove('abierto');
+  api('cerrar_editor');
+}
+function pintarEditor() {
+  if (!ED.dur) return;
+  const pct = t => (t / ED.dur * 100) + '%';
+  $('#ed-asa-i').style.left = pct(ED.ini); $('#ed-asa-f').style.left = pct(ED.fin);
+  $('#ed-rango').style.left = pct(ED.ini); $('#ed-rango').style.width = ((ED.fin - ED.ini) / ED.dur * 100) + '%';
+  $('#ed-fuera-i').style.width = pct(ED.ini); $('#ed-fuera-f').style.width = ((ED.dur - ED.fin) / ED.dur * 100) + '%';
+  $('#ed-cabezal').style.left = pct(edv().currentTime);
+  $('#ed-t-i').textContent = tiempoFino(ED.ini); $('#ed-t-f').textContent = tiempoFino(ED.fin);
+  $('#ed-t-d').textContent = tiempoFino(ED.fin - ED.ini);
+  const cambiado = ED.ini > 0.05 || ED.fin < ED.dur - 0.05;
+  $('#ed-guardar').disabled = ED.guardando || !cambiado || ED.fin - ED.ini < 0.5;
+}
+function pintarPlay() {
+  const p = !edv().paused;
+  $('#ed-play').innerHTML = (p ? '<svg viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>Pausa'
+                               : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Reproducir');
+}
+edv().addEventListener('loadedmetadata', () => {
+  ED.dur = edv().duration || 0; ED.ini = 0; ED.fin = ED.dur;
+  $('#ed-cargando').classList.add('oculto'); pintarEditor();
+});
+edv().addEventListener('error', () => {
+  if (!$('#editor').classList.contains('abierto') || !edv().getAttribute('src')) return;
+  $('#ed-cargando').textContent = 'No se pudo abrir el video en la app. Prueba con Reproducir en la biblioteca.';
+});
+edv().addEventListener('timeupdate', () => {
+  if (!edv().paused && edv().currentTime >= ED.fin) { edv().pause(); edv().currentTime = ED.fin; }
+  pintarEditor();
+});
+edv().addEventListener('play', pintarPlay); edv().addEventListener('pause', pintarPlay);
+function alternarPlay() {
+  const v = edv();
+  if (!ED.dur) return;
+  if (v.paused) { if (v.currentTime < ED.ini || v.currentTime >= ED.fin - 0.05) v.currentTime = ED.ini; v.play(); }
+  else v.pause();
+}
+$('#ed-play').onclick = alternarPlay;
+$('#ed-cerrar').onclick = cerrarEditor;
+$('#editor').onclick = e => { if (e.target.id === 'editor') cerrarEditor(); };
+function marcar(cual) {
+  const t = edv().currentTime;
+  if (cual === 'i') ED.ini = Math.min(t, ED.fin - 0.5);
+  else ED.fin = Math.max(t, ED.ini + 0.5);
+  ED.ini = Math.max(0, ED.ini); ED.fin = Math.min(ED.dur, ED.fin);
+  pintarEditor();
+}
+$('#ed-marca-i').onclick = () => marcar('i');
+$('#ed-marca-f').onclick = () => marcar('f');
+// arrastrar las asas o hacer clic en la barra para moverse
+(() => {
+  const linea = $('#ed-linea');
+  let arrastre = null;
+  const tiempoEn = e => { const r = linea.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * ED.dur; };
+  linea.addEventListener('pointerdown', e => {
+    if (!ED.dur || ED.guardando) return;
+    const t = tiempoEn(e);
+    arrastre = e.target.id === 'ed-asa-i' ? 'i' : e.target.id === 'ed-asa-f' ? 'f' : 'cabezal';
+    linea.setPointerCapture(e.pointerId);
+    if (arrastre === 'cabezal') { edv().currentTime = Math.min(Math.max(t, ED.ini), ED.fin); pintarEditor(); }
+  });
+  linea.addEventListener('pointermove', e => {
+    if (!arrastre) return;
+    const t = tiempoEn(e);
+    if (arrastre === 'i') { ED.ini = Math.min(t, ED.fin - 0.5); edv().currentTime = ED.ini; }
+    else if (arrastre === 'f') { ED.fin = Math.max(t, ED.ini + 0.5); edv().currentTime = ED.fin; }
+    else edv().currentTime = Math.min(Math.max(t, ED.ini), ED.fin);
+    ED.ini = Math.max(0, ED.ini); ED.fin = Math.min(ED.dur, ED.fin);
+    pintarEditor();
+  });
+  const soltar = () => { arrastre = null; };
+  linea.addEventListener('pointerup', soltar); linea.addEventListener('pointercancel', soltar);
+})();
+document.addEventListener('keydown', e => {
+  if (!$('#editor').classList.contains('abierto')) return;
+  if (e.key === 'Escape') { cerrarEditor(); e.preventDefault(); }
+  else if (e.key === ' ') { alternarPlay(); e.preventDefault(); }
+  else if (e.key === 'i' || e.key === 'I') marcar('i');
+  else if (e.key === 'o' || e.key === 'O') marcar('f');
+  else if (e.key === 'ArrowLeft') edv().currentTime = Math.max(0, edv().currentTime - (e.shiftKey ? 1 : 0.1));
+  else if (e.key === 'ArrowRight') edv().currentTime = Math.min(ED.dur, edv().currentTime + (e.shiftKey ? 1 : 0.1));
+}, true);
+$('#ed-guardar').onclick = async () => {
+  const reemplazar = $('#ed-reemplazar').checked;
+  if (reemplazar && !await confirmar('¿Reemplazar el original?', 'El video original se enviará a la Papelera y su lugar lo ocupará el recorte.', 'Reemplazar')) return;
+  const v = edv(); v.pause();
+  if (reemplazar) { v.removeAttribute('src'); v.load(); }
+  ED.guardando = true; pintarEditor();
+  $('#ed-barra').classList.remove('oculto'); $('#ed-barra i').style.width = '0';
+  $('#ed-nota').textContent = 'Recortando…';
+  const r = await api('recortar', ED.v.ruta, ED.ini, ED.fin, reemplazar);
+  if (!r.ok) { ED.guardando = false; pintarEditor(); aviso(r.msg, 'error'); $('#ed-barra').classList.add('oculto'); }
+};
+function progresoRecorte(d) {
+  if (d.pct != null) { $('#ed-barra i').style.width = d.pct + '%'; $('#ed-nota').textContent = `Recortando… ${d.pct}%`; }
+  if (d.fin) {
+    ED.guardando = false;
+    $('#ed-nota').textContent = 'Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.';
+    if (d.ok) cerrarEditor();
+    else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
+  }
+}
+
 // ---------- actualizaciones ----------
 const MB = b => (b / 1048576).toFixed(0) + ' MB';
 function pintarUpdate(u) {
@@ -975,9 +1161,19 @@ async function cargarApps() {
   const c = $('#apps');
   c.innerHTML = '';
   if (!lista.length) { c.innerHTML = '<div class="fila"><p>No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.</p></div>'; return; }
-  for (const a of lista) {
+  const abiertas = lista.filter(a => a.abierta), cerradas = lista.filter(a => !a.abierta);
+  const grupo = (titulo, extra) => {
+    const g = document.createElement('div');
+    g.className = 'grupo-pistas grupo-apps';
+    g.innerHTML = titulo + (extra ? ` <span>· ${extra}</span>` : '');
+    c.append(g);
+  };
+  if (abiertas.length) { grupo(`Activas (${abiertas.length})`, 'con sonido ahora'); for (const a of abiertas) pintarApp(c, a); }
+  if (cerradas.length) { grupo(`Inactivas (${cerradas.length})`, 'cerradas; su pista se agrega cuando las abras'); for (const a of cerradas) pintarApp(c, a); }
+}
+function pintarApp(c, a) {
     const f = document.createElement('div');
-    f.className = 'fila';
+    f.className = 'fila' + (a.abierta ? '' : ' app-inactiva');
     f.innerHTML = `<div class="app-ini"></div><div class="texto"><h3></h3><span class="estado-app ${a.abierta ? 'abierta' : ''}">${a.abierta ? '● Abierta' : 'Cerrada'}</span></div><label class="switch"><input type="checkbox"><span></span></label>`;
     f.querySelector('.app-ini').textContent = (a.nombre[0] || '?').toUpperCase();
     f.querySelector('h3').textContent = a.nombre;
@@ -985,7 +1181,6 @@ async function cargarApps() {
     sw.checked = a.marcada; sw.disabled = ocupado(); sw.dataset.exe = a.exe;
     sw.onchange = () => guardar({apps: $$('#apps input:checked').map(x => x.dataset.exe)});
     c.append(f);
-  }
 }
 $('#b-apps').onclick = async () => { await cargarApps(); aviso('Lista de apps actualizada'); };
 // mientras se ve Ajustes > Audio, la lista se refresca sola (para saber qué apps se abren o cierran)
@@ -1147,6 +1342,7 @@ window.recibir = m => {
   else if (m.tipo === 'mini') miniLista(m.datos);
   else if (m.tipo === 'voz') { voz = m.datos; pintarVoz(); }
   else if (m.tipo === 'update') pintarUpdate(m.datos);
+  else if (m.tipo === 'recorte') progresoRecorte(m.datos);
   else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
 };
