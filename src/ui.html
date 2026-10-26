@@ -116,6 +116,40 @@
   .play { padding: 6px 14px; border-radius: 4px; background: var(--acento); color: var(--acento-fg);
           font-weight: 700; font-size: 12px; }
   .play:hover { filter: brightness(1.12); }
+  .filtro { white-space: nowrap; display: inline-flex; align-items: center; }
+  .barra-filtros .total { white-space: nowrap; }
+  @media (max-width: 1120px) { .barra-filtros .total { display: none; } .selector select { max-width: 170px; } }
+  @media (max-width: 920px) { .filtro[data-f="fav"] { font-size: 0; padding: 6px 10px; } .filtro[data-f="fav"] .estrella-ic { margin: 0; } }
+  .filtro .estrella-ic { width: 13px; height: 13px; vertical-align: -2px; margin-right: 5px; }
+  #sel-orden { max-width: 160px; }
+  .barra-seleccion { display: flex; align-items: center; gap: 8px; margin: 8px 26px 0; padding: 8px 12px; border-radius: 8px;
+                     background: var(--panel); border: 1px solid color-mix(in srgb, var(--acento) 55%, var(--borde)); }
+  .barra-seleccion b { font-size: 13px; }
+  .barra-seleccion .mini-boton svg { width: 14px; height: 14px; }
+  .mini-boton.peligro:hover { color: var(--rojo); border-color: var(--rojo); }
+  .estrella { width: 26px; height: 26px; border-radius: 4px; display: grid; place-items: center; color: var(--tenue); margin-left: auto; flex: none; }
+  .estrella:hover { color: var(--fg); background: var(--campo); }
+  .estrella svg { width: 16px; height: 16px; }
+  .estrella.on { color: #f5b301; }
+  .estrella.on svg { fill: #f5b301; }
+  .tv-cab { display: flex; align-items: center; gap: 6px; }
+  .tv-info .nombre { cursor: text; }
+  .tv-info .nombre:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
+  .seleccionando .tarjeta-video { cursor: pointer; user-select: none; }
+  .seleccionando .tarjeta-video .tv-abajo, .seleccionando .tarjeta-video .estrella { pointer-events: none; opacity: .5; }
+  .tarjeta-video.elegida { border-color: var(--acento); box-shadow: 0 0 0 1px var(--acento) inset; }
+  .marca-sel { position: absolute; left: 6px; top: 6px; width: 20px; height: 20px; border-radius: 5px; border: 2px solid #fff;
+               background: rgba(0,0,0,.35); display: none; place-items: center; z-index: 2; }
+  .seleccionando .marca-sel { display: grid; }
+  .elegida .marca-sel { background: var(--acento); border-color: var(--acento); }
+  .elegida .marca-sel::after { content: ""; width: 9px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+  #dlg-texto { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; place-items: center; z-index: 9; }
+  #dlg-texto.abierto { display: grid; }
+  .dt-campo { display: flex; align-items: center; margin-top: 12px; border: 1px solid var(--borde); border-radius: 6px; background: var(--campo);
+              padding: 0 10px; font-size: 13px; color: var(--tenue); }
+  .dt-campo:focus-within { border-color: var(--acento); }
+  .dt-campo input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--fg); font: 600 13px "Segoe UI", sans-serif; padding: 9px 2px; }
+  #dt-error { color: var(--rojo); min-height: 1em; margin-top: 6px; }
   .vacio { grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--tenue); }
   .vacio .circulo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 16px; display: grid; place-items: center;
                     color: var(--acento); }
@@ -381,12 +415,30 @@
       <button class="filtro sel" data-f="todos">Todos</button>
       <button class="filtro" data-f="clip">Clips</button>
       <button class="filtro" data-f="grabacion">Grabaciones</button>
+      <button class="filtro" data-f="fav" title="Favoritos"><svg class="estrella-ic" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favoritos</button>
       <div class="selector" title="Filtrar por juego o app">
         <svg class="ic-izq" viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6L2 15a3 3 0 0 0 5.3 2l1.6-2h6.2l1.6 2A3 3 0 0 0 22 15l-.7-6.4A4 4 0 0 0 17.3 5z"/></svg>
         <select id="sel-juego"><option value="*">Todos los juegos</option></select>
         <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
       </div>
+      <div class="selector" title="Ordenar">
+        <svg class="ic-izq" viewBox="0 0 24 24"><path d="M3 6h13M3 12h9M3 18h5M17 10l4-4-4-4M21 6h-4"/></svg>
+        <select id="sel-orden">
+          <option value="nuevo">Más nuevos</option><option value="viejo">Más viejos</option>
+          <option value="peso">Más pesados</option><option value="largo">Más largos</option><option value="nombre">Nombre</option>
+        </select>
+        <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
       <span class="total" id="total"></span>
+      <button class="filtro" id="b-seleccionar">Seleccionar</button>
+    </div>
+    <div class="barra-seleccion oculto" id="barra-sel">
+      <b id="sel-cuenta">0 seleccionados</b>
+      <button class="mini-boton" id="sel-todos">Seleccionar todos</button>
+      <span class="ed-espacio"></span>
+      <button class="mini-boton" id="sel-fav"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favorito</button>
+      <button class="mini-boton peligro" id="sel-borrar"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Enviar a la Papelera</button>
+      <button class="mini-boton" id="sel-cancelar">Cancelar</button>
     </div>
     <div class="rejilla desliza" id="rejilla"></div>
   </section>
@@ -670,6 +722,11 @@
   <div class="upd-barra oculto" id="ed-barra"><i></i></div>
   <p class="nota" id="ed-nota">Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.</p>
 </div></div>
+<div id="dlg-texto" class="modal-simple"><div class="caja">
+  <h3>Renombrar</h3><p id="dt-p"></p>
+  <div class="dt-campo"><span id="dt-prefijo">clip_</span><input id="dt-input" spellcheck="false" maxlength="120"><span>.mp4</span></div>
+  <p class="nota" id="dt-error"></p>
+  <div class="botones"><button id="dt-no">Cancelar</button><button class="rojo" id="dt-si">Guardar</button></div></div></div>
 <div id="dialogo"><div class="caja"><h3 id="dlg-t"></h3><p id="dlg-p"></p>
   <div class="botones"><button id="dlg-no">Cancelar</button><button class="rojo" id="dlg-si">Eliminar</button></div></div></div>
 
@@ -682,6 +739,7 @@ let videos = [], filtro = 'todos', juegoSel = '*';
 const api = (n, ...a) => window.pywebview.api[n](...a);
 const ICON = {
   compartir: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  estrella: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
   tijera: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
   jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
   carpeta: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
@@ -741,12 +799,82 @@ async function cargarVideos() {
   videos = await api('biblioteca');
   pintarVideos();
 }
-let limiteVideos = 48;
+let limiteVideos = 48, ultimaLista = [];
+const sel = {activo: false, rutas: new Set()};
+function pintarSel() {
+  $('#v-grab').classList.toggle('seleccionando', sel.activo);
+  $('#barra-sel').classList.toggle('oculto', !sel.activo);
+  $('#b-seleccionar').classList.toggle('sel', sel.activo);
+  const n = sel.rutas.size;
+  $('#sel-cuenta').textContent = n === 1 ? '1 seleccionado' : `${n} seleccionados`;
+  $('#sel-borrar').disabled = $('#sel-fav').disabled = !n;
+}
+function alternarSel(ruta) {
+  sel.rutas.has(ruta) ? sel.rutas.delete(ruta) : sel.rutas.add(ruta);
+  pintarVideos();
+}
+function salirSel() { sel.activo = false; sel.rutas.clear(); pintarVideos(); }
+$('#b-seleccionar').onclick = () => { sel.activo ? salirSel() : (sel.activo = true, pintarVideos()); };
+$('#sel-cancelar').onclick = salirSel;
+$('#sel-todos').onclick = () => {
+  const todas = ultimaLista.every(v => sel.rutas.has(v.ruta));
+  ultimaLista.forEach(v => todas ? sel.rutas.delete(v.ruta) : sel.rutas.add(v.ruta));
+  pintarVideos();
+};
+$('#sel-fav').onclick = async () => {
+  const elegidos = videos.filter(v => sel.rutas.has(v.ruta));
+  const valor = !elegidos.every(v => v.fav);
+  await api('favoritos_varios', [...sel.rutas], valor);
+  elegidos.forEach(v => v.fav = valor);
+  aviso(valor ? 'Añadidos a favoritos' : 'Quitados de favoritos', 'ok');
+  salirSel();
+};
+$('#sel-borrar').onclick = async () => {
+  const elegidos = videos.filter(v => sel.rutas.has(v.ruta));
+  const peso = elegidos.reduce((a, v) => a + v.tamano, 0), favs = elegidos.filter(v => v.fav).length;
+  if (!await confirmar(`¿Enviar ${elegidos.length} ${elegidos.length === 1 ? 'video' : 'videos'} a la Papelera?`,
+      `${tamano(peso)} en total` + (favs ? `, incluye ${favs} ${favs === 1 ? 'favorito' : 'favoritos'}` : '') + '. Puedes recuperarlos desde la Papelera.')) return;
+  await api('eliminar_varios', [...sel.rutas]);
+  salirSel();
+  cargarVideos();
+};
+$('#sel-orden').onchange = () => { try { localStorage.setItem('orden', $('#sel-orden').value); } catch (e) {} pintarVideos(); };
+try { const o = localStorage.getItem('orden'); if (o) $('#sel-orden').value = o; } catch (e) {}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && sel.activo && !$('#dialogo').classList.contains('abierto')) salirSel();
+});
+// renombrar
+function renombrar(v) {
+  const prefijo = v.nombre.toLowerCase().startsWith('clip_') ? 'clip_' : (v.nombre.toLowerCase().startsWith('grabacion_') ? 'grabacion_' : '');
+  $('#dt-prefijo').textContent = prefijo || 'grabacion_';
+  $('#dt-p').textContent = v.juego ? 'En ' + v.juego : '';
+  const inp = $('#dt-input');
+  inp.value = v.nombre.slice(prefijo.length).replace(/\.mp4$/i, '');
+  $('#dt-error').textContent = '';
+  $('#dlg-texto').classList.add('abierto');
+  setTimeout(() => { inp.focus(); inp.select(); }, 30);
+  const cerrar = () => $('#dlg-texto').classList.remove('abierto');
+  const guardarNombre = async () => {
+    const r = await api('renombrar', v.ruta, inp.value);
+    if (!r.ok) { $('#dt-error').textContent = r.msg; return; }
+    cerrar();
+    if (r.ruta !== v.ruta) { aviso('Renombrado: ' + r.nombre, 'ok'); cargarVideos(); }
+  };
+  $('#dt-si').onclick = guardarNombre;
+  $('#dt-no').onclick = cerrar;
+  inp.onkeydown = e => { if (e.key === 'Enter') guardarNombre(); else if (e.key === 'Escape') cerrar(); e.stopPropagation(); };
+}
 function pintarVideos() {
   const q = $('#buscar').value.trim().toLowerCase();
   pintarJuegos();
-  const lista = videos.filter(v => (filtro === 'todos' || v.tipo === filtro) && (juegoSel === '*' || v.juego === juegoSel) &&
+  const lista = videos.filter(v => (filtro === 'todos' || (filtro === 'fav' ? v.fav : v.tipo === filtro)) && (juegoSel === '*' || v.juego === juegoSel) &&
     (!q || v.nombre.toLowerCase().includes(q) || (v.juego || '').toLowerCase().includes(q)));
+  const orden = $('#sel-orden').value;
+  const cmp = {nuevo: (a, b) => b.fecha - a.fecha, viejo: (a, b) => a.fecha - b.fecha, peso: (a, b) => b.tamano - a.tamano,
+               largo: (a, b) => (b.duracion || 0) - (a.duracion || 0), nombre: (a, b) => a.nombre.localeCompare(b.nombre, 'es', {numeric: true})}[orden];
+  if (cmp) lista.sort(cmp);
+  ultimaLista = lista;
+  pintarSel();
   $('#cuenta').textContent = videos.length ? `(${videos.length})` : '';
   const peso = lista.reduce((a, v) => a + v.tamano, 0);
   $('#total').textContent = lista.length ? `${lista.length} ${lista.length === 1 ? 'video' : 'videos'} · ${tamano(peso)}` : '';
@@ -773,10 +901,11 @@ function pintarVideos() {
     t.className = 'tarjeta-video'; t.dataset.clave = v.clave;
     t.innerHTML = `
       <div class="tv-arriba">
-        <div class="mini ${v.mini ? '' : 'cargando'}">${v.duracion ? `<span class="dur">${duracion(v.duracion)}</span>` : ''}<div class="jugar">${ICON.jugar}</div></div>
+        <div class="mini ${v.mini ? '' : 'cargando'}"><i class="marca-sel"></i>${v.duracion ? `<span class="dur">${duracion(v.duracion)}</span>` : ''}<div class="jugar">${ICON.jugar}</div></div>
         <div class="tv-info">
-          <span class="etiqueta mezcla-acento">${v.tipo === 'clip' ? 'CLIP' : 'GRABACIÓN'}</span>
-          <span class="nombre"></span>
+          <div class="tv-cab"><span class="etiqueta mezcla-acento">${v.tipo === 'clip' ? 'CLIP' : 'GRABACIÓN'}</span>
+            <button class="estrella ${v.fav ? 'on' : ''}" title="${v.fav ? 'Quitar de favoritos' : 'Marcar como favorito (el límite de espacio nunca lo borra)'}">${ICON.estrella}</button></div>
+          <span class="nombre" title="Clic para renombrar"></span>
           <span class="juego">${ICON.mando}<span></span></span>
           <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}</span>
         </div>
@@ -790,7 +919,18 @@ function pintarVideos() {
         <button class="play">Reproducir</button>
       </div>`;
     t.querySelector('.nombre').textContent = v.nombre;
-    t.querySelector('.nombre').title = v.nombre;
+    t.querySelector('.nombre').title = v.nombre + ' (clic para renombrar)';
+    t.querySelector('.nombre').onclick = () => renombrar(v);
+    t.querySelector('.estrella').onclick = async () => {
+      const r = await api('alternar_favorito', v.ruta);
+      if (r === null) return;
+      v.fav = r; pintarVideos();
+      aviso(r ? 'Añadido a favoritos' : 'Quitado de favoritos', 'ok');
+    };
+    if (sel.activo) {
+      t.classList.toggle('elegida', sel.rutas.has(v.ruta));
+      t.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); alternarSel(v.ruta); }, true);
+    }
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
     if (v.mini && !cfg.rendimiento) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
@@ -798,7 +938,7 @@ function pintarVideos() {
     t.querySelectorAll('.accion')[1].onclick = () => abrirEditor(v);
     t.querySelectorAll('.accion')[2].onclick = () => api('mostrar_en_carpeta', v.ruta);
     t.querySelectorAll('.accion')[3].onclick = async () => {
-      if (!await confirmar('¿Enviar a la Papelera?', v.nombre)) return;
+      if (!await confirmar('¿Enviar a la Papelera?', v.nombre + (v.fav ? ' (es un favorito)' : ''))) return;
       if (await api('eliminar', v.ruta)) { videos = videos.filter(x => x.ruta !== v.ruta); pintarVideos(); }
     };
     r.append(t);
@@ -833,9 +973,9 @@ function miniLista(m) {
   clearTimeout(miniLista.t);  // se juntan varias miniaturas en un solo repintado
   miniLista.t = setTimeout(pintarVideos, 400);
 }
-$$('.filtro').forEach(b => b.onclick = () => {
+$$('.filtro[data-f]').forEach(b => b.onclick = () => {
   filtro = b.dataset.f;
-  $$('.filtro').forEach(x => x.classList.toggle('sel', x === b));
+  $$('.filtro[data-f]').forEach(x => x.classList.toggle('sel', x === b));
   pintarVideos();
 });
 $('#buscar').oninput = () => { if (!$('#v-grab').classList.contains('activa')) irA('grab'); pintarVideos(); };

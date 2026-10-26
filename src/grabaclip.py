@@ -37,6 +37,8 @@ ARCHIVO_CANDADO = os.path.join(N.CARPETA_APP, ".abierto")
 LANZADOR = os.path.join(N.CARPETA_APP, "GrabaClip.exe")
 CARPETA_MINI = os.path.join(N.CARPETA_APP, "miniaturas")
 ARCHIVO_INDICE = os.path.join(CARPETA_MINI, "indice.json")
+ARCHIVO_FAVORITOS = os.path.join(N.CARPETA_APP, "favoritos.json")
+NO_VALIDOS = set('<>:"/\\|?*')
 ARCHIVO_ICONO = os.path.join(N.CARPETA_APP, "grabaclip.ico")
 
 
@@ -112,6 +114,7 @@ class Api:
         self._teclas_pausadas = False
         self._minimizado = minimizado
         self._indice = self._leer_indice()
+        self._favoritos = self._leer_favoritos()
         self._pendientes = []
         self._hilo_mini = None
         self._encoders = {}
@@ -701,6 +704,7 @@ class Api:
                 "ruta": ruta, "nombre": nombre, "clave": clave,
                 "fecha": st.st_mtime * 1000, "tamano": st.st_size,
                 "tipo": "clip" if nombre.lower().startswith("clip_") else "grabacion",
+                "fav": self._es_favorito(ruta),
                 "juego": juego,
                 "duracion": info.get("dur") if info else None,
                 "pistas": info.get("pistas") if info else None,
@@ -811,6 +815,7 @@ class Api:
             if total <= limite:
                 return
             intocables = {os.path.normcase(p) for p in (proteger, self._archivo_grab if self._grab else None) if p}
+            intocables |= {os.path.normcase(os.path.abspath(x[0])) for x in lista if self._es_favorito(x[0])}
             candidatos = sorted((x for x in lista
                                  if (x[3] or self._cfg.get("limite_grabaciones"))
                                  and os.path.normcase(x[0]) not in intocables), key=lambda x: x[2])
@@ -933,6 +938,101 @@ class Api:
             return os.path.commonpath([base, r]) == base and os.path.isfile(r)
         except Exception:
             return False
+
+    # ---------- favoritos, renombrar y varios ----------
+    @staticmethod
+    def _clave_fav(ruta):
+        return os.path.normcase(os.path.abspath(ruta))
+
+    def _leer_favoritos(self):
+        try:
+            with open(ARCHIVO_FAVORITOS, encoding="utf-8") as f:
+                return set(json.load(f))
+        except Exception:
+            return set()
+
+    def _guardar_favoritos(self):
+        try:
+            with open(ARCHIVO_FAVORITOS, "w", encoding="utf-8") as f:
+                json.dump(sorted(self._favoritos), f, ensure_ascii=False, indent=1)
+        except Exception:
+            pass
+
+    def _es_favorito(self, ruta):
+        return self._clave_fav(ruta) in self._favoritos
+
+    def alternar_favorito(self, ruta):
+        if not self._ruta_valida(ruta):
+            return None
+        c = self._clave_fav(ruta)
+        if c in self._favoritos:
+            self._favoritos.discard(c)
+        else:
+            self._favoritos.add(c)
+        self._guardar_favoritos()
+        return c in self._favoritos
+
+    def favoritos_varios(self, rutas, valor):
+        for r in rutas or []:
+            if self._ruta_valida(r):
+                (self._favoritos.add if valor else self._favoritos.discard)(self._clave_fav(r))
+        self._guardar_favoritos()
+        return True
+
+    def renombrar(self, ruta, texto):
+        """El nombre conserva el prefijo clip_ / grabacion_ (así se sabe qué tipo es)."""
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        if self._grab and os.path.normcase(ruta) == os.path.normcase(self._archivo_grab or ""):
+            return {"ok": False, "msg": "No se puede renombrar la grabación en curso"}
+        texto = " ".join((texto or "").replace(".mp4", "").split()).strip(" .")
+        if not texto:
+            return {"ok": False, "msg": "Escribe un nombre"}
+        if any(c in NO_VALIDOS for c in texto) or len(texto) > 120:
+            return {"ok": False, "msg": 'El nombre no puede tener < > : " / \\ | ? * ni ser tan largo'}
+        viejo = os.path.basename(ruta)
+        prefijo = "clip_" if viejo.lower().startswith("clip_") else "grabacion_"
+        if texto.lower().startswith(prefijo):
+            texto = texto[len(prefijo):]
+        nuevo = os.path.join(os.path.dirname(ruta), f"{prefijo}{texto}.mp4")
+        if os.path.normcase(nuevo) == os.path.normcase(ruta):
+            return {"ok": True, "ruta": ruta, "nombre": viejo}
+        if os.path.exists(nuevo):
+            return {"ok": False, "msg": "Ya hay un video con ese nombre en la misma carpeta"}
+        try:
+            st = os.stat(ruta)
+            os.rename(ruta, nuevo)
+        except OSError:
+            return {"ok": False, "msg": "No se pudo renombrar (¿está abierto en otro programa?)"}
+        # se conservan la miniatura y el favorito
+        juego = os.path.relpath(os.path.dirname(ruta), N.CARPETA_SALIDA)
+        juego = "" if juego in (".", "") else juego.split(os.sep)[0]
+        viejo_c = f"{juego}/{viejo}|{int(st.st_mtime)}|{st.st_size}"
+        if viejo_c in self._indice:
+            self._indice[f"{juego}/{os.path.basename(nuevo)}|{int(st.st_mtime)}|{st.st_size}"] = self._indice.pop(viejo_c)
+            try:
+                with open(ARCHIVO_INDICE, "w", encoding="utf-8") as f:
+                    json.dump(self._indice, f)
+            except Exception:
+                pass
+        if self._clave_fav(ruta) in self._favoritos:
+            self._favoritos.discard(self._clave_fav(ruta))
+            self._favoritos.add(self._clave_fav(nuevo))
+            self._guardar_favoritos()
+        if self._ultimo and os.path.normcase(self._ultimo) == os.path.normcase(ruta):
+            self._ultimo = nuevo
+        return {"ok": True, "ruta": nuevo, "nombre": os.path.basename(nuevo)}
+
+    def eliminar_varios(self, rutas):
+        n = 0
+        for r in rutas or []:
+            if self._ruta_valida(r) and mandar_a_papelera(r):
+                self._favoritos.discard(self._clave_fav(r))
+                n += 1
+        self._guardar_favoritos()
+        self._aviso(f"{n} {'video enviado' if n == 1 else 'videos enviados'} a la Papelera" if n
+                    else "No se pudo eliminar", "ok" if n else "error")
+        return n
 
     def _leer_indice(self):
         try:

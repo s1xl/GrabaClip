@@ -20,7 +20,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Overlay en el juego:** indicador de clips activos / REC y aviso al guardar un clip, con sonidos suaves. No recibe clics y no aparece en las grabaciones (se puede desactivar).
 - **Organización por juego:** cada clip se guarda en una carpeta con el nombre del juego o la app que estaba en primer plano.
 - **Carpeta a elegir:** por defecto en `Videos\GrabaClip`, o en la carpeta o disco que quieras (*Ajustes → General → Carpeta de videos*).
-- **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
+- **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, ordenar por fecha, tamaño o duración, **favoritos** ⭐ (el límite de espacio nunca los borra), renombrar con un clic y seleccionar varios para mandarlos a la Papelera.
 - **Discord Rich Presence** (opcional): "Clipeando con GrabaClip" en tu perfil, con el juego y un botón para descargarlo.
 - **Espacio en disco:** muestra cuánto ocupan tus videos y, si pones un límite (20–500 GB), manda los clips más viejos a la Papelera automáticamente.
 - **Compartir:** copia el clip para pegarlo con Ctrl+V en Discord o WhatsApp, o crea una **versión para Discord** de menos de 10 MB que se copia sola.
