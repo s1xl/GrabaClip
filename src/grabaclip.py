@@ -61,7 +61,7 @@ def poner_icono(hwnd):
 CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "ajuste_ms",
                     "tema", "iniciar_con_windows", "clips_al_abrir", "sonido_clip",
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
-                    "quitar_mudas"}
+                    "quitar_mudas", "orden_pistas"}
 
 
 def sonido_ok():

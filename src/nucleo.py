@@ -71,7 +71,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
-                  "quitar_mudas": True}
+                  "quitar_mudas": True, "orden_pistas": []}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario
@@ -458,13 +458,15 @@ class Sesion:
         if self.audio:
             if cfg["mic"]:
                 filtro += ";[0:a][1:a]amix=inputs=2:duration=longest:normalize=0[mezcla]"
-                mapas += ["-map", "[mezcla]"]
-            else:
-                mapas += ["-map", "0:a"]
-            self.pistas.append("Mezcla")
+            # cada pista posible: clave -> (lo que se mapea, nombre)
+            disponibles = {"mezcla": ("[mezcla]" if cfg["mic"] else "0:a", "Mezcla")}
             for i in range(1, len(especies)):  # micro y apps (el "Sistema" ya esta en la mezcla)
-                mapas += ["-map", f"{i}:a"]
-                self.pistas.append(nombres_entrada[i])
+                disponibles[clave_pista(especies[i])] = (f"{i}:a", nombres_entrada[i])
+            for clave in orden_pistas(cfg):
+                if clave in disponibles:
+                    mapa, nombre = disponibles[clave]
+                    mapas += ["-map", mapa]
+                    self.pistas.append(nombre)
 
         args = (entradas
                 + ["-filter_complex", filtro] + mapas
@@ -496,13 +498,27 @@ class Sesion:
         self.cerrar_audio()
 
 
-def quitar_pistas_mudas(ruta, pistas, umbral_db=-70.0):
-    """Quita del video las pistas de audio sin sonido (menos la 1, la mezcla).
+def clave_pista(especie):
+    """'mic' -> 'mic', 'app:Overwatch.exe' -> 'app:overwatch.exe'."""
+    return especie.lower()
+
+
+def orden_pistas(cfg):
+    """Orden final de las pistas: el que eligio el usuario y despues las nuevas."""
+    base = ["mezcla"] + (["mic"] if cfg.get("mic") else []) + ["app:" + e.lower() for e in cfg.get("apps", [])]
+    elegido = [c for c in (cfg.get("orden_pistas") or []) if c in base]
+    return elegido + [c for c in base if c not in elegido]
+
+
+def quitar_pistas_mudas(ruta, pistas, umbral_db=-70.0, proteger="Mezcla"):
+    """Quita del video las pistas de audio sin sonido (nunca la mezcla).
     Devuelve la lista de pistas que quedaron."""
     if len(pistas) <= 1:
         return pistas
-    conservar = [0]
-    for i in range(1, len(pistas)):
+    conservar = [i for i, n in enumerate(pistas) if n == proteger]
+    for i in range(len(pistas)):
+        if i in conservar:
+            continue
         try:
             r = correr(["ffmpeg", "-hide_banner", "-nostats", "-i", ruta, "-map", f"0:a:{i}",
                         "-af", "volumedetect", "-f", "null", "-"], timeout=600)
@@ -513,6 +529,7 @@ def quitar_pistas_mudas(ruta, pistas, umbral_db=-70.0):
             pico = 0.0  # ante la duda, se conserva
         if pico > umbral_db:
             conservar.append(i)
+    conservar.sort()
     if len(conservar) == len(pistas):
         return pistas
     temporal = ruta + ".tmp.mp4"

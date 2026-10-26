@@ -203,6 +203,18 @@
   .oculto { display: none !important; }
   .estado-app { font-size: 12px; color: var(--tenue); }
   .estado-app.abierta { color: #22c55e; }
+  .pista { display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-top: 6px; border-radius: 6px;
+           background: var(--campo); border: 1px solid var(--borde); cursor: grab; }
+  .pista.arrastrando { opacity: .4; }
+  .pista.encima { border-color: var(--acento); }
+  .pista .num { font: 700 12px "Segoe UI", sans-serif; color: var(--acento); width: 26px; }
+  .pista .nom { flex: 1; font-weight: 600; }
+  .pista .tipo { font-size: 12px; color: var(--tenue); }
+  .pista .flecha { width: 28px; height: 28px; border-radius: 4px; display: grid; place-items: center; color: var(--tenue); }
+  .pista .flecha:hover:not(:disabled) { background: var(--panel); color: var(--fg); }
+  .pista .flecha:disabled { opacity: .25; }
+  .pista .flecha svg { width: 15px; height: 15px; }
+  .ocupado .pista { cursor: default; }
   #banner { display: none; margin: 14px 26px 0; padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
             border: 1px solid color-mix(in srgb, var(--rojo) 55%, transparent);
             background: color-mix(in srgb, var(--rojo) 14%, transparent); }
@@ -358,15 +370,20 @@
             <button class="mini-boton" id="b-apps"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>Actualizar</button></div>
           <div id="apps"></div>
           <div class="fila"><div class="texto"><h3>Quitar pistas sin sonido al guardar</h3>
-            <p>Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista 1 (mezcla) siempre se queda.</p></div>
+            <p>Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista Mezcla siempre se queda.</p></div>
             <label class="switch"><input type="checkbox" data-sw="quitar_mudas"><span></span></label></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Orden de las pistas</h3></div>
+            <p class="nota">Así aparecen en DaVinci y en tu editor. Arrastra una pista o usa las flechas.</p>
+            <div id="orden"></div></div>
         </div>
         <div class="tarjeta">
           <div class="fila columna"><div class="cab"><h3>Sincronía del audio</h3><b id="aj-v">0 ms</b></div>
             <input type="range" id="r-aj" min="-1000" max="1000" step="20">
             <p class="nota">Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.</p></div>
         </div>
-        <p class="nota">La pista 1 de cada video siempre lleva todo el sonido mezclado.</p>
+        <p class="nota">La pista "Mezcla" lleva todo el sonido junto y nunca se quita.</p>
       </div>
 
       <div class="seccion" id="s-teclas">
@@ -644,6 +661,7 @@ function pintarCfg() {
     : est.esperando ? 'Esperando a que abras un juego…'
     : `${est.fuente_tipo === 'ventana' ? est.fuente : 'Pantalla'} · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s`;
   pintarCaptura();
+  pintarOrden();
 }
 $('#r-dur').oninput = e => $('#dur-v').textContent = e.target.value + ' s';
 $('#r-dur').onchange = e => guardar({duracion: +e.target.value});
@@ -656,8 +674,61 @@ $$('[data-sw]').forEach(i => i.onchange = () => {
     aviso(i.checked ? 'GrabaClip se abrirá al iniciar Windows' : 'Inicio con Windows desactivado', 'ok');
 });
 
+let nombresApps = {};
+function clavesPistas() {
+  const base = ['mezcla'].concat(cfg.mic ? ['mic'] : [], (cfg.apps || []).map(e => 'app:' + e.toLowerCase()));
+  const elegido = (cfg.orden_pistas || []).filter(c => base.includes(c));
+  return elegido.concat(base.filter(c => !elegido.includes(c)));
+}
+function nombrePista(c) {
+  if (c === 'mezcla') return ['Mezcla', 'Todo el sonido junto'];
+  if (c === 'mic') return ['Micrófono', 'Tu voz'];
+  const exe = c.slice(4);
+  const n = nombresApps[exe] || exe.replace(/\.exe$/i, '');
+  return [n.charAt(0).toUpperCase() + n.slice(1), 'App'];
+}
+function moverPista(desde, hasta) {
+  const orden = clavesPistas();
+  if (hasta < 0 || hasta >= orden.length || desde === hasta) return;
+  const [c] = orden.splice(desde, 1);
+  orden.splice(hasta, 0, c);
+  guardar({orden_pistas: orden});
+}
+const FLECHA_ARRIBA = '<svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>';
+const FLECHA_ABAJO = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+let arrastrada = null;
+function pintarOrden() {
+  const c = $('#orden');
+  if (!c) return;
+  const orden = clavesPistas();
+  c.innerHTML = '';
+  orden.forEach((clave, i) => {
+    const [nom, tipo] = nombrePista(clave);
+    const f = document.createElement('div');
+    f.className = 'pista';
+    f.draggable = !ocupado();
+    f.innerHTML = `<span class="num">P${i + 1}</span><span class="nom"></span><span class="tipo"></span>
+      <button class="flecha" title="Subir">${FLECHA_ARRIBA}</button><button class="flecha" title="Bajar">${FLECHA_ABAJO}</button>`;
+    f.querySelector('.nom').textContent = nom;
+    f.querySelector('.tipo').textContent = tipo;
+    const [arriba, abajo] = f.querySelectorAll('.flecha');
+    arriba.disabled = i === 0 || !!ocupado();
+    abajo.disabled = i === orden.length - 1 || !!ocupado();
+    arriba.onclick = () => moverPista(i, i - 1);
+    abajo.onclick = () => moverPista(i, i + 1);
+    f.ondragstart = e => { arrastrada = i; f.classList.add('arrastrando'); e.dataTransfer.effectAllowed = 'move'; };
+    f.ondragend = () => { f.classList.remove('arrastrando'); $$('.pista').forEach(x => x.classList.remove('encima')); };
+    f.ondragover = e => { e.preventDefault(); f.classList.add('encima'); };
+    f.ondragleave = () => f.classList.remove('encima');
+    f.ondrop = e => { e.preventDefault(); if (arrastrada !== null) moverPista(arrastrada, i); arrastrada = null; };
+    c.append(f);
+  });
+  if (!orden.length) c.innerHTML = '<p class="nota">Activa el micrófono o marca apps para ordenar sus pistas.</p>';
+}
 async function cargarApps() {
   const lista = await api('apps');
+  for (const a of lista) nombresApps[a.exe.toLowerCase()] = a.nombre;
+  pintarOrden();
   const c = $('#apps');
   c.innerHTML = '';
   if (!lista.length) { c.innerHTML = '<div class="fila"><p>No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.</p></div>'; return; }
