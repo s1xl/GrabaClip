@@ -115,6 +115,9 @@ class Api:
         self._clave_bufer = None    # que se esta grabando en el bufer ahora
         self._cambio_pendiente = 0
         self._fallos = []
+        self._perdidas = []         # reinicios por "se perdio la pantalla" en el ultimo minuto
+        self._gen_bufer = 0
+        self._parte_grab = 1
         self._monitores = []
         self._rastreador = VA.Rastreador()
         self._sonidos = SND.Sonidos(os.path.join(N.CARPETA_APP, "sonidos"))
@@ -265,11 +268,23 @@ class Api:
             return None
         return ("v", fuente["hwnd"]) if fuente["tipo"] == "ventana" else ("m", fuente["idx"])
 
-    def _iniciar_bufer(self, fuente):
-        shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
+    def _iniciar_bufer(self, fuente, conservar=False):
+        """conservar=True: se reinicia tras un corte y se guardan los segundos ya grabados."""
+        self._gen_bufer += 1
+        gen = self._gen_bufer
+        if conservar:
+            for viejo in glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")):
+                nombre = os.path.basename(viejo)
+                if not nombre.startswith(f"g{gen - 1}_"):  # solo se queda la tanda anterior
+                    try:
+                        os.remove(viejo)
+                    except OSError:
+                        pass
+        else:
+            shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
         os.makedirs(N.CARPETA_BUFER, exist_ok=True)
         trozos = int(self._cfg["duracion"]) // N.SEG + 3
-        salida = os.path.join(N.CARPETA_BUFER, "seg%04d.ts")
+        salida = os.path.join(N.CARPETA_BUFER, f"g{gen}_seg%04d.ts")
         self._bufer = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
                                ["-f", "segment", "-segment_time", str(N.SEG),
                                 "-segment_wrap", str(trozos), "-reset_timestamps", "1",
@@ -277,6 +292,8 @@ class Api:
                                "bufer.log", fuente)
         self._clave_bufer = self._clave(fuente)
         self._inicio_bufer = time.time()
+        if conservar:
+            return
         que = fuente["nombre"] if fuente["tipo"] == "ventana" else "la pantalla"
         msg = f"Clips activos en {que}: {N.tecla_bonita(self._cfg['tecla_clip'])} guarda los últimos {self._cfg['duracion']} s"
         self._aviso(msg + self._bufer.aviso, "error" if self._bufer.aviso else "ok")
@@ -384,18 +401,33 @@ class Api:
                     return self._estado()
                 fuente = self._fuente_deseada() or {"tipo": "monitor", "idx": int(self._cfg.get("monitor", 0) or 0),
                                                     "nombre": "Pantalla"}
-                juego = self._carpeta_destino(fuente)
-                self._archivo_grab = os.path.join(N.CARPETA_SALIDA, juego, f"grabacion_{N.marca_tiempo()}.mp4")
-                os.makedirs(os.path.dirname(self._archivo_grab), exist_ok=True)
-                self._grab = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
-                                      ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
-                self._inicio_grab = time.time() * 1000
+                self._parte_grab = 1
+                juego = self._empezar_grabacion(fuente)
                 if self._grab.aviso:
                     self._aviso("Grabando" + self._grab.aviso, "error")
                 elif juego:
                     self._aviso(f"Grabando {juego}", "ok")
         self._avisar_estado()
         return self._estado()
+
+    def _empezar_grabacion(self, fuente, base=None):
+        juego = self._carpeta_destino(fuente)
+        if base:  # continuacion despues de un corte: grabacion_..._parte2.mp4
+            nombre = f"{base}_parte{self._parte_grab}.mp4"
+        else:
+            nombre = f"grabacion_{N.marca_tiempo()}.mp4"
+        self._archivo_grab = os.path.join(N.CARPETA_SALIDA, juego, nombre)
+        os.makedirs(os.path.dirname(self._archivo_grab), exist_ok=True)
+        self._grab = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
+                              ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
+        if not base:
+            self._inicio_grab = time.time() * 1000
+        return juego
+
+    def _puede_reintentar(self):
+        ahora = time.time()
+        self._perdidas = [t for t in self._perdidas if ahora - t < 60] + [ahora]
+        return len(self._perdidas) <= 8
 
     def elegir_encoder(self, preferido):
         """Cambiar con que se graba: 'auto', una GPU concreta o el procesador."""
@@ -715,6 +747,15 @@ class Api:
             time.sleep(0.5)
             with self._lock:
                 cambio = False
+                if self._bufer and not self._bufer.viva() and self._bufer.perdio_pantalla() \
+                        and self._clips_on and self._puede_reintentar():
+                    # Windows corto la captura un momento (p. ej. el juego cambio a pantalla completa):
+                    # se reanuda sola y los segundos ya grabados siguen disponibles para el clip
+                    fuente = self._bufer.fuente
+                    self._bufer.cerrar_audio()
+                    time.sleep(1)
+                    self._iniciar_bufer(fuente, conservar=True)
+                    cambio = True
                 if self._bufer and not self._bufer.viva():
                     era_ventana = self._bufer.fuente.get("tipo") == "ventana"
                     self._bufer.cerrar_audio()
@@ -728,6 +769,19 @@ class Api:
                         self._clips_on = False
                         self._aviso("Los clips se detuvieron por un error (revisa la carpeta logs)", "error")
                     # si era una ventana (p. ej. se cerro el juego), _seguir_juego elige otra fuente
+                if self._grab and not self._grab.viva() and self._grab.perdio_pantalla() \
+                        and self._puede_reintentar():
+                    # se guarda lo grabado y se sigue en un archivo "_parte2"
+                    fuente, pistas, archivo = self._grab.fuente, self._grab.pistas, self._archivo_grab
+                    self._grab.cerrar_audio()
+                    base = os.path.splitext(os.path.basename(archivo))[0].split("_parte")[0]
+                    if os.path.exists(archivo) and os.path.getsize(archivo) > 0:
+                        self._terminar_grabacion(archivo, pistas)
+                    time.sleep(1)
+                    self._parte_grab += 1
+                    self._empezar_grabacion(fuente, base)
+                    self._aviso(f"Windows cortó la captura un momento; la grabación sigue en la parte {self._parte_grab}", "ok")
+                    cambio = True
                 if self._grab and not self._grab.viva():
                     era_ventana = self._grab.fuente.get("tipo") == "ventana"
                     pistas, archivo = self._grab.pistas, self._archivo_grab

@@ -512,6 +512,18 @@ class Sesion:
     def viva(self):
         return self.ffmpeg.poll() is None
 
+    def perdio_pantalla(self):
+        """True si FFmpeg se cerro porque Windows le quito la captura de pantalla un momento
+        (DXGI_ERROR_ACCESS_LOST 887a0026: cambio de resolucion, juego en pantalla completa
+        exclusiva, ventana de permisos de administrador, Ctrl+Alt+Supr...). Se puede reintentar."""
+        try:
+            self.log.flush()
+            with open(self.log.name, encoding="utf-8", errors="replace") as f:
+                texto = f.read()[-4000:].lower()
+        except Exception:
+            return False
+        return any(c in texto for c in ("887a0026", "887a0005", "887a0007", "acquirenextframe failed"))
+
     def cerrar_audio(self):
         if self.audio and self.audio.poll() is None:
             try:
