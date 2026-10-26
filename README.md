@@ -7,7 +7,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
   <a href="docs/GrabaClip-anuncio.mp4"><img src="docs/anuncio.webp" alt="Anuncio de GrabaClip" width="100%"></a>
 </p>
 
-<p align="center"><a href="https://github.com/s1xl/GrabaClip/releases/latest"><b>⬇ Descargar GrabaClip</b></a> · <a href="docs/GrabaClip-anuncio.mp4">Ver el anuncio con sonido</a> (<a href="docs/GrabaClip-anuncio-vertical.mp4">vertical</a>) · <a href="#code-signing-policy">Code signing policy</a> · <a href="PRIVACIDAD.md">Privacidad</a></p>
+<p align="center"><a href="https://github.com/s1xl/GrabaClip/releases/latest"><b>⬇ Descargar GrabaClip</b></a> · <a href="docs/GrabaClip-anuncio.mp4">Ver el anuncio con sonido</a> (<a href="docs/GrabaClip-anuncio-vertical.mp4">vertical</a>) · <a href="PRIVACIDAD.md">Privacidad</a></p>
 
 ## Funciones
 
@@ -74,19 +74,9 @@ El paquete se compila en Linux (o en GitHub Actions) con [llvm-mingw](https://gi
 
 Las versiones publicadas se compilan automáticamente con GitHub Actions a partir de este repositorio (ver `.github/workflows/build.yml`).
 
-## Code signing policy
+## Firma de código
 
-*(Política de firma de código)*
-
-
-Firma de código gratuita proporcionada por [SignPath.io](https://about.signpath.io), certificado de [SignPath Foundation](https://signpath.org).
-
-- **Autores y revisores (committers and reviewers):** [@s1xl](https://github.com/s1xl)
-- **Aprobadores (approvers):** [@s1xl](https://github.com/s1xl)
-
-Free code signing provided by SignPath.io, certificate by SignPath Foundation. Only binaries built by GitHub Actions from this repository are signed.
-
-Solo se firman los binarios compilados por GitHub Actions a partir del código de este repositorio (`GrabaClip.exe` y `audiocap.exe`). Python y FFmpeg se incluyen tal como los publican sus proyectos.
+Por ahora los ejecutables **no están firmados**, por eso Windows puede mostrar el aviso de SmartScreen la primera vez (ver *Problemas comunes*). Se compilan públicamente con GitHub Actions a partir del código de este repositorio, así que cualquiera puede revisar cómo se arman.
 
 ## Privacidad
 
