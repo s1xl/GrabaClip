@@ -72,6 +72,19 @@ def sonido_ok():
         pass
 
 
+def sonido_encendido(encendido):
+    """Dos tonos que suben = clips activados; un tono grave = desactivados."""
+    try:
+        import winsound
+        if encendido:
+            winsound.Beep(880, 90)
+            winsound.Beep(1320, 120)
+        else:
+            winsound.Beep(520, 180)
+    except Exception:
+        pass
+
+
 class Api:
     """Todo lo que la interfaz (ui.html) puede pedirle al programa."""
 
@@ -417,15 +430,16 @@ class Api:
         self._registrar_teclas()
 
     def poner_tecla(self, cual, combo):
-        if cual not in ("tecla_clip", "tecla_grab"):
+        teclas = ("tecla_clip", "tecla_grab", "tecla_activar")
+        if cual not in teclas:
             return {"ok": False, "msg": "Acción desconocida"}
-        otra = "tecla_grab" if cual == "tecla_clip" else "tecla_clip"
+        otras = [self._cfg.get(t) for t in teclas if t != cual]
         combo = (combo or "").strip().lower()
         resultado = {"ok": True, "msg": f"Nueva tecla: {N.tecla_bonita(combo)}"}
         if not combo:
             resultado = {"ok": False, "msg": "No reconocí esa tecla"}
-        elif combo == self._cfg[otra]:
-            resultado = {"ok": False, "msg": f"{N.tecla_bonita(combo)} ya se usa para la otra acción"}
+        elif combo in otras:
+            resultado = {"ok": False, "msg": f"{N.tecla_bonita(combo)} ya se usa en otra tecla rápida"}
         elif keyboard:
             try:
                 keyboard.parse_hotkey(combo)
@@ -586,7 +600,8 @@ class Api:
             keyboard.unhook_all_hotkeys()
         except Exception:
             pass
-        acciones = (("tecla_clip", self.guardar_clip), ("tecla_grab", self.alternar_grabacion))
+        acciones = (("tecla_clip", self.guardar_clip), ("tecla_grab", self.alternar_grabacion),
+                    ("tecla_activar", self._alternar_clips_con_tecla))
         for clave, funcion in acciones:
             def disparar(f=funcion):
                 threading.Thread(target=f, daemon=True).start()
@@ -595,6 +610,12 @@ class Api:
             except Exception:
                 self._cfg[clave] = N.CONFIG_INICIAL[clave]
                 keyboard.add_hotkey(self._cfg[clave], disparar)
+
+    def _alternar_clips_con_tecla(self):
+        antes = self._clips_on
+        self.alternar_clips()
+        if self._cfg.get("sonido_clip", True) and self._clips_on != antes:
+            sonido_encendido(self._clips_on)
 
     def _preparar(self):
         ok, motivo = N.estado_ffmpeg()

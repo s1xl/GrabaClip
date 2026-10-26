@@ -6,7 +6,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 ## Funciones
 
 - **Clips instantáneos:** GrabaClip graba en segundo plano y, al pulsar **F9**, guarda los últimos 10–300 segundos.
-- **Grabación normal:** **F10** empieza y termina una grabación larga.
+- **Grabación normal:** **F10** empieza y termina una grabación larga. **F8** activa o desactiva los clips desde el juego.
 - **Codificación por GPU:** usa NVIDIA NVENC, AMD AMF o Intel QuickSync. Si la tarjeta lo permite, la captura va directo de la pantalla a la GPU, casi sin usar el procesador.
 - **Graba solo el juego:** captura únicamente la ventana del juego (aunque haya otras ventanas encima), sigue automáticamente al juego que uses y, si quieres, graba la pantalla cuando no hay ningún juego abierto. También se puede grabar una pantalla completa a elegir.
 - **Pistas de audio separadas:** una mezcla con todo, micrófono aparte y una pista por cada app que elijas (Discord, Spotify, el juego…), en el orden que quieras, para silenciarlas al editar. Las pistas que quedan sin sonido (por ejemplo, si Discord estaba cerrado) se quitan al guardar.

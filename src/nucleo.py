@@ -67,7 +67,7 @@ NOMBRES = {
 }
 CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": "Original",
                   "mic": True, "apps": [], "ajuste_ms": 0,
-                  "tecla_clip": "f9", "tecla_grab": "f10", "tema": "Carmesí", "ui_version": 6,
+                  "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8", "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,

@@ -389,6 +389,8 @@
       <div class="seccion" id="s-teclas">
         <h2>Teclas rápidas</h2>
         <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Activar / desactivar clips</h3><p>Enciende o apaga los clips instantáneos sin abrir la ventana (suena un aviso).</p></div>
+            <button class="tecla" data-tecla="tecla_activar">F8</button></div>
           <div class="fila"><div class="texto"><h3>Guardar clip</h3><p>Guarda los últimos segundos.</p></div>
             <button class="tecla" data-tecla="tecla_clip">F9</button></div>
           <div class="fila"><div class="texto"><h3>Grabar / detener</h3><p>Empieza o termina una grabación.</p></div>
@@ -406,7 +408,7 @@
             <label class="switch"><input type="checkbox" data-sw="clips_al_abrir"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Organizar por juego</h3><p>Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.</p></div>
             <label class="switch"><input type="checkbox" data-sw="por_juego"><span></span></label></div>
-          <div class="fila"><div class="texto"><h3>Sonido al guardar un clip</h3><p>Un aviso corto para saber que se guardó.</p></div>
+          <div class="fila"><div class="texto"><h3>Sonidos de aviso</h3><p>Al guardar un clip y al activar o desactivar los clips con la tecla.</p></div>
             <label class="switch"><input type="checkbox" data-sw="sonido_clip"><span></span></label></div>
         </div>
         <p class="nota" id="carpeta-txt"></p>
@@ -426,7 +428,7 @@
         <h2>Cómo usar GrabaClip</h2>
         <div class="pasos">
           <div class="paso"><div class="num mezcla-acento">1</div><h3>Activa los clips</h3>
-            <p>Enciende "Clips instantáneos" abajo a la izquierda. GrabaClip guarda en segundo plano los últimos segundos de tu pantalla.</p></div>
+            <p>Enciende "Clips instantáneos" abajo a la izquierda o pulsa <kbd class="k-activar">F8</kbd> desde el juego. GrabaClip guarda en segundo plano los últimos segundos.</p></div>
           <div class="paso"><div class="num mezcla-acento">2</div><h3>Guarda el momento</h3>
             <p>Cuando pase algo bueno pulsa <kbd class="k-clip">F9</kbd>. El clip aparece en Grabaciones.</p></div>
           <div class="paso"><div class="num mezcla-acento">3</div><h3>Graba sesiones largas</h3>
@@ -657,7 +659,8 @@ function pintarCfg() {
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
   $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
-  $('#clips-desc').textContent = !est.clips ? 'Desactivados'
+  $$('.k-activar').forEach(k => k.textContent = bonita(cfg.tecla_activar));
+  $('#clips-desc').textContent = !est.clips ? `Desactivados · ${bonita(cfg.tecla_activar)} para activar`
     : est.esperando ? 'Esperando a que abras un juego…'
     : `${est.fuente_tipo === 'ventana' ? est.fuente : 'Pantalla'} · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s`;
   pintarCaptura();
