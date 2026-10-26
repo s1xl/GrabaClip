@@ -109,6 +109,13 @@
   .tv-abajo .pistas { flex: 1; min-width: 0; font-size: 12px; color: var(--tenue); white-space: nowrap;
                       overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
   .tv-abajo .pistas svg { width: 14px; height: 14px; }
+  .mini video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; pointer-events: none; }
+  .mini .dur { z-index: 2; }
+  .pj-fila { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--borde); }
+  .pj-fila:first-child { border-top: 0; }
+  .pj-fila b { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pj-fila select { width: auto; flex: none; padding: 6px 28px 6px 10px; font-size: 12.5px; }
+  kbd.k-largo { font-size: 11px; margin-left: 6px; }
   .con-marcas { color: #d99a00; white-space: nowrap; }
   .con-marcas svg { width: 11px; height: 11px; fill: currentColor; stroke: none; vertical-align: -1px; margin-right: 2px; }
   .accion { width: 30px; height: 30px; border-radius: 4px; display: grid; place-items: center; color: var(--tenue); }
@@ -491,6 +498,18 @@
           <div class="fila columna"><div class="cab"><h3>Resolución</h3></div><div class="chips" data-clave="resolucion"></div></div>
           <div class="fila columna"><div class="cab"><h3>Duración de cada clip</h3><b id="dur-v">30 s</b></div>
             <input type="range" id="r-dur" min="10" max="300" step="10"></div>
+          <div class="fila columna"><div class="cab"><h3>Duración del clip largo <kbd class="k-largo">Shift + F9</kbd></h3><b id="durl-v">2:00 min</b></div>
+            <input type="range" id="r-durl" min="30" max="600" step="30">
+            <p class="nota">Para cuando la jugada viene de lejos. El búfer guarda el más largo de los dos, así que más tiempo ocupa más espacio temporal en el disco.</p></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Ajustes por juego</h3></div>
+            <p class="nota">Cada juego puede tener sus propios FPS, calidad y resolución. Los que no estén aquí usan los ajustes de arriba.</p>
+            <div id="por-juego"></div>
+            <div class="en-linea">
+              <select class="campo-sel" id="pj-sel"></select>
+              <button class="mini-boton" id="pj-agregar">Agregar</button>
+            </div></div>
         </div>
         <p class="nota">Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.</p>
       </div>
@@ -545,6 +564,10 @@
             <button class="tecla" data-tecla="tecla_clip">F9</button></div>
           <div class="fila"><div class="texto"><h3>Grabar / detener</h3><p>Empieza o termina una grabación.</p></div>
             <button class="tecla" data-tecla="tecla_grab">F10</button></div>
+          <div class="fila"><div class="texto"><h3>Guardar clip largo</h3><p>Guarda más tiempo que el clip normal (se elige en Ajustes → Video).</p></div>
+            <button class="tecla" data-tecla="tecla_clip_largo">Shift + F9</button></div>
+          <div class="fila"><div class="texto"><h3>Mostrar / ocultar GrabaClip</h3><p>Abre la ventana o la vuelve a esconder junto al reloj.</p></div>
+            <button class="tecla" data-tecla="tecla_ventana">Ctrl + Shift + G</button></div>
           <div class="fila"><div class="texto"><h3>Captura de pantalla</h3><p>Guarda una imagen del juego en la biblioteca.</p></div>
             <button class="tecla" data-tecla="tecla_captura">F7</button></div>
           <div class="fila"><div class="texto"><h3>Poner una marca</h3><p>Mientras grabas, marca el momento para encontrarlo fácil después (en el editor y como capítulo del video).</p></div>
@@ -583,6 +606,10 @@
         <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Modo rendimiento</h3><p>Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.</p></div>
             <label class="switch"><input type="checkbox" data-sw="rendimiento"><span></span></label></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Vista previa al pasar el mouse</h3><p>En la biblioteca, el clip se reproduce sin sonido sobre su miniatura.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="vista_previa"><span></span></label></div>
         </div>
         <p class="nota" id="nota-rendimiento">Sin importar este ajuste, cuando cierras la ventana y GrabaClip queda junto al reloj, la interfaz se descarga y libera casi toda su memoria.</p>
         <div class="tarjeta">
@@ -773,7 +800,7 @@ function seccion(s) {
   $$('.lateral button').forEach(b => b.classList.toggle('activa', b.dataset.s === s));
   $$('#v-ajustes .seccion').forEach(x => x.classList.toggle('activa', x.id === 's-' + s));
   if (s === 'audio') cargarApps();
-  if (s === 'video') cargarVentanas();
+  if (s === 'video') { cargarVentanas(); cargarJuegosPJ(); }
   if (s === 'voz') cargarIdiomasVoz();
   if (s === 'general') cargarEspacio();
 }
@@ -814,6 +841,28 @@ async function cargarVideos() {
   pintarVideos();
 }
 let limiteVideos = 48, ultimaLista = [];
+// vista previa sin sonido al dejar el mouse sobre la miniatura
+let vistaTimer = null;
+function prepararVistaPrevia(mini, v) {
+  mini.addEventListener('mouseenter', () => {
+    if (cfg.rendimiento || cfg.vista_previa === false || sel.activo) return;
+    clearTimeout(vistaTimer);
+    vistaTimer = setTimeout(async () => {
+      const url = await api('vista_previa', v.ruta);
+      if (!url || !mini.matches(':hover')) return;
+      const vid = document.createElement('video');
+      vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
+      vid.src = url;
+      vid.addEventListener('loadedmetadata', () => { if (vid.duration > 6) vid.currentTime = Math.min(vid.duration / 3, 20); });
+      vid.play().catch(() => {});
+      mini.append(vid);
+    }, 450);
+  });
+  mini.addEventListener('mouseleave', () => {
+    clearTimeout(vistaTimer);
+    mini.querySelectorAll('video').forEach(x => { x.pause(); x.removeAttribute('src'); x.load(); x.remove(); });
+  });
+}
 const sel = {activo: false, rutas: new Set()};
 function pintarSel() {
   $('#v-grab').classList.toggle('seleccionando', sel.activo);
@@ -951,6 +1000,7 @@ function pintarVideos() {
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
     if (v.mini && !cfg.rendimiento) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
+    if (v.tipo !== 'captura') prepararVistaPrevia(t.querySelector('.mini'), v);
     t.querySelectorAll('.accion')[0].onclick = () => abrirCompartir(v);
     t.querySelectorAll('.accion')[1].onclick = () => abrirEditor(v);
     t.querySelectorAll('.accion')[2].onclick = () => api('mostrar_en_carpeta', v.ruta);
@@ -1035,6 +1085,9 @@ function pintarChips() {
 function pintarCfg() {
   $$('.chips[data-clave]').forEach(c => [...c.children].forEach(b => b.classList.toggle('sel', String(cfg[c.dataset.clave]) === b.dataset.o)));
   $('#r-dur').value = cfg.duracion; $('#dur-v').textContent = cfg.duracion + ' s';
+  $('#r-durl').value = cfg.duracion_larga || 120; $('#durl-v').textContent = minutos(cfg.duracion_larga || 120);
+  $$('.k-largo').forEach(k => k.textContent = bonita(cfg.tecla_clip_largo));
+  pintarPorJuego();
   $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
   $('#sw-mic').checked = !!cfg.mic;
   pintarModoAudio();
@@ -1063,6 +1116,63 @@ function pintarCfg() {
 }
 $('#r-dur').oninput = e => $('#dur-v').textContent = e.target.value + ' s';
 $('#r-dur').onchange = e => guardar({duracion: +e.target.value});
+const minutos = s => s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min` : s + ' s';
+$('#r-durl').oninput = e => $('#durl-v').textContent = minutos(+e.target.value);
+$('#r-durl').onchange = e => guardar({duracion_larga: +e.target.value});
+// ajustes por juego
+let juegosConocidos = [];
+async function cargarJuegosPJ() {
+  juegosConocidos = await api('ventanas_juegos');
+  pintarPorJuego();
+}
+function pintarPorJuego() {
+  const c = $('#por-juego');
+  if (!c || !D) return;
+  const pj = cfg.por_juego_cfg || {};
+  c.innerHTML = '';
+  for (const [exe, conf] of Object.entries(pj)) {
+    const f = document.createElement('div');
+    f.className = 'pj-fila';
+    const opciones = (lista, actual, texto) => `<option value="">${texto}</option>` +
+      lista.map(o => `<option ${String(actual) === String(o) ? 'selected' : ''}>${o}</option>`).join('');
+    f.innerHTML = `<b></b>
+      <select class="campo-sel" data-k="fps">${opciones(D.fps, conf.fps, 'FPS general')}</select>
+      <select class="campo-sel" data-k="calidad">${opciones(D.calidades, conf.calidad, 'Calidad general')}</select>
+      <select class="campo-sel" data-k="resolucion">${opciones(D.resoluciones, conf.resolucion, 'Resolución general')}</select>
+      <button class="accion peligro" title="Quitar">${ICON.basura}</button>`;
+    f.querySelector('b').textContent = conf.nombre || exe;
+    f.querySelector('b').title = exe;
+    f.querySelectorAll('select').forEach(s => {
+      s.disabled = !!ocupado();
+      s.onchange = () => {
+        const nuevo = JSON.parse(JSON.stringify(cfg.por_juego_cfg || {}));
+        nuevo[exe][s.dataset.k] = s.value;
+        guardar({por_juego_cfg: nuevo});
+      };
+    });
+    f.querySelector('.accion').disabled = !!ocupado();
+    f.querySelector('.accion').onclick = () => {
+      const nuevo = JSON.parse(JSON.stringify(cfg.por_juego_cfg || {}));
+      delete nuevo[exe];
+      guardar({por_juego_cfg: nuevo});
+    };
+    c.append(f);
+  }
+  if (!Object.keys(pj).length) c.innerHTML = '<p class="nota">Todavía no hay juegos con ajustes propios.</p>';
+  const sel = $('#pj-sel');
+  const libres = juegosConocidos.filter(j => !pj[j.exe]);
+  sel.innerHTML = '<option value="">Elige un juego o programa abierto…</option>' +
+    libres.map(j => `<option value="${j.exe}">${j.nombre.replace(/</g, '&lt;')}</option>`).join('');
+  sel.disabled = $('#pj-agregar').disabled = !!ocupado();
+}
+$('#pj-agregar').onclick = () => {
+  const exe = $('#pj-sel').value;
+  if (!exe) { aviso('Abre el juego y elígelo de la lista', 'error'); return; }
+  const j = juegosConocidos.find(x => x.exe === exe);
+  const nuevo = JSON.parse(JSON.stringify(cfg.por_juego_cfg || {}));
+  nuevo[exe] = {nombre: j ? j.nombre : exe, fps: '', calidad: '', resolucion: ''};
+  guardar({por_juego_cfg: nuevo});
+};
 $('#r-aj').oninput = e => { const v = +e.target.value; $('#aj-v').textContent = (v > 0 ? '+' : '') + v + ' ms'; };
 $('#r-aj').onchange = e => guardar({ajuste_ms: +e.target.value});
 $('#sw-mic').onchange = e => guardar({mic: e.target.checked});
@@ -1577,7 +1687,7 @@ function pintarEstado() {
   $('#pie-rec').classList.toggle('grabando', !!est.grabando);
   $('#b-rec').title = est.grabando ? 'Detener grabación' : 'Empezar a grabar';
   document.body.classList.toggle('ocupado', !!ocupado());
-  $$('#s-video .chips button, #r-dur, #sw-mic, #r-aj, #apps input, #b-apps, #sel-ventana, #b-ventanas, [data-sw="escritorio_sin_juego"]').forEach(x => x.disabled = !!ocupado());
+  $$('#s-video .chips button, #r-dur, #r-durl, #sw-mic, #r-aj, #apps input, #b-apps, #sel-ventana, #b-ventanas, [data-sw="escritorio_sin_juego"]').forEach(x => x.disabled = !!ocupado());
   clearInterval(reloj);
   const tick = () => {
     if (!est.grabando || !est.inicio_grab) { $('#rec-txt').textContent = 'REC'; return; }

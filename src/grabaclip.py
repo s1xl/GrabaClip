@@ -74,7 +74,8 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones"}
+                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
+                    "duracion_larga", "por_juego_cfg", "vista_previa"}
 
 
 def sonido_ok():
@@ -310,9 +311,9 @@ class Api:
                 nombre = next((v["nombre"] for v in VA.ventanas_abiertas() if v["exe"] == exe), exe)
             else:
                 juego = self._rastreador.juego_actual()
-                hwnd, nombre = (juego["hwnd"], juego["nombre"]) if juego else (None, None)
+                hwnd, nombre, exe = (juego["hwnd"], juego["nombre"], juego["exe"]) if juego else (None, None, None)
             if hwnd:
-                return {"tipo": "ventana", "hwnd": int(hwnd), "nombre": nombre}
+                return {"tipo": "ventana", "hwnd": int(hwnd), "nombre": nombre, "exe": (exe or "").lower()}
             if not cfg.get("escritorio_sin_juego", True):
                 return None
         idx = int(cfg.get("monitor", 0) or 0)
@@ -341,9 +342,10 @@ class Api:
         else:
             shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
         os.makedirs(N.CARPETA_BUFER, exist_ok=True)
-        trozos = int(self._cfg["duracion"]) // N.SEG + 3
+        trozos = self._segundos_bufer() // N.SEG + 3
         salida = os.path.join(N.CARPETA_BUFER, f"g{gen}_seg%04d.ts")
-        self._bufer = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
+        cfg_s = self._cfg_sesion(fuente)
+        self._bufer = N.Sesion(int(cfg_s["fps"]), self._encoder, cfg_s,
                                ["-f", "segment", "-segment_time", str(N.SEG),
                                 "-segment_wrap", str(trozos), "-reset_timestamps", "1",
                                 "-segment_format", "mpegts", salida],
@@ -391,7 +393,11 @@ class Api:
             except Exception:
                 pass
 
-    def guardar_clip(self):
+    def guardar_clip_largo(self):
+        return self.guardar_clip(int(self._cfg.get("duracion_larga") or 120), "Clip largo")
+
+    def guardar_clip(self, segundos=None, titulo="Clip guardado"):
+        segundos = int(segundos or self._cfg["duracion"])
         with self._lock:
             if not self._bufer:
                 self._aviso("No hay ningún juego abierto para guardar un clip" if self._clips_on
@@ -399,7 +405,7 @@ class Api:
                 return self._estado()
             trozos = sorted(glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")), key=os.path.getmtime)
             trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
-            trozos = trozos[-max(1, int(self._cfg["duracion"]) // N.SEG):]
+            trozos = trozos[-max(1, segundos // N.SEG):]
             if not trozos:
                 self._aviso("Aún no hay suficiente video, espera unos segundos", "error")
                 return self._estado()
@@ -428,8 +434,9 @@ class Api:
                         extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
                 self._aviso(f"Clip guardado en {juego or 'GrabaClip'}{extra}", "ok")
                 threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
-                self._overlay.clip_guardado("Clip guardado",
-                                            f"{juego or 'Escritorio'} · {self._cfg['duracion']} s")
+                real = len(trozos) * N.SEG
+                self._overlay.clip_guardado(titulo, f"{juego or 'Escritorio'} · "
+                                            + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
                 self._emitir("biblioteca")
             else:
                 os.makedirs(N.CARPETA_LOGS, exist_ok=True)
@@ -479,12 +486,54 @@ class Api:
             nombre = f"grabacion_{N.marca_tiempo()}.mp4"
         self._archivo_grab = os.path.join(N.CARPETA_SALIDA, juego, nombre)
         os.makedirs(os.path.dirname(self._archivo_grab), exist_ok=True)
-        self._grab = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
+        cfg_s = self._cfg_sesion(fuente)
+        self._grab = N.Sesion(int(cfg_s["fps"]), self._encoder, cfg_s,
                               ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
         if not base:
             self._inicio_grab = time.time() * 1000
         self._inicio_parte = time.time()
         return juego
+
+    def _segundos_bufer(self):
+        """El búfer guarda lo suficiente para el clip normal y para el clip largo."""
+        return max(int(self._cfg["duracion"]), int(self._cfg.get("duracion_larga") or 0))
+
+    def _cfg_sesion(self, fuente):
+        """Ajustes de video propios del juego (si se configuraron) sobre los generales."""
+        exe = ((fuente or {}).get("exe") or "").lower()
+        propio = (self._cfg.get("por_juego_cfg") or {}).get(exe) or {}
+        cambios = {k: v for k, v in propio.items() if k in ("fps", "calidad", "resolucion") and v}
+        return dict(self._cfg, **cambios) if cambios else self._cfg
+
+    def _alternar_ventana(self):
+        """Tecla para mostrar u ocultar GrabaClip sin buscar el ícono."""
+        try:
+            visible = bool(self._ventana.native.Visible)
+            import System.Windows.Forms as WF
+            minimizada = self._ventana.native.WindowState == WF.FormWindowState.Minimized
+            import ctypes
+            delante = ctypes.windll.user32.GetForegroundWindow() == int(self._ventana.native.Handle.ToInt64())
+        except Exception:
+            visible, minimizada, delante = False, False, False
+        if visible and not minimizada and delante:
+            if self._bandeja and self._cfg.get("bandeja", True):
+                self._esconder()
+            else:
+                self._ventana.minimize()
+        else:
+            self._mostrar_ventana()
+
+    def vista_previa(self, ruta):
+        if not self._ruta_valida(ruta) or not ruta.lower().endswith(".mp4"):
+            return None
+        return self._servidor_video.url(ruta, "vista")
+
+    def ventanas_juegos(self):
+        """Para 'Ajustes por juego': ventanas abiertas y juegos ya configurados."""
+        lista = {v["exe"].lower(): v["nombre"] for v in VA.ventanas_abiertas() if v["exe"] not in VA.PROPIOS}
+        for exe, c in (self._cfg.get("por_juego_cfg") or {}).items():
+            lista.setdefault(exe, c.get("nombre") or exe)
+        return [{"exe": e, "nombre": n} for e, n in sorted(lista.items(), key=lambda x: x[1].lower())]
 
     def _puede_reintentar(self):
         ahora = time.time()
@@ -657,7 +706,8 @@ class Api:
         self._registrar_teclas()
 
     def poner_tecla(self, cual, combo):
-        teclas = ("tecla_clip", "tecla_grab", "tecla_activar", "tecla_captura", "tecla_marca")
+        teclas = ("tecla_clip", "tecla_grab", "tecla_activar", "tecla_captura", "tecla_marca",
+                  "tecla_clip_largo", "tecla_ventana")
         if cual not in teclas:
             return {"ok": False, "msg": "Acción desconocida"}
         otras = [self._cfg.get(t) for t in teclas if t != cual]
@@ -740,7 +790,7 @@ class Api:
                 "marcas": self._marcas.get(self._clave_fav(ruta), [])}
 
     def cerrar_editor(self):
-        self._servidor_video.olvidar()
+        self._servidor_video.olvidar("editor")
 
     def recortar(self, ruta, inicio, fin, reemplazar=False):
         if not self._ruta_valida(ruta):
@@ -1166,7 +1216,8 @@ class Api:
             pass
         acciones = (("tecla_clip", self.guardar_clip), ("tecla_grab", self.alternar_grabacion),
                     ("tecla_activar", self._alternar_clips_con_tecla), ("tecla_captura", self.tomar_captura),
-                    ("tecla_marca", self.poner_marca))
+                    ("tecla_marca", self.poner_marca), ("tecla_clip_largo", self.guardar_clip_largo),
+                    ("tecla_ventana", self._alternar_ventana))
         for clave, funcion in acciones:
             def disparar(f=funcion):
                 threading.Thread(target=f, daemon=True).start()

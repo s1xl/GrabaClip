@@ -104,18 +104,26 @@ class ServidorVideo:
         self._srv.daemon_threads = True
         threading.Thread(target=self._srv.serve_forever, daemon=True).start()
 
-    def url(self, ruta):
+    def url(self, ruta, lugar="editor"):
+        """Un video permitido por 'lugar' (el editor y la vista previa de la biblioteca)."""
         self._arrancar()
         ident = secrets.token_urlsafe(8)
-        self._permitidos = {ident: ruta}  # solo el video que se está editando
+        self._lugares = getattr(self, "_lugares", {})
+        self._lugares[lugar] = (ident, ruta)
+        self._permitidos = {i: r for i, r in self._lugares.values()}
         return f"http://127.0.0.1:{self._srv.server_address[1]}/{self._clave}/{ident}"
 
     def url_mini(self, nombre):
         self._arrancar()
         return f"http://127.0.0.1:{self._srv.server_address[1]}/{self._clave}/m/{urllib.parse.quote(nombre)}"
 
-    def olvidar(self):
-        self._permitidos = {}
+    def olvidar(self, lugar=None):
+        self._lugares = getattr(self, "_lugares", {})
+        if lugar:
+            self._lugares.pop(lugar, None)
+        else:
+            self._lugares.clear()
+        self._permitidos = {i: r for i, r in self._lugares.values()}
 
 
 def _nombre_libre(carpeta, base):

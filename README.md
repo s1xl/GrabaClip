@@ -12,6 +12,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 ## Funciones
 
 - **Clips instantáneos:** GrabaClip graba en segundo plano y, al pulsar **F9**, guarda los últimos 10–300 segundos.
+- **Clip largo:** **Shift+F9** guarda más tiempo (30 s a 10 min) que el clip normal.
 - **Grabación normal:** **F10** empieza y termina una grabación larga. **F8** activa o desactiva los clips desde el juego.
 - **Capturas y marcas:** **F7** guarda una captura de pantalla del juego en la biblioteca; **F6** pone una marca durante una grabación, que luego aparece en el editor y como capítulo del video.
 - **Codificación por GPU:** usa NVIDIA NVENC, AMD AMF o Intel QuickSync. Si la tarjeta lo permite, la captura va directo de la pantalla a la GPU, casi sin usar el procesador.
@@ -26,7 +27,8 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Espacio en disco:** muestra cuánto ocupan tus videos y, si pones un límite (20–500 GB), manda los clips más viejos a la Papelera automáticamente.
 - **Compartir:** copia el clip para pegarlo con Ctrl+V en Discord o WhatsApp, o crea una **versión para Discord** de menos de 10 MB que se copia sola.
 - **Recortar clips:** editor dentro de la app con vista previa; elige inicio y fin con la barra o con las teclas I y O. Guarda una copia (o reemplaza el original) conservando todas las pistas de audio.
-- **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
+- **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).
+- **Ctrl+Shift+G** muestra u oculta GrabaClip; en la biblioteca, los clips se reproducen en la miniatura al pasar el mouse.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
 - **Ligero:** al quedar junto al reloj, la interfaz se descarga y libera su memoria. El **modo rendimiento** deja solo lo necesario (clips, grabación y teclas).
 - **Junto al reloj:** al cerrar la ventana, GrabaClip sigue funcionando en los íconos ocultos de la barra de tareas, con un menú para guardar clips, grabar o salir.
