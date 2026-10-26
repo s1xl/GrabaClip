@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrabaClip</title>
+<style>
+  :root {
+    --bg: #151518; --panel: #202024; --campo: #1a1a1e; --fg: #ececef; --tenue: #8e8e97;
+    --acento: #c8243f; --acento-fg: #fff; --borde: #2e2e34;
+    --rojo: #e5394f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 14px/1.45 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    user-select: none; overflow: hidden; display: flex; flex-direction: column;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+  button:disabled { cursor: default; }
+  input { font: inherit; color: inherit; }
+  svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2;
+        stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .suave { color: var(--tenue); }
+  .mezcla-acento { background: color-mix(in srgb, var(--acento) 16%, transparent); }
+
+  /* ---------- cabecera ---------- */
+  header { padding: 18px 26px 0; border-bottom: 1px solid var(--borde); }
+  .arriba { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 40px; height: 40px; border-radius: 6px; background: var(--acento); position: relative; flex: none; }
+  .logo::before { content: ""; position: absolute; inset: 9px; border-radius: 50%;
+                  border: 3px solid var(--acento-fg); border-right-color: transparent; transform: rotate(45deg); }
+  .logo::after { content: ""; position: absolute; width: 9px; height: 9px; border-radius: 50%;
+                 background: var(--acento-fg); right: 7px; bottom: 7px; }
+  .marca { font-size: 24px; font-weight: 700; letter-spacing: -.4px; }
+  .gpu { font-size: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--borde);
+         color: var(--tenue); white-space: nowrap; }
+  .gpu.ok::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+                    background: #22c55e; margin-right: 6px; vertical-align: 1px; }
+  .buscar { margin-left: auto; position: relative; width: 260px; }
+  .buscar svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--tenue); }
+  .buscar input { width: 100%; padding: 8px 12px 8px 34px; border-radius: 6px; border: 1px solid var(--borde);
+                  background: var(--campo); outline: none; font-size: 13px; }
+  .buscar input:focus { border-color: var(--acento); }
+  .buscar input::placeholder { color: var(--tenue); }
+  .icono { width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center; color: var(--tenue); }
+  .icono:hover { background: var(--panel); color: var(--fg); }
+
+  nav { display: flex; gap: 26px; margin-top: 16px; }
+  nav button { padding: 0 0 11px; font-weight: 600; color: var(--tenue); position: relative; font-size: 14px; }
+  nav button:hover { color: var(--fg); }
+  nav button.activa { color: var(--fg); }
+  nav button.activa::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+                             border-radius: 2px; background: var(--acento); }
+  nav .cuenta { color: var(--acento); font-weight: 600; margin-left: 4px; }
+
+  main { flex: 1; overflow: hidden; display: flex; }
+  .vista { display: none; flex: 1; min-height: 0; animation: entra .18s ease; }
+  .vista.activa { display: flex; }
+  body.quieto *, body.quieto *::before, body.quieto *::after { animation-play-state: paused !important; }
+  @keyframes entra { from { opacity: 0; transform: translateY(3px); } }
+  .desliza { overflow-y: auto; }
+  .desliza::-webkit-scrollbar { width: 12px; }
+  .desliza::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 6px; border: 4px solid var(--bg); }
+
+  /* ---------- biblioteca ---------- */
+  #v-grab { flex-direction: column; }
+  .barra-filtros { display: flex; align-items: center; gap: 8px; padding: 16px 26px 4px; }
+  .filtro { padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: 600; color: var(--tenue);
+            border: 1px solid var(--borde); }
+  .filtro:hover { color: var(--fg); }
+  .filtro.sel { color: var(--fg); background: var(--panel); border-color: color-mix(in srgb, var(--acento) 60%, var(--borde)); }
+  .selector { position: relative; margin-left: 6px; }
+  .selector select { appearance: none; -webkit-appearance: none; padding: 6px 32px 6px 32px; border-radius: 6px;
+                     background: var(--campo); border: 1px solid var(--borde); color: var(--fg); font: 600 13px "Segoe UI", sans-serif;
+                     cursor: pointer; outline: none; max-width: 230px; }
+  .selector select:focus, .selector select:hover { border-color: color-mix(in srgb, var(--acento) 60%, var(--borde)); }
+  .selector option { background: var(--panel); color: var(--fg); }
+  .selector .ic-izq { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--acento); pointer-events: none; }
+  .selector .ic-der { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--tenue); pointer-events: none; }
+  .tv-info .juego { font-size: 12px; color: var(--fg); opacity: .85; display: flex; align-items: center; gap: 5px; }
+  .tv-info .juego svg { width: 13px; height: 13px; color: var(--acento); }
+  .barra-filtros .total { margin-left: auto; font-size: 12px; color: var(--tenue); }
+  .rejilla { flex: 1; padding: 12px 26px 20px; display: grid; gap: 14px; align-content: start;
+             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+  .tarjeta-video { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 12px;
+                   display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, transform .15s; }
+  .tarjeta-video:hover { border-color: color-mix(in srgb, var(--acento) 55%, var(--borde)); transform: translateY(-1px); }
+  .tv-arriba { display: flex; gap: 12px; align-items: flex-start; }
+  .mini { width: 132px; aspect-ratio: 16/9; border-radius: 6px; background: var(--campo) center/cover no-repeat;
+          position: relative; flex: none; overflow: hidden; cursor: pointer; border: 1px solid var(--borde); }
+  .mini.cargando { background-image: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.06) 50%, transparent 70%);
+                   background-size: 200% 100%; animation: brillo 1.3s infinite; }
+  @keyframes brillo { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+  .mini .dur { position: absolute; right: 5px; bottom: 5px; padding: 1px 6px; border-radius: 5px;
+               background: rgba(0,0,0,.75); color: #fff; font: 600 11px "Segoe UI", sans-serif; }
+  .mini .jugar { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0;
+                 background: rgba(0,0,0,.35); transition: opacity .15s; color: #fff; }
+  .mini:hover .jugar { opacity: 1; }
+  .mini .jugar svg { width: 26px; height: 26px; fill: #fff; stroke: none; }
+  .tv-info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .etiqueta { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 4px;
+              color: var(--acento); }
+  .tv-info .meta { font-size: 12px; color: var(--tenue); }
+  .tv-abajo { display: flex; align-items: center; gap: 6px; }
+  .tv-info .nombre { font-weight: 650; font-size: 13px; line-height: 1.3; word-break: break-all;
+                     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tv-abajo .pistas { flex: 1; min-width: 0; font-size: 12px; color: var(--tenue); white-space: nowrap;
+                      overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+  .tv-abajo .pistas svg { width: 14px; height: 14px; }
+  .accion { width: 30px; height: 30px; border-radius: 4px; display: grid; place-items: center; color: var(--tenue); }
+  .accion:hover { background: var(--campo); color: var(--fg); }
+  .accion.peligro:hover { color: var(--rojo); }
+  .accion svg { width: 16px; height: 16px; }
+  .play { padding: 6px 14px; border-radius: 4px; background: var(--acento); color: var(--acento-fg);
+          font-weight: 700; font-size: 12px; }
+  .play:hover { filter: brightness(1.12); }
+  .vacio { grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--tenue); }
+  .vacio .circulo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 16px; display: grid; place-items: center;
+                    color: var(--acento); }
+  .vacio .circulo svg { width: 30px; height: 30px; }
+  .vacio h3 { color: var(--fg); font-size: 16px; margin-bottom: 4px; }
+
+  /* ---------- ajustes ---------- */
+  #v-ajustes { padding: 0; }
+  .lateral { width: 200px; padding: 18px 12px; border-right: 1px solid var(--borde); display: flex; flex-direction: column; gap: 2px; }
+  .lateral button { text-align: left; padding: 9px 12px; border-radius: 6px; color: var(--tenue); font-weight: 600;
+                    display: flex; gap: 10px; align-items: center; }
+  .lateral button svg { width: 16px; height: 16px; }
+  .lateral button:hover { color: var(--fg); background: var(--panel); }
+  .lateral button.activa { color: var(--fg); background: var(--panel); box-shadow: inset 3px 0 0 var(--acento); }
+  .contenido { flex: 1; padding: 22px 28px 28px; }
+  .seccion { display: none; flex-direction: column; gap: 14px; max-width: 640px; }
+  .seccion.activa { display: flex; }
+  .seccion > h2 { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
+  .tarjeta { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 4px 18px; }
+  .fila { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid var(--borde); }
+  .fila:first-child { border-top: 0; }
+  .fila > .texto { flex: 1; min-width: 0; }
+  .fila h3 { font-size: 14px; font-weight: 600; }
+  .fila p, .nota { color: var(--tenue); font-size: 12.5px; }
+  .fila.columna { flex-direction: column; align-items: stretch; gap: 10px; }
+  .fila.columna .cab { display: flex; justify-content: space-between; align-items: baseline; }
+  .fila.columna .cab b { color: var(--acento); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { padding: 6px 16px; border-radius: 4px; background: var(--campo); border: 1px solid var(--borde);
+                  color: var(--tenue); font-weight: 600; font-size: 13px; }
+  .chips button:hover:not(:disabled) { color: var(--fg); }
+  .chips button.sel { background: var(--acento); border-color: var(--acento); color: var(--acento-fg); }
+  .chips button:disabled, input[type=range]:disabled { opacity: .45; }
+  input[type=range] { width: 100%; accent-color: var(--acento); cursor: pointer; }
+  .bloqueo { display: none; padding: 10px 14px; border-radius: 6px; font-size: 13px;
+             border: 1px solid color-mix(in srgb, var(--acento) 40%, transparent); }
+  .ocupado .bloqueo { display: block; }
+
+  .switch { position: relative; width: 44px; height: 24px; flex: none; }
+  .switch input { opacity: 0; position: absolute; inset: 0; margin: 0; cursor: pointer; z-index: 1; }
+  .switch span { position: absolute; inset: 0; border-radius: 99px; background: var(--campo); border: 1px solid var(--borde); transition: .2s; }
+  .switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+                        background: var(--tenue); transition: .2s; }
+  .switch input:checked + span { background: var(--acento); border-color: var(--acento); }
+  .switch input:checked + span::after { transform: translateX(20px); background: var(--acento-fg); }
+  .switch input:disabled { cursor: default; }
+  .switch input:disabled + span { opacity: .45; }
+
+  .app-ini { width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; font-weight: 700;
+             color: var(--acento); background: var(--campo); border: 1px solid var(--borde); flex: none; }
+  .mini-boton { padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--tenue);
+                display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--borde); }
+  .mini-boton:hover:not(:disabled) { color: var(--fg); }
+  .mini-boton svg { width: 14px; height: 14px; }
+  .tecla { min-width: 130px; padding: 9px 14px; border-radius: 6px; background: var(--campo); border: 1px solid var(--borde);
+           border-bottom-width: 3px; font-weight: 700; letter-spacing: .3px; }
+  .tecla:hover { border-color: var(--acento); }
+  .tecla.esperando { border-color: var(--acento); color: var(--acento); animation: parpadeo 1s infinite; }
+  @keyframes parpadeo { 50% { opacity: .5; } }
+  .temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .tema { border-radius: 8px; padding: 12px; text-align: left; border: 2px solid transparent; outline: 1px solid var(--borde); }
+  .tema:hover { transform: translateY(-1px); }
+  .tema.sel { border-color: var(--acento); outline-color: transparent; }
+  .tema .n { font-weight: 700; font-size: 13px; display: block; margin-bottom: 8px; }
+  .tema .m { display: flex; gap: 4px; }
+  .tema .m i { width: 20px; height: 12px; border-radius: 4px; }
+
+  /* ---------- ayuda ---------- */
+  #v-ayuda .contenido { max-width: 900px; }
+  .pasos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .paso { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 18px; }
+  .paso .num { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; font-weight: 700;
+               color: var(--acento); margin-bottom: 10px; }
+  .paso h3 { font-size: 14px; margin-bottom: 4px; }
+  .paso p { color: var(--tenue); font-size: 13px; }
+  kbd { font: 700 11.5px "Segoe UI", sans-serif; padding: 1px 7px; border-radius: 4px; background: rgba(127,127,127,.2); color: var(--fg); }
+
+  /* ---------- barra inferior ---------- */
+  footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+           padding: 12px 26px; border-top: 1px solid var(--borde); background: var(--panel); }
+  .pie-izq { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .pie-izq .texto b { display: block; font-size: 14px; }
+  .pie-izq .texto span { font-size: 12px; color: var(--tenue); white-space: nowrap; }
+  .guardar { padding: 8px 14px; border-radius: 6px; background: var(--acento); color: var(--acento-fg);
+             font-weight: 700; font-size: 13px; display: none; align-items: center; gap: 8px; white-space: nowrap; }
+  .guardar kbd { background: rgba(0,0,0,.2); color: inherit; }
+  .guardar:hover { filter: brightness(1.12); }
+  .en-vivo .guardar { display: inline-flex; }
+  .pie-centro { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .rec { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; position: relative;
+         background: color-mix(in srgb, var(--rojo) 18%, var(--campo)); border: 2px solid color-mix(in srgb, var(--rojo) 70%, transparent);
+         transition: transform .15s; }
+  .rec:hover { transform: scale(1.06); }
+  .rec i { width: 26px; height: 26px; border-radius: 50%; background: var(--rojo); transition: .2s;
+           box-shadow: 0 0 14px color-mix(in srgb, var(--rojo) 60%, transparent); }
+  .grabando .rec { animation: pulso 1.6s infinite; }
+  .grabando .rec i { width: 20px; height: 20px; border-radius: 5px; }
+  @keyframes pulso { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--rojo) 18%, transparent); } }
+  .rec-txt { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+  .grabando .rec-txt { color: var(--rojo); }
+  .pie-der { display: flex; justify-content: flex-end; }
+  .carpeta { display: flex; align-items: center; gap: 12px; text-align: left; padding: 6px 10px; border-radius: 8px; }
+  .carpeta:hover { background: var(--campo); }
+  .carpeta .ic { width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center; background: var(--acento); color: var(--acento-fg); }
+  .carpeta b { display: block; font-size: 14px; }
+  .carpeta span { font-size: 12px; color: var(--tenue); }
+  .punto { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--tenue); margin-right: 5px; vertical-align: 1px; }
+  .en-vivo .punto { background: #22c55e; animation: late 1.8s infinite; }
+  @keyframes late { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.6); } 70%, 100% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
+
+  /* ---------- avisos y dialogo ---------- */
+  #avisos { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); display: flex; flex-direction: column;
+            gap: 8px; align-items: center; pointer-events: none; z-index: 5; }
+  .aviso { padding: 10px 16px; border-radius: 8px; background: var(--fg); color: var(--bg); font-weight: 600; font-size: 13px;
+           box-shadow: 0 10px 30px rgba(0,0,0,.35); animation: sube .25s ease; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+  .aviso.ok::before, .aviso.error::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+  .aviso.error::before { background: var(--rojo); }
+  .aviso.fuera { opacity: 0; transform: translateY(6px); transition: .3s; }
+  @keyframes sube { from { opacity: 0; transform: translateY(10px); } }
+  #dialogo { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; place-items: center; z-index: 9; }
+  #dialogo.abierto { display: grid; }
+  .caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 22px; width: 380px;
+          box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sube .2s ease; }
+  .caja h3 { font-size: 16px; margin-bottom: 6px; }
+  .caja p { color: var(--tenue); font-size: 13px; word-break: break-all; }
+  .caja .botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .caja button { padding: 8px 16px; border-radius: 6px; font-weight: 600; border: 1px solid var(--borde); }
+  .caja button.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="arriba">
+    <div class="logo"></div>
+    <div class="marca">GrabaClip</div>
+    <div class="gpu" id="gpu">Detectando GPU…</div>
+    <div class="buscar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscar" placeholder="Buscar grabaciones" spellcheck="false">
+    </div>
+    <button class="icono" title="Cambiar tema" onclick="irA('ajustes'); seccion('apariencia')">
+      <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.8.3-1.7 1.2-1.7H17a4 4 0 0 0 4-4c0-5-4-10.5-9-10.5z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7" r="1.2" fill="currentColor"/><circle cx="15.5" cy="8" r="1.2" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <nav id="nav">
+    <button data-v="grab" class="activa">Grabaciones<span class="cuenta" id="cuenta"></span></button>
+    <button data-v="ajustes">Ajustes</button>
+    <button data-v="ayuda">Ayuda</button>
+  </nav>
+</header>
+
+<main>
+  <!-- GRABACIONES -->
+  <section class="vista activa" id="v-grab">
+    <div class="barra-filtros">
+      <button class="filtro sel" data-f="todos">Todos</button>
+      <button class="filtro" data-f="clip">Clips</button>
+      <button class="filtro" data-f="grabacion">Grabaciones</button>
+      <div class="selector" title="Filtrar por juego o app">
+        <svg class="ic-izq" viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6L2 15a3 3 0 0 0 5.3 2l1.6-2h6.2l1.6 2A3 3 0 0 0 22 15l-.7-6.4A4 4 0 0 0 17.3 5z"/></svg>
+        <select id="sel-juego"><option value="*">Todos los juegos</option></select>
+        <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <span class="total" id="total"></span>
+    </div>
+    <div class="rejilla desliza" id="rejilla"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="vista" id="v-ajustes">
+    <div class="lateral">
+      <button data-s="video" class="activa"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>Video</button>
+      <button data-s="audio"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Audio</button>
+      <button data-s="teclas"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>Teclas</button>
+      <button data-s="general"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>General</button>
+      <button data-s="apariencia"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.8.3-1.7 1.2-1.7H17a4 4 0 0 0 4-4c0-5-4-10.5-9-10.5z"/></svg>Apariencia</button>
+    </div>
+    <div class="contenido desliza">
+      <div class="seccion activa" id="s-video">
+        <h2>Video</h2>
+        <div class="bloqueo mezcla-acento">Desactiva los clips y detén la grabación para cambiar estos ajustes.</div>
+        <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Cuadros por segundo</h3></div><div class="chips" data-clave="fps"></div></div>
+          <div class="fila columna"><div class="cab"><h3>Calidad</h3></div><div class="chips" data-clave="calidad"></div></div>
+          <div class="fila columna"><div class="cab"><h3>Resolución</h3></div><div class="chips" data-clave="resolucion"></div></div>
+          <div class="fila columna"><div class="cab"><h3>Duración de cada clip</h3><b id="dur-v">30 s</b></div>
+            <input type="range" id="r-dur" min="10" max="300" step="10"></div>
+        </div>
+        <p class="nota">Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.</p>
+      </div>
+
+      <div class="seccion" id="s-audio">
+        <h2>Audio</h2>
+        <div class="bloqueo mezcla-acento">Desactiva los clips y detén la grabación para cambiar estos ajustes.</div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Micrófono</h3><p>Se graba en su propia pista y también en la mezcla.</p></div>
+            <label class="switch"><input type="checkbox" id="sw-mic"><span></span></label></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Apps en pista propia</h3><p>Para poder quitarlas al editar (Discord, Spotify…).</p></div>
+            <button class="mini-boton" id="b-apps"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>Actualizar</button></div>
+          <div id="apps"></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Sincronía del audio</h3><b id="aj-v">0 ms</b></div>
+            <input type="range" id="r-aj" min="-1000" max="1000" step="20">
+            <p class="nota">Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.</p></div>
+        </div>
+        <p class="nota">La pista 1 de cada video siempre lleva todo el sonido mezclado.</p>
+      </div>
+
+      <div class="seccion" id="s-teclas">
+        <h2>Teclas rápidas</h2>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Guardar clip</h3><p>Guarda los últimos segundos.</p></div>
+            <button class="tecla" data-tecla="tecla_clip">F9</button></div>
+          <div class="fila"><div class="texto"><h3>Grabar / detener</h3><p>Empieza o termina una grabación.</p></div>
+            <button class="tecla" data-tecla="tecla_grab">F10</button></div>
+        </div>
+        <p class="nota">Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.</p>
+      </div>
+
+      <div class="seccion" id="s-general">
+        <h2>General</h2>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Iniciar con Windows</h3><p>GrabaClip se abre minimizado al encender la PC.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="iniciar_con_windows"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Activar clips al abrir</h3><p>Empieza a guardar el búfer de clips automáticamente.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="clips_al_abrir"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Organizar por juego</h3><p>Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="por_juego"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Sonido al guardar un clip</h3><p>Un aviso corto para saber que se guardó.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="sonido_clip"><span></span></label></div>
+        </div>
+        <p class="nota" id="carpeta-txt"></p>
+      </div>
+
+      <div class="seccion" id="s-apariencia">
+        <h2>Apariencia</h2>
+        <div class="temas" id="temas"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AYUDA -->
+  <section class="vista" id="v-ayuda">
+    <div class="contenido desliza">
+      <div class="seccion activa" style="max-width:none">
+        <h2>Cómo usar GrabaClip</h2>
+        <div class="pasos">
+          <div class="paso"><div class="num mezcla-acento">1</div><h3>Activa los clips</h3>
+            <p>Enciende "Clips instantáneos" abajo a la izquierda. GrabaClip guarda en segundo plano los últimos segundos de tu pantalla.</p></div>
+          <div class="paso"><div class="num mezcla-acento">2</div><h3>Guarda el momento</h3>
+            <p>Cuando pase algo bueno pulsa <kbd class="k-clip">F9</kbd>. El clip aparece en Grabaciones.</p></div>
+          <div class="paso"><div class="num mezcla-acento">3</div><h3>Graba sesiones largas</h3>
+            <p>Pulsa el botón REC o <kbd class="k-grab">F10</kbd> para empezar y otra vez para terminar.</p></div>
+          <div class="paso"><div class="num mezcla-acento">4</div><h3>Edita sin Discord ni música</h3>
+            <p>En Ajustes → Audio marca tus apps. En DaVinci cada una sale en su propia pista y puedes silenciarla.</p></div>
+          <div class="paso"><div class="num mezcla-acento">5</div><h3>Siempre listo</h3>
+            <p>En Ajustes → General activa "Iniciar con Windows" y "Activar clips al abrir".</p></div>
+          <div class="paso"><div class="num mezcla-acento">?</div><h3>Algo falla</h3>
+            <p>Revisa la carpeta "logs" junto a GrabaClip. Si el audio va desfasado, ajusta la sincronía en Audio.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="pie">
+  <div class="pie-izq" id="pie-clips">
+    <label class="switch"><input type="checkbox" id="sw-clips"><span></span></label>
+    <div class="texto"><b><span class="punto"></span>Clips instantáneos</b><span id="clips-desc">Desactivados</span></div>
+    <button class="guardar" id="b-clip">Guardar clip <kbd class="k-clip">F9</kbd></button>
+  </div>
+  <div class="pie-centro" id="pie-rec">
+    <button class="rec" id="b-rec" title="Grabar"><i></i></button>
+    <div class="rec-txt" id="rec-txt">REC</div>
+  </div>
+  <div class="pie-der">
+    <button class="carpeta" onclick="api('abrir_carpeta_juego', juegoSel === '*' ? '' : juegoSel)">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+      <div><b>Abrir carpeta</b><span id="ruta-carpeta">Videos\GrabaClip</span></div>
+    </button>
+  </div>
+</footer>
+
+<div id="avisos"></div>
+<div id="dialogo"><div class="caja"><h3 id="dlg-t"></h3><p id="dlg-p"></p>
+  <div class="botones"><button id="dlg-no">Cancelar</button><button class="rojo" id="dlg-si">Eliminar</button></div></div></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let D = null, cfg = {}, est = {}, reloj = null;
+let videos = [], filtro = 'todos', juegoSel = '*';
+
+const api = (n, ...a) => window.pywebview.api[n](...a);
+const ICON = {
+  jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  carpeta: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  basura: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+  mando: '<svg viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6L2 15a3 3 0 0 0 5.3 2l1.6-2h6.2l1.6 2A3 3 0 0 0 22 15l-.7-6.4A4 4 0 0 0 17.3 5z"/></svg>',
+  audio: '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7"/></svg>',
+  vacio: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>',
+};
+
+/* ---------- navegacion ---------- */
+function irA(v) {
+  $$('#nav button').forEach(b => b.classList.toggle('activa', b.dataset.v === v));
+  $$('.vista').forEach(s => s.classList.toggle('activa', s.id === 'v-' + v));
+  if (v === 'grab') cargarVideos();
+}
+function seccion(s) {
+  $$('.lateral button').forEach(b => b.classList.toggle('activa', b.dataset.s === s));
+  $$('#v-ajustes .seccion').forEach(x => x.classList.toggle('activa', x.id === 's-' + s));
+  if (s === 'audio') cargarApps();
+}
+$$('#nav button').forEach(b => b.onclick = () => irA(b.dataset.v));
+$$('.lateral button').forEach(b => b.onclick = () => seccion(b.dataset.s));
+
+/* ---------- avisos ---------- */
+function aviso(texto, clase = 'info') {
+  const d = document.createElement('div');
+  d.className = 'aviso ' + clase; d.textContent = texto;
+  $('#avisos').append(d);
+  while ($('#avisos').children.length > 3) $('#avisos').firstChild.remove();
+  setTimeout(() => { d.classList.add('fuera'); setTimeout(() => d.remove(), 300); }, 3200);
+}
+function confirmar(titulo, texto) {
+  return new Promise(ok => {
+    $('#dlg-t').textContent = titulo; $('#dlg-p').textContent = texto;
+    $('#dialogo').classList.add('abierto');
+    const fin = r => { $('#dialogo').classList.remove('abierto'); ok(r); };
+    $('#dlg-si').onclick = () => fin(true); $('#dlg-no').onclick = () => fin(false);
+  });
+}
+
+/* ---------- formato ---------- */
+const bonita = c => (c || '').split('+').map(p => p.length <= 3 ? p.toUpperCase() : p[0].toUpperCase() + p.slice(1)).join(' + ');
+function duracion(s) {
+  if (s == null) return '';
+  s = Math.round(s);
+  const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
+}
+const tamano = b => b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : Math.max(1, Math.round(b / 1e6)) + ' MB';
+const fecha = ms => new Date(ms).toLocaleString('es', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
+
+/* ---------- biblioteca ---------- */
+async function cargarVideos() {
+  videos = await api('biblioteca');
+  pintarVideos();
+}
+function pintarVideos() {
+  const q = $('#buscar').value.trim().toLowerCase();
+  pintarJuegos();
+  const lista = videos.filter(v => (filtro === 'todos' || v.tipo === filtro) && (juegoSel === '*' || v.juego === juegoSel) &&
+    (!q || v.nombre.toLowerCase().includes(q) || (v.juego || '').toLowerCase().includes(q)));
+  $('#cuenta').textContent = videos.length ? `(${videos.length})` : '';
+  const peso = lista.reduce((a, v) => a + v.tamano, 0);
+  $('#total').textContent = lista.length ? `${lista.length} ${lista.length === 1 ? 'video' : 'videos'} · ${tamano(peso)}` : '';
+  const r = $('#rejilla');
+  r.innerHTML = '';
+  if (!lista.length) {
+    r.innerHTML = videos.length
+      ? `<div class="vacio"><div class="circulo mezcla-acento">${ICON.vacio}</div><h3>Sin resultados</h3><p>Prueba con otra búsqueda o filtro.</p></div>`
+      : `<div class="vacio"><div class="circulo mezcla-acento">${ICON.vacio}</div><h3>Aún no tienes grabaciones</h3>
+         <p>Activa los clips instantáneos abajo y pulsa <kbd>${bonita(cfg.tecla_clip)}</kbd>, o pulsa REC para grabar.</p></div>`;
+    return;
+  }
+  for (const v of lista) {
+    const t = document.createElement('div');
+    t.className = 'tarjeta-video'; t.dataset.clave = v.clave;
+    t.innerHTML = `
+      <div class="tv-arriba">
+        <div class="mini ${v.mini ? '' : 'cargando'}">${v.duracion ? `<span class="dur">${duracion(v.duracion)}</span>` : ''}<div class="jugar">${ICON.jugar}</div></div>
+        <div class="tv-info">
+          <span class="etiqueta mezcla-acento">${v.tipo === 'clip' ? 'CLIP' : 'GRABACIÓN'}</span>
+          <span class="nombre"></span>
+          <span class="juego">${ICON.mando}<span></span></span>
+          <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}</span>
+        </div>
+      </div>
+      <div class="tv-abajo">
+        <span class="pistas">${v.pistas ? ICON.audio + `${v.pistas} ${v.pistas === 1 ? 'pista' : 'pistas'}` : ''}</span>
+        <button class="accion" title="Mostrar en la carpeta">${ICON.carpeta}</button>
+        <button class="accion peligro" title="Enviar a la Papelera">${ICON.basura}</button>
+        <button class="play">Reproducir</button>
+      </div>`;
+    t.querySelector('.nombre').textContent = v.nombre;
+    t.querySelector('.nombre').title = v.nombre;
+    t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
+    if (v.mini) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
+    t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
+    t.querySelectorAll('.accion')[0].onclick = () => api('mostrar_en_carpeta', v.ruta);
+    t.querySelectorAll('.accion')[1].onclick = async () => {
+      if (!await confirmar('¿Enviar a la Papelera?', v.nombre)) return;
+      if (await api('eliminar', v.ruta)) { videos = videos.filter(x => x.ruta !== v.ruta); pintarVideos(); }
+    };
+    r.append(t);
+  }
+}
+function pintarJuegos() {
+  const sel = $('#sel-juego');
+  const cuenta = {};
+  for (const v of videos) cuenta[v.juego || ''] = (cuenta[v.juego || ''] || 0) + 1;
+  const juegos = Object.keys(cuenta).sort((a, b) => (a === '') - (b === '') || a.localeCompare(b));
+  if (juegoSel !== '*' && !(juegoSel in cuenta)) juegoSel = '*';
+  const firma = juegos.map(j => j + cuenta[j]).join('|');
+  if (sel.dataset.firma === firma) { sel.value = juegoSel; return; }
+  sel.dataset.firma = firma;
+  sel.innerHTML = `<option value="*">Todos los juegos (${videos.length})</option>`;
+  for (const j of juegos) {
+    const o = document.createElement('option');
+    o.value = j; o.textContent = `${j || 'Sin clasificar'} (${cuenta[j]})`;
+    sel.append(o);
+  }
+  sel.value = juegoSel;
+}
+$('#sel-juego').onchange = e => {
+  juegoSel = e.target.value;
+  $('#ruta-carpeta').textContent = 'Videos\\GrabaClip' + (juegoSel !== '*' && juegoSel ? '\\' + juegoSel : '');
+  pintarVideos();
+};
+function miniLista(m) {
+  const v = videos.find(x => x.clave === m.clave);
+  if (!v) return;
+  Object.assign(v, {mini: m.mini, duracion: m.duracion, pistas: m.pistas});
+  pintarVideos();
+}
+$$('.filtro').forEach(b => b.onclick = () => {
+  filtro = b.dataset.f;
+  $$('.filtro').forEach(x => x.classList.toggle('sel', x === b));
+  pintarVideos();
+});
+$('#buscar').oninput = () => { if (!$('#v-grab').classList.contains('activa')) irA('grab'); pintarVideos(); };
+
+/* ---------- tema ---------- */
+function aplicarTema(nombre) {
+  const t = D.temas[nombre] || Object.values(D.temas)[0];
+  const r = document.documentElement.style;
+  for (const k of ['bg', 'panel', 'campo', 'fg', 'tenue', 'acento']) r.setProperty('--' + k, t[k]);
+  r.setProperty('--acento-fg', t.acento_fg); r.setProperty('--borde', t.borde);
+  r.colorScheme = t.oscuro ? 'dark' : 'light';
+  $$('.tema').forEach(b => b.classList.toggle('sel', b.dataset.t === nombre));
+}
+function pintarTemas() {
+  $('#temas').innerHTML = '';
+  for (const [n, t] of Object.entries(D.temas)) {
+    const b = document.createElement('button');
+    b.className = 'tema'; b.dataset.t = n; b.style.background = t.bg; b.style.color = t.fg;
+    b.innerHTML = `<span class="n">${n}</span><span class="m"><i style="background:${t.acento}"></i>
+      <i style="background:${t.panel};outline:1px solid ${t.borde}"></i><i style="background:${t.fg}"></i></span>`;
+    b.onclick = () => { cfg.tema = n; aplicarTema(n); api('guardar', {tema: n}); };
+    $('#temas').append(b);
+  }
+}
+
+/* ---------- ajustes ---------- */
+function guardar(c) { Object.assign(cfg, c); api('guardar', c); pintarCfg(); }
+function pintarChips() {
+  const op = {fps: D.fps, calidad: D.calidades, resolucion: D.resoluciones};
+  $$('.chips').forEach(c => {
+    c.innerHTML = '';
+    for (const o of op[c.dataset.clave]) {
+      const b = document.createElement('button');
+      b.textContent = o; b.dataset.o = o;
+      b.onclick = () => guardar({[c.dataset.clave]: o});
+      c.append(b);
+    }
+  });
+}
+function pintarCfg() {
+  $$('.chips').forEach(c => [...c.children].forEach(b => b.classList.toggle('sel', String(cfg[c.dataset.clave]) === b.dataset.o)));
+  $('#r-dur').value = cfg.duracion; $('#dur-v').textContent = cfg.duracion + ' s';
+  $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
+  $('#sw-mic').checked = !!cfg.mic;
+  $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
+  $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
+  $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
+  $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
+  $('#clips-desc').textContent = est.clips ? `Activos · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s` : 'Desactivados';
+}
+$('#r-dur').oninput = e => $('#dur-v').textContent = e.target.value + ' s';
+$('#r-dur').onchange = e => guardar({duracion: +e.target.value});
+$('#r-aj').oninput = e => { const v = +e.target.value; $('#aj-v').textContent = (v > 0 ? '+' : '') + v + ' ms'; };
+$('#r-aj').onchange = e => guardar({ajuste_ms: +e.target.value});
+$('#sw-mic').onchange = e => guardar({mic: e.target.checked});
+$$('[data-sw]').forEach(i => i.onchange = () => {
+  guardar({[i.dataset.sw]: i.checked});
+  if (i.dataset.sw === 'iniciar_con_windows')
+    aviso(i.checked ? 'GrabaClip se abrirá al iniciar Windows' : 'Inicio con Windows desactivado', 'ok');
+});
+
+async function cargarApps() {
+  const lista = await api('apps');
+  const c = $('#apps');
+  c.innerHTML = '';
+  if (!lista.length) { c.innerHTML = '<div class="fila"><p>No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.</p></div>'; return; }
+  for (const a of lista) {
+    const f = document.createElement('div');
+    f.className = 'fila';
+    f.innerHTML = `<div class="app-ini"></div><div class="texto"><h3></h3></div><label class="switch"><input type="checkbox"><span></span></label>`;
+    f.querySelector('.app-ini').textContent = (a.nombre[0] || '?').toUpperCase();
+    f.querySelector('h3').textContent = a.nombre;
+    const sw = f.querySelector('input');
+    sw.checked = a.marcada; sw.disabled = ocupado(); sw.dataset.exe = a.exe;
+    sw.onchange = () => guardar({apps: $$('#apps input:checked').map(x => x.dataset.exe)});
+    c.append(f);
+  }
+}
+$('#b-apps').onclick = async () => { await cargarApps(); aviso('Lista de apps actualizada'); };
+
+/* ---------- teclas ---------- */
+let capturando = null;
+const NOMBRES = {' ': 'space', 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+  'PageUp': 'page up', 'PageDown': 'page down', 'PrintScreen': 'print screen', 'ScrollLock': 'scroll lock',
+  'Pause': 'pause', 'Insert': 'insert', 'Delete': 'delete', 'Home': 'home', 'End': 'end', 'Enter': 'enter',
+  'Tab': 'tab', 'Backspace': 'backspace'};
+function nombreTecla(e) {
+  if (/^F\d{1,2}$/.test(e.key)) return e.key.toLowerCase();
+  if (/^Key[A-Z]$/.test(e.code)) return e.code.slice(3).toLowerCase();
+  if (/^Digit\d$/.test(e.code)) return e.code.slice(5);
+  if (/^Numpad\d$/.test(e.code)) return e.code.slice(6);
+  return NOMBRES[e.key] || (e.key.length === 1 ? e.key.toLowerCase() : '');
+}
+$$('[data-tecla]').forEach(b => b.onclick = () => {
+  if (capturando) return;
+  capturando = b; b.classList.add('esperando'); b.textContent = 'Presiona…';
+  api('pausar_teclas');
+});
+document.addEventListener('keydown', async e => {
+  if (!capturando) return;
+  e.preventDefault();
+  if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
+  const b = capturando; capturando = null; b.classList.remove('esperando');
+  if (e.key === 'Escape') { api('reanudar_teclas'); pintarCfg(); aviso('Cambio cancelado'); return; }
+  const p = [];
+  if (e.ctrlKey) p.push('ctrl'); if (e.shiftKey) p.push('shift'); if (e.altKey) p.push('alt'); if (e.metaKey) p.push('windows');
+  p.push(nombreTecla(e));
+  const r = await api('poner_tecla', b.dataset.tecla, p.join('+'));
+  cfg = r.cfg; pintarCfg(); aviso(r.msg, r.ok ? 'ok' : 'error');
+});
+
+/* ---------- estado ---------- */
+const ocupado = () => est.clips || est.grabando;
+function pintarEstado() {
+  $('#gpu').textContent = est.encoder ? est.encoder + (est.directo ? ' · captura directa' : '') : 'Detectando GPU…';
+  $('#gpu').title = est.directo ? 'El video va directo de la pantalla a la tarjeta gráfica, casi sin usar el procesador' : '';
+  $('#gpu').classList.toggle('ok', !!est.encoder);
+  $('#sw-clips').checked = !!est.clips;
+  $('#pie-clips').classList.toggle('en-vivo', !!est.clips);
+  $('#pie-rec').classList.toggle('grabando', !!est.grabando);
+  $('#b-rec').title = est.grabando ? 'Detener grabación' : 'Empezar a grabar';
+  document.body.classList.toggle('ocupado', !!ocupado());
+  $$('#s-video .chips button, #r-dur, #sw-mic, #r-aj, #apps input, #b-apps').forEach(x => x.disabled = !!ocupado());
+  clearInterval(reloj);
+  const tick = () => {
+    if (!est.grabando || !est.inicio_grab) { $('#rec-txt').textContent = 'REC'; return; }
+    const s = Math.floor((Date.now() - est.inicio_grab) / 1000);
+    $('#rec-txt').textContent = [s / 3600, s / 60 % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':');
+  };
+  tick();
+  if (est.grabando) reloj = setInterval(tick, 500);
+  pintarCfg();
+}
+$('#sw-clips').onchange = async () => { est = await api('alternar_clips'); pintarEstado(); };
+$('#b-clip').onclick = async () => { est = await api('guardar_clip'); pintarEstado(); };
+$('#b-rec').onclick = async () => { est = await api('alternar_grabacion'); pintarEstado(); };
+
+document.addEventListener('visibilitychange', () => document.body.classList.toggle('quieto', document.hidden));
+window.recibir = m => {
+  if (m.tipo === 'estado') { est = m.datos; pintarEstado(); }
+  else if (m.tipo === 'aviso') aviso(m.datos.texto, m.datos.clase);
+  else if (m.tipo === 'biblioteca') cargarVideos();
+  else if (m.tipo === 'mini') miniLista(m.datos);
+  else if (m.tipo === 'fatal') { aviso(m.datos, 'error'); $('#gpu').textContent = 'Falta FFmpeg'; }
+};
+
+async function iniciar() {
+  D = await api('inicio');
+  cfg = D.cfg; est = D.estado;
+  pintarTemas(); pintarChips(); aplicarTema(cfg.tema);
+  $('#carpeta-txt').textContent = 'Los videos se guardan en ' + D.carpeta;
+  pintarEstado();
+  cargarVideos();
+}
+if (window.pywebview && window.pywebview.api) iniciar();
+else window.addEventListener('pywebviewready', iniciar);
+</script>
+</body>
+</html>

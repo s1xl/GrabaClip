@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Configuracion de artefacto para SignPath: pegala en el proyecto de SignPath
+     (Artifact Configurations > New). El artefacto que sube GitHub Actions es un zip
+     con los dos ejecutables de GrabaClip en la raiz. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="GrabaClip.exe" product-name="GrabaClip">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="audiocap.exe" product-name="GrabaClip">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

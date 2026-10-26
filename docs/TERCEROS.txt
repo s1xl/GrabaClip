@@ -1,0 +1,23 @@
+Componentes de terceros incluidos en el paquete de GrabaClip
+=============================================================
+
+Python (CPython 3.12, compilacion de python-build-standalone)
+  Licencia: Python Software Foundation License (runtime\python\LICENSE.txt)
+  https://www.python.org  /  https://github.com/astral-sh/python-build-standalone
+
+FFmpeg (compilacion "gpl-shared" de BtbN/FFmpeg-Builds)
+  Licencia: GNU GPL v3 (runtime\ffmpeg\LICENSE.txt)
+  Codigo fuente: https://ffmpeg.org  /  https://github.com/BtbN/FFmpeg-Builds
+  GrabaClip usa FFmpeg como programa externo (ffmpeg.exe y ffprobe.exe).
+
+pywebview - BSD 3-Clause - https://github.com/r0x0r/pywebview
+pythonnet - MIT - https://github.com/pythonnet/pythonnet
+clr-loader - MIT - https://github.com/pythonnet/clr-loader
+cffi - MIT - https://github.com/python-cffi/cffi
+pycparser - BSD 3-Clause - https://github.com/eliben/pycparser
+bottle - MIT - https://github.com/bottlepy/bottle
+proxy_tools - BSD - https://github.com/jtushman/proxy_tools
+typing_extensions - PSF - https://github.com/python/typing_extensions
+keyboard - MIT - https://github.com/boppreh/keyboard
+
+Compilado con llvm-mingw (https://github.com/mstorsjo/llvm-mingw).

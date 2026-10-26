@@ -1,0 +1,38 @@
+GrabaClip - Grabador de pantalla y clips instantaneos para Windows
+====================================================================
+
+COMO EMPEZAR
+1. Antes de descomprimir: clic derecho en el .zip > Propiedades > marca
+   "Desbloquear" > Aceptar. (Asi Windows no muestra avisos al abrirlo.)
+2. Descomprime TODA la carpeta "GrabaClip" en tu Escritorio o en Documentos
+   (no la pongas en "Archivos de programa").
+3. Abre GrabaClip.exe.
+
+SI WINDOWS MUESTRA "WINDOWS PROTEGIO TU PC"
+Haz clic en "Mas informacion" y luego en "Ejecutar de todas formas".
+
+COMO SE USA
+- Activa "Clips instantaneos" (abajo a la izquierda).
+- F9 guarda los ultimos 30 segundos. F10 empieza o detiene una grabacion.
+  (Las teclas se pueden cambiar en Ajustes > Teclas.)
+- Los videos se guardan en Videos\GrabaClip, separados por juego.
+- En Ajustes > Audio puedes poner Discord, Spotify o tu juego en pistas
+  separadas para quitarlos al editar.
+
+DESINSTALAR
+1. Si activaste "Iniciar con Windows", desactivalo en Ajustes > General.
+2. Cierra GrabaClip y borra su carpeta.
+3. Tus videos siguen en Videos\GrabaClip (borralos solo si ya no los quieres).
+
+REQUISITOS
+- Windows 10 (version 2004 o mas nueva) o Windows 11, de 64 bits.
+- Recomendado: tarjeta grafica NVIDIA, AMD o Intel reciente.
+
+PRIVACIDAD
+GrabaClip no envia ningun dato a internet. Todo se queda en tu PC.
+
+SI ALGO FALLA
+Revisa la carpeta "logs" dentro de GrabaClip.
+
+Codigo fuente, licencia (MIT) y componentes de terceros: ver LICENSE.txt
+y TERCEROS.txt.

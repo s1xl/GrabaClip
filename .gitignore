@@ -1,0 +1,11 @@
+.cache/
+build/obj/
+dist/
+__pycache__/
+*.pyc
+# datos locales que crea el programa
+config.json
+.abierto
+logs/
+miniaturas/
+diagnostico.txt
