@@ -91,6 +91,7 @@ class Api:
         self._pendientes = []
         self._hilo_mini = None
         self._encoders = {}
+        self._fatal = None
         self._rastreador = VA.Rastreador()
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
@@ -116,6 +117,7 @@ class Api:
             "encoder": N.NOMBRES.get(self._encoder) if self._encoder else None,
             "directo": N.MODO_GPU["directo"],
             "encoder_id": self._encoder,
+            "fatal": self._fatal,
             "encoder_pref": self._cfg.get("encoder", "auto"),
             "encoders": [{"id": e, "nombre": N.NOMBRES[e], "ok": ok, "motivo": motivo}
                          for e, (ok, motivo) in self._encoders.items()],
@@ -171,6 +173,9 @@ class Api:
                 self._bufer = None
                 self._aviso("Clips desactivados")
             else:
+                if self._fatal:
+                    self._aviso(self._fatal, "error")
+                    return self._estado()
                 if not self._encoder:
                     self._aviso("Espera un momento, todavía estoy detectando tu GPU", "error")
                     return self._estado()
@@ -236,6 +241,9 @@ class Api:
                 self._aviso("Grabación guardada: " + os.path.basename(self._archivo_grab), "ok")
                 self._emitir("biblioteca")
             else:
+                if self._fatal:
+                    self._aviso(self._fatal, "error")
+                    return self._estado()
                 if not self._encoder:
                     self._aviso("Espera un momento, todavía estoy detectando tu GPU", "error")
                     return self._estado()
@@ -476,8 +484,16 @@ class Api:
                 keyboard.add_hotkey(self._cfg[clave], disparar)
 
     def _preparar(self):
-        if not shutil.which("ffmpeg"):
-            self._emitir("fatal", "No encontré FFmpeg. Ejecuta instalar.bat y vuelve a abrir GrabaClip.")
+        ok, motivo = N.estado_ffmpeg()
+        if not ok:
+            self._fatal = motivo
+            try:
+                with open(os.path.join(N.CARPETA_LOGS, "gpu.txt"), "w", encoding="utf-8") as f:
+                    f.write("FFmpeg no puede arrancar: " + motivo + "\n")
+            except Exception:
+                pass
+            self._avisar_estado()
+            self._emitir("fatal", motivo)
             return
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
         self._encoders = N.probar_encoders()

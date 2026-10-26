@@ -210,20 +210,54 @@ def _motivo(encoder, error):
     return (primera[:140] or "No funciono en esta PC.")
 
 
+# Codigos de Windows cuando un programa ni siquiera puede arrancar
+CODIGOS_ARRANQUE = {
+    0xC0E90002: ("Windows bloqueo FFmpeg (Control inteligente de aplicaciones). Desactivalo en "
+                 "Seguridad de Windows > Control de aplicaciones y navegador."),
+    0xC0000135: "Faltan archivos de FFmpeg. Vuelve a descomprimir GrabaClip completo.",
+    0xC000007B: "Los archivos de FFmpeg estan danados o bloqueados. Vuelve a descomprimir GrabaClip "
+                "(desbloquea el zip antes).",
+    0xC0000022: "Windows o el antivirus no dejan ejecutar FFmpeg (acceso denegado).",
+    0xC0000005: "FFmpeg se cerro de golpe al arrancar.",
+}
+
+
+def _codigo(r):
+    return r.returncode & 0xFFFFFFFF
+
+
+def estado_ffmpeg():
+    """(funciona, motivo): comprueba que FFmpeg pueda arrancar en esta PC."""
+    try:
+        r = correr(["ffmpeg", "-hide_banner", "-version"], timeout=20)
+    except FileNotFoundError:
+        return False, "No se encontro FFmpeg. Vuelve a descomprimir GrabaClip completo."
+    except Exception as ex:
+        return False, f"No se pudo ejecutar FFmpeg: {ex}"
+    if r.returncode == 0:
+        return True, ""
+    c = _codigo(r)
+    return False, CODIGOS_ARRANQUE.get(c, f"FFmpeg no pudo arrancar (codigo 0x{c:08X}).")
+
+
 def probar_encoders():
-    """Prueba cada codificador por GPU. Devuelve {encoder: (funciona, motivo)}."""
+    """Prueba cada codificador. Devuelve {encoder: (funciona, motivo)}."""
     resultado = {}
-    for enc in CANDIDATOS:
+    for enc in CANDIDATOS + ["libx264"]:
         try:
             r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error",
                         "-f", "lavfi", "-i", "color=black:s=640x360:r=30",
                         "-frames:v", "5", "-c:v", enc, "-f", "null", "-"], timeout=20)
             ok = r.returncode == 0
             err = r.stderr.decode("utf-8", "replace")
+            if not ok and not err.strip():
+                c = _codigo(r)
+                err = CODIGOS_ARRANQUE.get(c, f"FFmpeg termino con el codigo 0x{c:08X} sin dar detalles.")
+                resultado[enc] = (False, err)
+                continue
         except Exception as ex:
             ok, err = False, str(ex)
         resultado[enc] = (ok, "" if ok else _motivo(enc, err))
-    resultado["libx264"] = (True, "")
     return resultado
 
 
