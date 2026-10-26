@@ -580,6 +580,23 @@ def mandar_a_papelera(ruta):
         return False
 
 
+def quitar_marca_de_internet():
+    """Windows marca los archivos descomprimidos de un zip descargado como 'de internet'
+    (Zone.Identifier) y .NET se niega a cargar las DLL de la interfaz. Se quita esa marca."""
+    if sys.platform != "win32":
+        return
+    for raiz in (N.CARPETA_APP, os.path.join(N.CARPETA_APP, "runtime")):
+        for carpeta, _, archivos in os.walk(raiz):
+            for nombre in archivos:
+                if nombre.lower().endswith((".dll", ".exe", ".pyd")):
+                    try:
+                        os.remove(os.path.join(carpeta, nombre) + ":Zone.Identifier")
+                    except OSError:
+                        pass
+            if raiz == N.CARPETA_APP:
+                break  # en la carpeta principal solo el primer nivel
+
+
 def modo_clasico(motivo):
     with open(os.path.join(N.CARPETA_LOGS, "interfaz.log"), "w", encoding="utf-8") as f:
         f.write(motivo)
@@ -591,6 +608,7 @@ def main():
     os.makedirs(N.CARPETA_LOGS, exist_ok=True)
     candado = open(ARCHIVO_CANDADO, "w")  # el lanzador lo usa para saber que ya esta abierto
     minimizado = "--minimizado" in sys.argv
+    quitar_marca_de_internet()
     try:
         import webview
     except Exception:
