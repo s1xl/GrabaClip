@@ -7,7 +7,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
   <a href="docs/GrabaClip-anuncio.mp4"><img src="docs/anuncio.webp" alt="Anuncio de GrabaClip" width="100%"></a>
 </p>
 
-<p align="center"><a href="https://github.com/s1xl/GrabaClip/releases/latest"><b>⬇ Descargar GrabaClip</b></a> · <a href="docs/GrabaClip-anuncio.mp4">Ver el anuncio con sonido</a> (<a href="docs/GrabaClip-anuncio-vertical.mp4">vertical</a>) · <a href="PRIVACIDAD.md">Privacidad</a></p>
+<p align="center"><a href="https://github.com/s1xl/GrabaClip/releases/latest"><b>⬇ Descargar GrabaClip</b></a> · <a href="docs/GrabaClip-anuncio.mp4">Ver el anuncio con sonido</a> (<a href="docs/GrabaClip-anuncio-vertical.mp4">vertical</a>) · <a href="docs/GrabaClip-anuncio-2.mp4">Anuncio 2</a> · <a href="PRIVACIDAD.md">Privacidad</a></p>
 
 ## Funciones
 
