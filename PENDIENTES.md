@@ -41,3 +41,12 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 ## Extras
 
 - [ ] Versión vertical (9:16) del anuncio para TikTok y Reels.
+
+## Hecho además de la lista (0.10.1 – 0.17.0)
+
+- [x] Elegir la carpeta de los videos (0.10.1).
+- [x] La captura se reanuda sola cuando Windows la corta (error 887a0026) (0.10.2).
+- [x] Audio en una sola pista o separadas; pistas y apps divididas en activas e inactivas (0.13.0 – 0.14.0).
+- [x] Menos memoria al quedar junto al reloj y modo rendimiento (0.15.0).
+- [x] Arreglo del ícono junto al reloj que dejaba de responder con doble clic (0.16.0).
+- [x] Discord Rich Presence "Clipeando con GrabaClip", probado en Discord (0.17.0).
