@@ -175,3 +175,107 @@ def recortar(ruta, inicio, fin, encoder, calidad, progreso=None):
         raise RuntimeError("FFmpeg no pudo recortar el video (revisa logs\\recorte.log)")
     os.replace(temporal, salida)
     return salida
+
+
+# ---------------- compartir ----------------
+
+def _ffmpeg(args, dur, progreso):
+    """Corre FFmpeg informando el avance (0..1). Devuelve (codigo, stderr)."""
+    p = subprocess.Popen(args + ["-progress", "pipe:1", "-nostats"], stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, creationflags=N.BAJA_PRIORIDAD)
+    errores = []
+    hilo = threading.Thread(target=lambda: errores.append(p.stderr.read()), daemon=True)
+    hilo.start()
+    for linea in p.stdout:
+        linea = linea.decode("ascii", "replace").strip()
+        if linea.startswith("out_time_us=") and progreso and dur:
+            try:
+                progreso(min(1.0, int(linea.split("=", 1)[1]) / 1e6 / dur))
+            except ValueError:
+                pass
+    p.wait()
+    hilo.join(timeout=2)
+    return p.returncode, (errores[0] if errores else b"")
+
+
+def info_video(ruta):
+    """(duracion_s, alto, fps, indice de la pista 'Mezcla' o 0)."""
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                        "format=duration:stream=codec_type,height,avg_frame_rate:stream_tags=handler_name",
+                        "-of", "json", ruta], capture_output=True, creationflags=N.SIN_VENTANA, timeout=60)
+    import json
+    datos = json.loads(r.stdout or b"{}")
+    dur = float(datos.get("format", {}).get("duration") or 0)
+    alto, fps, mezcla, n_audio = 1080, 60.0, 0, 0
+    for s in datos.get("streams", []):
+        if s.get("codec_type") == "video":
+            alto = int(s.get("height") or alto)
+            try:
+                a, b = (s.get("avg_frame_rate") or "60/1").split("/")
+                fps = float(a) / float(b or 1) or fps
+            except (ValueError, ZeroDivisionError):
+                pass
+        elif s.get("codec_type") == "audio":
+            if (s.get("tags") or {}).get("handler_name") == "Mezcla":
+                mezcla = n_audio
+            n_audio += 1
+    return dur, alto, fps, mezcla
+
+
+LIMITE_DISCORD = 10 * 1000 * 1000  # Discord (gratis) acepta archivos de hasta 10 MB
+
+
+def para_discord(ruta, encoder, progreso=None):
+    """Crea <nombre>_discord.mp4 de menos de 10 MB, con una sola pista de audio (la mezcla)."""
+    dur, alto, fps, mezcla = info_video(ruta)
+    if dur <= 0:
+        raise RuntimeError("No pude leer la duración del video")
+    base = os.path.splitext(os.path.basename(ruta))[0]
+    salida = os.path.join(os.path.dirname(ruta), base + "_discord.mp4")
+    temporal = salida + ".parcial.mp4"
+    audio_k = 96
+    objetivo = LIMITE_DISCORD * 0.92  # margen para el contenedor
+    for intento in range(3):
+        video_k = int(objetivo * 8 / dur / 1000 - audio_k)
+        if video_k < 150:
+            raise RuntimeError(f"El video dura {round(dur)} s: es demasiado largo para que quepa en 10 MB. "
+                               "Recórtalo primero (unos 2 minutos como máximo).")
+        # menos bitrate -> menos resolución y fps, para que se vea nítido y no pixelado
+        nuevo_alto = 1080 if video_k >= 4500 else 720 if video_k >= 1400 else 540 if video_k >= 700 else 360
+        nuevo_alto = min(alto, nuevo_alto)
+        nuevos_fps = min(fps, 60 if video_k >= 2500 else 30)
+        filtro = f"scale=-2:{nuevo_alto}:flags=bicubic,fps={nuevos_fps:g}"
+        enc = encoder if encoder in ("h264_nvenc", "h264_amf", "h264_qsv") else "libx264"
+        if enc == "h264_nvenc":
+            v = ["-c:v", "h264_nvenc", "-preset", "p6", "-rc", "vbr", "-multipass", "fullres"]
+        elif enc == "h264_amf":
+            v = ["-c:v", "h264_amf", "-quality", "quality", "-rc", "vbr_peak"]
+        elif enc == "h264_qsv":
+            v = ["-c:v", "h264_qsv", "-preset", "slow"]
+        else:
+            v = ["-c:v", "libx264", "-preset", "medium"]
+        v += ["-b:v", f"{video_k}k", "-maxrate", f"{int(video_k * 1.3)}k", "-bufsize", f"{video_k * 2}k"]
+        args = (["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", ruta,
+                 "-map", "0:v:0", "-map", f"0:a:{mezcla}?", "-vf", filtro, "-pix_fmt", "yuv420p"] + v +
+                ["-c:a", "aac", "-b:a", f"{audio_k}k", "-ac", "2", "-movflags", "+faststart", temporal])
+        codigo, err = _ffmpeg(args, dur, progreso)
+        if codigo != 0 and enc != "libx264":
+            # si la GPU falla, se hace con el procesador
+            codigo, err = _ffmpeg(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", ruta,
+                                   "-map", "0:v:0", "-map", f"0:a:{mezcla}?", "-vf", filtro,
+                                   "-pix_fmt", "yuv420p", "-c:v", "libx264", "-preset", "medium",
+                                   "-b:v", f"{video_k}k", "-maxrate", f"{int(video_k * 1.3)}k",
+                                   "-bufsize", f"{video_k * 2}k", "-c:a", "aac", "-b:a", f"{audio_k}k",
+                                   "-ac", "2", "-movflags", "+faststart", temporal], dur, progreso)
+        if codigo != 0 or not os.path.exists(temporal):
+            os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+            with open(os.path.join(N.CARPETA_LOGS, "discord.log"), "wb") as f:
+                f.write(err or b"")
+            raise RuntimeError("FFmpeg no pudo crear la versión para Discord (revisa logs\\discord.log)")
+        tam = os.path.getsize(temporal)
+        if tam <= LIMITE_DISCORD:
+            os.replace(temporal, salida)
+            return salida, tam
+        objetivo *= LIMITE_DISCORD * 0.9 / tam  # se pasó: otra vez con menos bitrate
+    os.replace(temporal, salida)
+    return salida, os.path.getsize(salida)

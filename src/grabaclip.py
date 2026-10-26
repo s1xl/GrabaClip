@@ -13,6 +13,7 @@ import time
 import base64
 import shutil
 import subprocess
+import queue
 import threading
 import traceback
 
@@ -120,6 +121,10 @@ class Api:
         self._fallos = []
         self._bandeja = None
         self._saliendo = False
+        self._cola_ui = queue.Queue()
+        self._emisor_ocupado = 0
+        self._emisor_actual = None
+        self._candado_mostrar = threading.Lock()
         self._servidor_video = RC.ServidorVideo(CARPETA_MINI)
         self._url_ui = None          # para volver a cargar la interfaz al mostrar la ventana
         self._recortando = False
@@ -135,6 +140,7 @@ class Api:
         self._voz_iniciada = False
         self._overlay = OV.Overlay(self._cfg_efectiva,
                                    lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
+        threading.Thread(target=self._hilo_emisor, daemon=True).start()
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._al_abrir_updates, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
@@ -143,12 +149,30 @@ class Api:
 
     # ---------- comunicacion con la interfaz ----------
     def _emitir(self, tipo, datos=None):
+        """Manda un mensaje a la interfaz SIN esperar: lo entrega un hilo propio.
+        (evaluate_js de pywebview espera la respuesta para siempre si la página se recarga justo
+        en ese momento; si eso pasaba con el candado tomado, GrabaClip dejaba de responder.)"""
         if not (self._ventana and self._lista):
             return
-        try:
-            self._ventana.evaluate_js(f"window.recibir({json.dumps({'tipo': tipo, 'datos': datos})})")
-        except Exception:
-            pass
+        self._cola_ui.put(f"window.recibir({json.dumps({'tipo': tipo, 'datos': datos})})")
+        if self._emisor_ocupado and time.time() - self._emisor_ocupado > 5:
+            self._emisor_ocupado = 0  # el hilo anterior se trabó: se reemplaza
+            threading.Thread(target=self._hilo_emisor, daemon=True).start()
+
+    def _hilo_emisor(self):
+        mio = object()
+        self._emisor_actual = mio
+        while self._emisor_actual is mio:
+            js = self._cola_ui.get()
+            if not self._lista:
+                continue
+            self._emisor_ocupado = time.time()
+            try:
+                self._ventana.evaluate_js(js)
+            except Exception:
+                pass
+            if self._emisor_actual is mio:
+                self._emisor_ocupado = 0
 
     def _aviso(self, texto, clase="info"):
         self._emitir("aviso", {"texto": texto, "clase": clase})
@@ -724,6 +748,63 @@ class Api:
         finally:
             self._recortando = False
 
+    # ---------- compartir ----------
+    def _al_portapapeles(self, ruta):
+        """Copia el ARCHIVO (como Ctrl+C en el Explorador): se pega con Ctrl+V en Discord, etc."""
+        from System import Action
+        from System.Collections.Specialized import StringCollection
+        import System.Windows.Forms as WF
+        error = []
+
+        def hacer():
+            try:
+                lista = StringCollection()
+                lista.Add(os.path.normpath(ruta))
+                WF.Clipboard.SetFileDropList(lista)
+            except Exception as ex:
+                error.append(ex)
+        self._ventana.native.Invoke(Action(hacer))  # el portapapeles necesita el hilo de la ventana
+        if error:
+            raise error[0]
+
+    def copiar_clip(self, ruta):
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        try:
+            self._al_portapapeles(ruta)
+        except Exception:
+            return {"ok": False, "msg": "No se pudo copiar al portapapeles"}
+        return {"ok": True, "msg": "Clip copiado: pégalo con Ctrl+V en Discord, WhatsApp o una carpeta"}
+
+    def preparar_discord(self, ruta):
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        if self._recortando:
+            return {"ok": False, "msg": "Espera a que termine lo que se está preparando"}
+        self._recortando = True
+        threading.Thread(target=self._hacer_discord, args=(ruta,), daemon=True).start()
+        return {"ok": True}
+
+    def _hacer_discord(self, ruta):
+        try:
+            nueva, tam = RC.para_discord(ruta, self._encoder,
+                                         lambda x: self._emitir("compartir", {"pct": round(x * 100)}))
+            copiado = True
+            try:
+                self._al_portapapeles(nueva)
+            except Exception:
+                copiado = False
+            mb = f"{tam / 1e6:.1f}".replace(".", ",")
+            self._emitir("compartir", {"fin": True, "ok": True, "ruta": nueva, "mb": mb, "copiado": copiado})
+            self._aviso(f"Versión para Discord lista ({mb} MB)" +
+                        (": ya está copiada, pégala con Ctrl+V" if copiado else ""), "ok")
+            self._emitir("biblioteca")
+        except Exception as ex:
+            self._emitir("compartir", {"fin": True, "ok": False, "msg": str(ex)})
+            self._aviso(str(ex), "error")
+        finally:
+            self._recortando = False
+
     def mostrar_en_carpeta(self, ruta):
         if self._ruta_valida(ruta):
             subprocess.Popen(["explorer.exe", "/select,", os.path.normpath(ruta)])
@@ -956,6 +1037,11 @@ class Api:
         try:
             self._url_ui = self._url_ui or self._ventana.get_current_url() or ARCHIVO_UI
             self._lista = False
+            while not self._cola_ui.empty():  # lo pendiente ya no le sirve a la página
+                try:
+                    self._cola_ui.get_nowait()
+                except queue.Empty:
+                    break
             fondo = N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"])["bg"]
             self._ventana.load_html(f"<html><body style='background:{fondo}'></body></html>")
             self._nivel_memoria(bajo=True)
@@ -999,6 +1085,7 @@ class Api:
             }, lambda: {"clips": self._clips_on, "grabando": bool(self._grab)})
             b.crear()
             self._bandeja = b
+            threading.Thread(target=self._vigilar_ventana, daemon=True).start()
         except Exception:
             with open(os.path.join(N.CARPETA_LOGS, "bandeja.txt"), "w", encoding="utf-8") as f:
                 f.write(traceback.format_exc())
@@ -1008,6 +1095,28 @@ class Api:
             self._ventana.hide()  # al iniciar con Windows: directo junto al reloj
             time.sleep(1.5)
             self._liberar_interfaz()
+
+    def _vigilar_ventana(self):
+        """Diagnóstico: si la ventana deja de responder más de 15 s, se guarda qué estaba
+        haciendo cada hilo en logs\\bloqueo.txt (una vez por sesión)."""
+        import faulthandler
+        from System import Action
+        hecho = False
+        while not self._saliendo and not hecho:
+            time.sleep(10)
+            vivo = threading.Event()
+            try:
+                self._ventana.native.BeginInvoke(Action(vivo.set))
+            except Exception:
+                return
+            if not vivo.wait(15):
+                try:
+                    with open(os.path.join(N.CARPETA_LOGS, "bloqueo.txt"), "w", encoding="utf-8") as f:
+                        f.write(time.ctime() + "  la ventana no respondió en 15 s\n\n")
+                        faulthandler.dump_traceback(file=f, all_threads=True)
+                except Exception:
+                    pass
+                hecho = True
 
     def _al_cerrar_ventana(self):
         """Botón X: si la bandeja está activa, se esconde la ventana y GrabaClip sigue funcionando."""
@@ -1036,14 +1145,19 @@ class Api:
                                 "Está junto al reloj (en los íconos ocultos). Clic derecho para salir.")
 
     def _mostrar_ventana(self):
-        self._recuperar_interfaz()
+        # doble clic en el ícono = dos llamadas seguidas; la segunda no hace nada
+        if not self._candado_mostrar.acquire(blocking=False):
+            return
         try:
+            self._recuperar_interfaz()
             self._ventana.show()
             import System.Windows.Forms as WF
             if self._ventana.native.WindowState == WF.FormWindowState.Minimized:
                 self._ventana.restore()
         except Exception:
             pass
+        finally:
+            threading.Timer(0.8, self._candado_mostrar.release).start()
 
     def salir(self):
         self._saliendo = True

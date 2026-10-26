@@ -21,12 +21,14 @@ class Bandeja:
         self._ni = None
         self._items = {}
 
-    def _en_ui(self, fn):
+    def _en_ui(self, fn, esperar=True):
         from System import Action
-        if self._form.InvokeRequired:
+        if not self._form.InvokeRequired:
+            fn()
+        elif esperar:
             self._form.Invoke(Action(fn))
         else:
-            fn()
+            self._form.BeginInvoke(Action(fn))  # sin esperar: nunca traba a quien llama
 
     def crear(self):
         def hacer():
@@ -86,7 +88,7 @@ class Bandeja:
         def hacer():
             self._ni.Text = t
         try:
-            self._en_ui(hacer)
+            self._en_ui(hacer, esperar=False)
         except Exception:
             pass
 
@@ -98,7 +100,7 @@ class Bandeja:
             import System.Windows.Forms as WF
             self._ni.ShowBalloonTip(4000, titulo, texto, WF.ToolTipIcon.Info)
         try:
-            self._en_ui(hacer)
+            self._en_ui(hacer, esperar=False)
         except Exception:
             pass
 

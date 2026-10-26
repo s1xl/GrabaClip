@@ -321,6 +321,23 @@
   .ed-reemplazar { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--tenue); margin-right: 6px; cursor: pointer; }
   #ed-barra { margin: 12px 0 0; }
   #ed-nota { margin-top: 10px; }
+  #compartir { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; place-items: center; z-index: 8; }
+  #compartir.abierto { display: grid; }
+  .comp-caja { width: 440px; }
+  .caja .ed-x { padding: 0; border: 0; }
+  .caja .comp-op { border: 1px solid var(--borde); padding: 12px 14px; }
+  .comp-caja p { word-break: normal; }
+  .comp-op { display: flex; gap: 14px; align-items: center; width: 100%; text-align: left; padding: 12px 14px; margin-top: 8px;
+             border-radius: 8px; border: 1px solid var(--borde); background: var(--campo); }
+  .comp-op:hover:not(:disabled) { border-color: var(--acento); }
+  .comp-op:disabled { opacity: .5; cursor: default; }
+  .comp-ico { width: 36px; height: 36px; flex: none; border-radius: 8px; display: grid; place-items: center; color: var(--acento);
+              background: color-mix(in srgb, var(--acento) 14%, transparent); }
+  .comp-ico svg { width: 18px; height: 18px; }
+  .comp-txt { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--tenue); }
+  .comp-txt b { font-size: 14px; color: var(--fg); }
+  #comp-barra { margin: 14px 0 0; }
+  #comp-nota { margin-top: 8px; min-height: 1em; }
   #dialogo { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; place-items: center; z-index: 9; }
   #dialogo.abierto { display: grid; }
   .caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 22px; width: 380px;
@@ -596,6 +613,19 @@
 </footer>
 
 <div id="avisos"></div>
+<div id="compartir" class="modal"><div class="caja comp-caja">
+  <div class="ed-cab"><div><h3>Compartir</h3><p id="comp-nombre"></p></div>
+    <button class="ed-x" id="comp-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <button class="comp-op" id="comp-copiar">
+    <span class="comp-ico"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span>
+    <span class="comp-txt"><b>Copiar el clip</b><span id="comp-copiar-p">Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta.</span></span></button>
+  <button class="comp-op" id="comp-discord">
+    <span class="comp-ico"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+    <span class="comp-txt"><b>Versión para Discord</b><span>Una copia de menos de 10 MB, con una sola pista de audio. Se copia sola al terminar.</span></span></button>
+  <div class="upd-barra oculto" id="comp-barra"><i></i></div>
+  <p class="nota" id="comp-nota"></p>
+  <div class="botones oculto" id="comp-listo"><button id="comp-carpeta">Mostrar en la carpeta</button><button class="rojo" id="comp-ok">Listo</button></div>
+</div></div>
 <div id="editor"><div class="ed-caja">
   <div class="ed-cab"><div><h3>Recortar</h3><p id="ed-nombre"></p></div>
     <button class="ed-x" id="ed-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
@@ -629,6 +659,7 @@ let videos = [], filtro = 'todos', juegoSel = '*';
 
 const api = (n, ...a) => window.pywebview.api[n](...a);
 const ICON = {
+  compartir: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
   tijera: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
   jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
   carpeta: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
@@ -728,7 +759,8 @@ function pintarVideos() {
         </div>
       </div>
       <div class="tv-abajo">
-        <span class="pistas">${v.pistas ? ICON.audio + `${v.pistas} ${v.pistas === 1 ? 'pista' : 'pistas'}` : ''}</span>
+        <span class="pistas" title="${v.pistas ? v.pistas + (v.pistas === 1 ? ' pista de audio' : ' pistas de audio') : ''}">${v.pistas ? ICON.audio + v.pistas : ''}</span>
+        <button class="accion" title="Compartir">${ICON.compartir}</button>
         <button class="accion" title="Recortar">${ICON.tijera}</button>
         <button class="accion" title="Mostrar en la carpeta">${ICON.carpeta}</button>
         <button class="accion peligro" title="Enviar a la Papelera">${ICON.basura}</button>
@@ -739,9 +771,10 @@ function pintarVideos() {
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
     if (v.mini && !cfg.rendimiento) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
-    t.querySelectorAll('.accion')[0].onclick = () => abrirEditor(v);
-    t.querySelectorAll('.accion')[1].onclick = () => api('mostrar_en_carpeta', v.ruta);
-    t.querySelectorAll('.accion')[2].onclick = async () => {
+    t.querySelectorAll('.accion')[0].onclick = () => abrirCompartir(v);
+    t.querySelectorAll('.accion')[1].onclick = () => abrirEditor(v);
+    t.querySelectorAll('.accion')[2].onclick = () => api('mostrar_en_carpeta', v.ruta);
+    t.querySelectorAll('.accion')[3].onclick = async () => {
       if (!await confirmar('¿Enviar a la Papelera?', v.nombre)) return;
       if (await api('eliminar', v.ruta)) { videos = videos.filter(x => x.ruta !== v.ruta); pintarVideos(); }
     };
@@ -1072,6 +1105,56 @@ function progresoRecorte(d) {
   }
 }
 
+// ---------- compartir ----------
+const CP = {v: null, ocupado: false, ruta: null};
+function abrirCompartir(v) {
+  Object.assign(CP, {v, ocupado: false, ruta: null});
+  $('#comp-nombre').textContent = (v.juego ? v.juego + ' · ' : '') + v.nombre;
+  const mb = v.tamano / 1e6;
+  $('#comp-copiar-p').textContent = 'Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa ' + tamano(v.tamano) +
+    (mb > 10 ? ' (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).' : '.');
+  $('#comp-barra').classList.add('oculto'); $('#comp-listo').classList.add('oculto');
+  $('#comp-nota').textContent = '';
+  $$('.comp-op').forEach(b => b.disabled = false);
+  $('#compartir').classList.add('abierto');
+}
+function cerrarCompartir() { if (!CP.ocupado) $('#compartir').classList.remove('abierto'); }
+$('#comp-cerrar').onclick = cerrarCompartir;
+$('#comp-ok').onclick = cerrarCompartir;
+$('#compartir').onclick = e => { if (e.target.id === 'compartir') cerrarCompartir(); };
+$('#comp-carpeta').onclick = () => api('mostrar_en_carpeta', CP.ruta || CP.v.ruta);
+$('#comp-copiar').onclick = async () => {
+  const r = await api('copiar_clip', CP.v.ruta);
+  aviso(r.msg, r.ok ? 'ok' : 'error');
+  if (r.ok) cerrarCompartir();
+};
+$('#comp-discord').onclick = async () => {
+  const r = await api('preparar_discord', CP.v.ruta);
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  CP.ocupado = true;
+  $$('.comp-op').forEach(b => b.disabled = true);
+  $('#comp-barra').classList.remove('oculto'); $('#comp-barra i').style.width = '0';
+  $('#comp-nota').textContent = 'Preparando la versión para Discord…';
+};
+function progresoCompartir(d) {
+  if (d.pct != null) { $('#comp-barra i').style.width = d.pct + '%'; $('#comp-nota').textContent = `Preparando la versión para Discord… ${d.pct}%`; }
+  if (!d.fin) return;
+  CP.ocupado = false;
+  $$('.comp-op').forEach(b => b.disabled = false);
+  if (d.ok) {
+    CP.ruta = d.ruta;
+    $('#comp-barra i').style.width = '100%';
+    $('#comp-nota').textContent = `Lista: ${d.mb} MB.` + (d.copiado ? ' Ya está copiada, pégala en Discord con Ctrl+V.' : '');
+    $('#comp-listo').classList.remove('oculto');
+  } else {
+    $('#comp-barra').classList.add('oculto');
+    $('#comp-nota').textContent = d.msg;
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('#compartir').classList.contains('abierto')) { cerrarCompartir(); e.preventDefault(); }
+}, true);
+
 // ---------- actualizaciones ----------
 const MB = b => (b / 1048576).toFixed(0) + ' MB';
 function pintarUpdate(u) {
@@ -1363,6 +1446,7 @@ window.recibir = m => {
   else if (m.tipo === 'voz') { voz = m.datos; pintarVoz(); }
   else if (m.tipo === 'update') pintarUpdate(m.datos);
   else if (m.tipo === 'recorte') progresoRecorte(m.datos);
+  else if (m.tipo === 'compartir') progresoCompartir(m.datos);
   else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
 };
