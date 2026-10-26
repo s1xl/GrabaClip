@@ -43,7 +43,7 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## Extras
 
-- [ ] Versión vertical (9:16) del anuncio para TikTok y Reels.
+- [x] Versión vertical (9:16) del anuncio para TikTok y Reels (`docs/GrabaClip-anuncio-vertical.mp4`).
 
 ## Hecho además de la lista (0.10.1 – 0.17.0)
 
