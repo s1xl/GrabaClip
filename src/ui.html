@@ -298,6 +298,9 @@
         <h2>Video</h2>
         <div class="bloqueo mezcla-acento">Desactiva los clips y detén la grabación para cambiar estos ajustes.</div>
         <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Codificar con</h3><b id="enc-actual"></b></div>
+            <div class="chips" id="chips-enc"></div>
+            <p class="nota" id="enc-motivos"></p></div>
           <div class="fila columna"><div class="cab"><h3>Cuadros por segundo</h3></div><div class="chips" data-clave="fps"></div></div>
           <div class="fila columna"><div class="cab"><h3>Calidad</h3></div><div class="chips" data-clave="calidad"></div></div>
           <div class="fila columna"><div class="cab"><h3>Resolución</h3></div><div class="chips" data-clave="resolucion"></div></div>
@@ -578,7 +581,7 @@ function pintarTemas() {
 function guardar(c) { Object.assign(cfg, c); api('guardar', c); pintarCfg(); }
 function pintarChips() {
   const op = {fps: D.fps, calidad: D.calidades, resolucion: D.resoluciones};
-  $$('.chips').forEach(c => {
+  $$('.chips[data-clave]').forEach(c => {
     c.innerHTML = '';
     for (const o of op[c.dataset.clave]) {
       const b = document.createElement('button');
@@ -589,7 +592,7 @@ function pintarChips() {
   });
 }
 function pintarCfg() {
-  $$('.chips').forEach(c => [...c.children].forEach(b => b.classList.toggle('sel', String(cfg[c.dataset.clave]) === b.dataset.o)));
+  $$('.chips[data-clave]').forEach(c => [...c.children].forEach(b => b.classList.toggle('sel', String(cfg[c.dataset.clave]) === b.dataset.o)));
   $('#r-dur').value = cfg.duracion; $('#dur-v').textContent = cfg.duracion + ' s';
   $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
   $('#sw-mic').checked = !!cfg.mic;
@@ -680,7 +683,31 @@ function pintarEstado() {
   };
   tick();
   if (est.grabando) reloj = setInterval(tick, 500);
+  pintarEncoders();
   pintarCfg();
+}
+function pintarEncoders() {
+  const c = $('#chips-enc');
+  const lista = est.encoders || [];
+  if (!lista.length) { c.innerHTML = '<span class="nota">Detectando…</span>'; return; }
+  c.innerHTML = '';
+  const corto = n => n.replace(' (NVENC)', '').replace(' (AMF)', '');
+  for (const e of [{id: 'auto', nombre: 'Automático', ok: true}, ...lista]) {
+    const b = document.createElement('button');
+    b.textContent = e.id === 'libx264' ? 'Procesador (CPU)' : corto(e.nombre);
+    b.classList.toggle('sel', (est.encoder_pref || 'auto') === e.id);
+    b.disabled = !e.ok || !!ocupado();
+    if (!e.ok) b.title = e.motivo;
+    b.onclick = async () => { est = await api('elegir_encoder', e.id); pintarEstado(); };
+    c.append(b);
+  }
+  $('#enc-actual').textContent = est.encoder ? 'Usando: ' + corto(est.encoder) : 'Probando…';
+  $('#enc-motivos').innerHTML = '';
+  for (const e of lista.filter(x => !x.ok && x.motivo)) {
+    const linea = document.createElement('div');
+    linea.textContent = `${corto(e.nombre)}: ${e.motivo}`;
+    $('#enc-motivos').append(linea);
+  }
 }
 $('#sw-clips').onchange = async () => { est = await api('alternar_clips'); pintarEstado(); };
 $('#b-clip').onclick = async () => { est = await api('guardar_clip'); pintarEstado(); };

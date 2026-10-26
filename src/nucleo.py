@@ -68,7 +68,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "mic": True, "apps": [], "ajuste_ms": 0,
                   "tecla_clip": "f9", "tecla_grab": "f10", "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
-                  "por_juego": True}
+                  "por_juego": True, "encoder": "auto"}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario
@@ -189,15 +189,57 @@ def filtro_video(encoder, fps, alto_deseado):
     return base + f",hwdownload,format=bgra,{escala}format=yuv420p"
 
 
-def detectar_encoder():
-    """Prueba los codificadores por hardware y usa el primero que funcione."""
-    for enc in ["h264_nvenc", "h264_amf", "h264_qsv"]:
-        r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error",
-                    "-f", "lavfi", "-i", "color=black:s=640x360:r=30",
-                    "-frames:v", "5", "-c:v", enc, "-f", "null", "-"])
-        if r.returncode == 0:
+CANDIDATOS = ["h264_nvenc", "h264_amf", "h264_qsv"]
+
+
+def _motivo(encoder, error):
+    """Explica en palabras simples por que un codificador no funciona."""
+    e = error.lower()
+    if encoder == "h264_nvenc":
+        if "driver" in e and ("version" in e or "minimum" in e or "update" in e):
+            return "Tu driver de NVIDIA es muy antiguo. Actualizalo desde la app de NVIDIA o nvidia.com."
+        if "nvcuda" in e or "cannot load" in e or "no capable devices" in e or "no nvenc capable" in e:
+            return "No se encontro una tarjeta NVIDIA compatible."
+    if encoder == "h264_amf":
+        if "amfrt" in e or "failed to open" in e or "dll" in e:
+            return "No se encontro una tarjeta AMD compatible (o falta su driver)."
+    if encoder == "h264_qsv":
+        if "mfx" in e or "session" in e or "unsupported" in e or "device" in e:
+            return "Intel QuickSync no esta disponible (sin grafica Intel o desactivada)."
+    primera = next((l.strip() for l in error.splitlines() if l.strip()), "")
+    return (primera[:140] or "No funciono en esta PC.")
+
+
+def probar_encoders():
+    """Prueba cada codificador por GPU. Devuelve {encoder: (funciona, motivo)}."""
+    resultado = {}
+    for enc in CANDIDATOS:
+        try:
+            r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error",
+                        "-f", "lavfi", "-i", "color=black:s=640x360:r=30",
+                        "-frames:v", "5", "-c:v", enc, "-f", "null", "-"], timeout=20)
+            ok = r.returncode == 0
+            err = r.stderr.decode("utf-8", "replace")
+        except Exception as ex:
+            ok, err = False, str(ex)
+        resultado[enc] = (ok, "" if ok else _motivo(enc, err))
+    resultado["libx264"] = (True, "")
+    return resultado
+
+
+def elegir_encoder(resultados, preferido):
+    """El preferido si funciona; si no (o si es 'auto'), la primera GPU que funcione."""
+    if preferido in resultados and resultados[preferido][0]:
+        return preferido
+    for enc in CANDIDATOS:
+        if resultados.get(enc, (False,))[0]:
             return enc
     return "libx264"
+
+
+def detectar_encoder():
+    """Prueba los codificadores por hardware y usa el primero que funcione."""
+    return elegir_encoder(probar_encoders(), "auto")
 
 
 def cargar_config():

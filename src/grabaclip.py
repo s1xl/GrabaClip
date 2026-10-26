@@ -90,6 +90,7 @@ class Api:
         self._indice = self._leer_indice()
         self._pendientes = []
         self._hilo_mini = None
+        self._encoders = {}
         self._rastreador = VA.Rastreador()
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
@@ -114,6 +115,10 @@ class Api:
             "inicio_grab": self._inicio_grab,
             "encoder": N.NOMBRES.get(self._encoder) if self._encoder else None,
             "directo": N.MODO_GPU["directo"],
+            "encoder_id": self._encoder,
+            "encoder_pref": self._cfg.get("encoder", "auto"),
+            "encoders": [{"id": e, "nombre": N.NOMBRES[e], "ok": ok, "motivo": motivo}
+                         for e, (ok, motivo) in self._encoders.items()],
             "ultimo": os.path.basename(self._ultimo) if self._ultimo else None,
             "pistas": (self._bufer or self._grab).pistas if (self._bufer or self._grab) else [],
             "teclas": keyboard is not None,
@@ -246,6 +251,39 @@ class Api:
                     self._aviso(f"Grabando {juego}", "ok")
         self._avisar_estado()
         return self._estado()
+
+    def elegir_encoder(self, preferido):
+        """Cambiar con que se graba: 'auto', una GPU concreta o el procesador."""
+        if self._bufer or self._grab:
+            self._aviso("Desactiva los clips y deten la grabación para cambiarlo", "error")
+            return self._estado()
+        if preferido != "auto" and not self._encoders.get(preferido, (False,))[0]:
+            self._aviso(self._encoders.get(preferido, (False, "No disponible"))[1] or "No disponible", "error")
+            return self._estado()
+        self._cfg["encoder"] = preferido
+        N.guardar_config(self._cfg)
+        self._encoder = None
+        self._avisar_estado()
+
+        def aplicar():
+            self._aplicar_encoder()
+            self._aviso("Ahora se graba con " + N.NOMBRES[self._encoder], "ok")
+            self._avisar_estado()
+        threading.Thread(target=aplicar, daemon=True).start()
+        return self._estado()
+
+    def _aplicar_encoder(self):
+        elegido = N.elegir_encoder(self._encoders, self._cfg.get("encoder", "auto"))
+        N.probar_gpu(elegido)
+        self._encoder = elegido
+        try:
+            with open(os.path.join(N.CARPETA_LOGS, "gpu.txt"), "w", encoding="utf-8") as f:
+                f.write(f"Preferencia: {self._cfg.get('encoder', 'auto')}\nElegido: {elegido}\n")
+                f.write(f"Captura directa: {N.MODO_GPU['directo']}  Escala en GPU: {N.MODO_GPU['escala']}\n\n")
+                for e, (ok, motivo) in self._encoders.items():
+                    f.write(f"{e}: {'funciona' if ok else 'no funciona - ' + motivo}\n")
+        except Exception:
+            pass
 
     def abrir_carpeta(self):
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
@@ -442,9 +480,8 @@ class Api:
             self._emitir("fatal", "No encontré FFmpeg. Ejecuta instalar.bat y vuelve a abrir GrabaClip.")
             return
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
-        encoder = N.detectar_encoder()
-        N.probar_gpu(encoder)
-        self._encoder = encoder
+        self._encoders = N.probar_encoders()
+        self._aplicar_encoder()
         self._avisar_estado()
         if self._cfg.get("clips_al_abrir") or self._minimizado:
             if self._cfg.get("clips_al_abrir"):
