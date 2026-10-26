@@ -1,4 +1,4 @@
-; Instalador de GrabaClip (NSIS). Se compila en GitHub Actions desde build/build.sh:
+﻿; Instalador de GrabaClip (NSIS). Se compila en GitHub Actions desde build/build.sh:
 ;   makensis -DVERSION=x.y.z -DORIGEN=<carpeta GrabaClip armada> -DSALIDA=<setup.exe> build/instalador.nsi
 ; Se instala por usuario (sin permisos de administrador) en %LOCALAPPDATA%\Programs\GrabaClip,
 ; con acceso directo en el menú Inicio y desinstalador en Configuración > Aplicaciones.

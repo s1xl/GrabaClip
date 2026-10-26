@@ -110,7 +110,11 @@ echo "==> Listo: $ZIP ($(du -h "$ZIP" | cut -f1))"
 # ---------- instalador (opcional: solo si hay NSIS) ----------
 if command -v makensis >/dev/null 2>&1; then
   SETUP="$DIST/GrabaClip-v$VERSION-instalador.exe"
-  makensis -V2 -DVERSION="$VERSION" -DORIGEN="$APP" -DSALIDA="$SETUP" "$RAIZ/build/instalador.nsi"
+  if ! makensis -V2 -DVERSION="$VERSION" -DORIGEN="$APP" -DSALIDA="$SETUP" "$RAIZ/build/instalador.nsi" > "$OBJ/nsis.log" 2>&1; then
+    # en GitHub Actions, las ultimas lineas quedan como anotaciones visibles en la ejecucion
+    tail -15 "$OBJ/nsis.log" | while IFS= read -r l; do echo "::error title=NSIS::$l"; done
+    exit 1
+  fi
   echo "==> Listo: $SETUP ($(du -h "$SETUP" | cut -f1))"
 else
   echo "==> (sin NSIS: no se arma el instalador)"
