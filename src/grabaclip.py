@@ -432,6 +432,37 @@ class Api:
         except Exception:
             pass
 
+    def elegir_carpeta(self):
+        """Abre el selector de carpetas de Windows para elegir donde guardar los videos."""
+        if self._grab:
+            return {"ok": False, "msg": "Termina la grabación antes de cambiar la carpeta."}
+        try:
+            import webview
+            tipo = webview.FileDialog.FOLDER if hasattr(webview, "FileDialog") else webview.FOLDER_DIALOG
+            elegida = self._ventana.create_file_dialog(tipo, directory=N.CARPETA_SALIDA)
+        except Exception as ex:
+            return {"ok": False, "msg": f"No se pudo abrir el selector: {ex}"}
+        if not elegida:
+            return {"ok": False, "msg": ""}
+        ruta = elegida[0] if isinstance(elegida, (list, tuple)) else elegida
+        ok, motivo = N.carpeta_valida(ruta)
+        if not ok:
+            return {"ok": False, "msg": motivo}
+        self._cfg["carpeta"] = ruta
+        N.usar_carpeta(ruta)
+        N.guardar_config(self._cfg)
+        self._emitir("biblioteca")
+        return {"ok": True, "carpeta": N.CARPETA_SALIDA, "msg": "Los nuevos videos se guardarán en " + N.CARPETA_SALIDA}
+
+    def restablecer_carpeta(self):
+        if self._grab:
+            return {"ok": False, "carpeta": N.CARPETA_SALIDA, "msg": "Termina la grabación antes de cambiar la carpeta."}
+        self._cfg["carpeta"] = ""
+        N.usar_carpeta("")
+        N.guardar_config(self._cfg)
+        self._emitir("biblioteca")
+        return {"ok": True, "carpeta": N.CARPETA_SALIDA, "msg": "Se usará otra vez Videos\\GrabaClip"}
+
     def voz_idiomas(self):
         return VZ.Voz.idiomas()
 

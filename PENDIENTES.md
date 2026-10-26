@@ -5,7 +5,7 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 ## 1. Probar en Windows lo que aún no se ha visto funcionar (urgente)
 
 - [ ] **Comandos de voz (Jarvis):** confirmar que la corrección de `voz.py` (carga de System.Speech por nombre completo / ruta del GAC) muestra "Escuchando…". Si falla, revisar `logs\voz.txt`.
-- [ ] **Publicar 0.10.1** con esa corrección: la 0.10.0 pública todavía tiene el error de voz.
+- [x] **Publicar 0.10.1** con esa corrección y la opción de elegir la carpeta de videos.
 - [ ] **Overlay:** botón "Probar" en Ajustes > General; revisar sobre un juego en pantalla completa sin bordes.
 - [ ] **Grabar solo la ventana del juego** (gfxcapture): guardar un clip con Discord encima y comprobar que solo sale el juego. Revisar `logs\gpu.txt` ("Captura de ventana").
 - [ ] **Sincronía del audio:** comprobar que voz y juego no van desfasados respecto al video.

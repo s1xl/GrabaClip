@@ -466,7 +466,12 @@
             </div>
             <p class="nota">Se ve en juegos en modo ventana o "pantalla completa sin bordes". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).</p></div>
         </div>
-        <p class="nota" id="carpeta-txt"></p>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Carpeta de videos</h3><p id="carpeta-txt"></p></div>
+            <button class="mini-boton" id="b-carpeta-def">Restablecer</button>
+            <button class="mini-boton" id="b-carpeta">Cambiar…</button></div>
+        </div>
+        <p class="nota">Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.</p>
       </div>
 
       <div class="seccion" id="s-apariencia">
@@ -655,7 +660,7 @@ function pintarJuegos() {
 }
 $('#sel-juego').onchange = e => {
   juegoSel = e.target.value;
-  $('#ruta-carpeta').textContent = 'Videos\\GrabaClip' + (juegoSel !== '*' && juegoSel ? '\\' + juegoSel : '');
+  pintarCarpeta(carpetaActual);
   pintarVideos();
 };
 function miniLista(m) {
@@ -807,6 +812,26 @@ async function cargarIdiomasVoz() {
 $('#sel-voz-idioma').onchange = e => guardar({voz_idioma: e.target.value});
 $('#r-conf').oninput = e => $('#conf-v').textContent = e.target.value + ' %';
 $('#r-conf').onchange = e => guardar({voz_confianza: +e.target.value / 100});
+
+let carpetaActual = '';
+function pintarCarpeta(ruta) {
+  carpetaActual = ruta || carpetaActual;
+  $('#carpeta-txt').textContent = carpetaActual;
+  const partes = carpetaActual.split('\\').filter(Boolean);
+  const corta = partes.slice(-2).join('\\');
+  $('#ruta-carpeta').textContent = corta + (juegoSel !== '*' && juegoSel ? '\\' + juegoSel : '');
+  $('#b-carpeta-def').classList.toggle('oculto', !cfg.carpeta);
+}
+$('#b-carpeta').onclick = async () => {
+  const r = await api('elegir_carpeta');
+  if (r.msg) aviso(r.msg, r.ok ? 'ok' : 'error');
+  if (r.ok) { cfg.carpeta = r.carpeta; pintarCarpeta(r.carpeta); }
+};
+$('#b-carpeta-def').onclick = async () => {
+  const r = await api('restablecer_carpeta');
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  cfg.carpeta = ''; pintarCarpeta(r.carpeta); aviso(r.msg, 'ok');
+};
 
 let nombresApps = {};
 function clavesPistas() {
@@ -1029,7 +1054,7 @@ async function iniciar() {
   D = await api('inicio');
   cfg = D.cfg; est = D.estado; voz = D.voz || {};
   pintarTemas(); pintarChips(); aplicarTema(cfg.tema);
-  $('#carpeta-txt').textContent = 'Los videos se guardan en ' + D.carpeta;
+  pintarCarpeta(D.carpeta);
   pintarEstado();
   cargarVideos();
   cargarVentanas();

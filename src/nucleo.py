@@ -23,7 +23,27 @@ APP = "GrabaClip"
 CARPETA_APP = os.path.dirname(os.path.abspath(__file__))
 AUDIOCAP = os.path.join(CARPETA_APP, "audiocap.exe")
 ARCHIVO_CONFIG = os.path.join(CARPETA_APP, "config.json")
-CARPETA_SALIDA = os.path.join(os.path.expanduser("~"), "Videos", APP)
+CARPETA_PREDETERMINADA = os.path.join(os.path.expanduser("~"), "Videos", APP)
+CARPETA_SALIDA = CARPETA_PREDETERMINADA  # se cambia con usar_carpeta()
+
+
+def carpeta_valida(ruta):
+    """(ok, motivo): la carpeta existe (o se puede crear) y se puede escribir en ella."""
+    try:
+        os.makedirs(ruta, exist_ok=True)
+        prueba = os.path.join(ruta, ".grabaclip_prueba")
+        with open(prueba, "w") as f:
+            f.write("ok")
+        os.remove(prueba)
+        return True, ""
+    except Exception as ex:
+        return False, f"No se puede guardar en esa carpeta ({ex.__class__.__name__})."
+
+
+def usar_carpeta(ruta):
+    """Cambia la carpeta donde se guardan los videos ('' = la predeterminada)."""
+    global CARPETA_SALIDA
+    CARPETA_SALIDA = os.path.abspath(ruta) if ruta else CARPETA_PREDETERMINADA
 CARPETA_BUFER = os.path.join(tempfile.gettempdir(), APP + "_bufer")
 CARPETA_LOGS = os.path.join(CARPETA_APP, "logs")
 SEG = 2  # segundos que dura cada trocito del bufer
@@ -74,7 +94,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "quitar_mudas": True, "orden_pistas": [],
                   "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der",
                   "voz": False, "voz_clip": ["jarvis sácale clip", "jarvis clipea eso"], "voz_grabar": [],
-                  "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6}
+                  "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6, "carpeta": ""}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario
@@ -365,6 +385,10 @@ def cargar_config():
         cfg["calidad"] = "Máxima"
     if cfg.get("tema") not in TEMAS:
         cfg["tema"] = "Carmesí"
+    if cfg.get("carpeta") and os.path.isdir(cfg["carpeta"]):
+        usar_carpeta(cfg["carpeta"])
+    else:
+        usar_carpeta("")  # la carpeta elegida no está (p. ej. disco desconectado): se usa la normal sin olvidarla
     return cfg
 
 

@@ -19,6 +19,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Comandos de voz:** "Jarvis, sácale clip" y las frases que tú quieras para guardar clips, grabar o activar los clips. Usa el reconocimiento de voz de Windows, sin internet.
 - **Overlay en el juego:** indicador de clips activos / REC y aviso al guardar un clip, con sonidos suaves. No recibe clics y no aparece en las grabaciones (se puede desactivar).
 - **Organización por juego:** cada clip se guarda en una carpeta con el nombre del juego o la app que estaba en primer plano.
+- **Carpeta a elegir:** por defecto en `Videos\GrabaClip`, o en la carpeta o disco que quieras (*Ajustes → General → Carpeta de videos*).
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
@@ -33,7 +34,7 @@ Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtim
 
 1. Si activaste **Iniciar con Windows**, desactívalo en *Ajustes → General* (o borra el valor `GrabaClip` en `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
 2. Cierra GrabaClip y borra su carpeta.
-3. Tus videos están en `Videos\GrabaClip`; bórralos solo si ya no los quieres.
+3. Tus videos están en `Videos\GrabaClip` (o en la carpeta que elegiste); bórralos solo si ya no los quieres.
 
 GrabaClip no instala servicios, controladores ni nada fuera de su carpeta, salvo esa entrada opcional de inicio.
 
