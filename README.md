@@ -16,7 +16,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 
 ## Descarga
 
-Descarga `GrabaClip-vX.Y.Z-portable.zip` desde [Releases](../../releases), descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`. No necesita instalación: Python, FFmpeg y todo lo demás vienen incluidos.
+Descarga `GrabaClip-vX.Y.Z-portable.zip` desde [Releases](https://github.com/s1xl/GrabaClip/releases/latest), descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`. No necesita instalación: Python, FFmpeg y todo lo demás vienen incluidos.
 
 Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtime WebView2 (incluido en Windows 11 y en Windows 10 actualizado).
 
@@ -42,8 +42,8 @@ Las versiones publicadas se compilan automáticamente con GitHub Actions a parti
 
 Firma de código gratuita proporcionada por [SignPath.io](https://about.signpath.io), certificado de [SignPath Foundation](https://signpath.org).
 
-- **Autores y revisores (committers and reviewers):** [@USUARIO](https://github.com/USUARIO)
-- **Aprobadores (approvers):** [@USUARIO](https://github.com/USUARIO)
+- **Autores y revisores (committers and reviewers):** [@s1xl](https://github.com/s1xl)
+- **Aprobadores (approvers):** [@s1xl](https://github.com/s1xl)
 
 Solo se firman los binarios compilados por GitHub Actions a partir del código de este repositorio (`GrabaClip.exe` y `audiocap.exe`). Python y FFmpeg se incluyen tal como los publican sus proyectos.
 
