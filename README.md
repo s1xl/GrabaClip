@@ -37,6 +37,12 @@ Descarga `GrabaClip-vX.Y.Z-portable.zip` desde [Releases](https://github.com/s1x
 
 Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtime WebView2 (incluido en Windows 11 y en Windows 10 actualizado).
 
+## Problemas comunes
+
+- **"Windows protegió su PC" (SmartScreen):** pulsa *Más información → Ejecutar de todas formas*. Sale porque GrabaClip todavía no está firmado.
+- **Todas las opciones de "Codificar con" dicen "No funcionó":** casi siempre es el **Control inteligente de aplicaciones** de Windows 11 bloqueando FFmpeg, que no viene firmado. Se puede apagar en *Seguridad de Windows → Control de aplicaciones y navegador → Control inteligente de aplicaciones*. Con Windows 11 actualizado (abril de 2026 o más nuevo) se puede volver a encender después; en versiones anteriores, apagarlo es permanente hasta reinstalar Windows.
+- **Si la ventana deja de responder:** cierra GrabaClip desde el Administrador de tareas y manda la carpeta `logs` al crear un *issue*.
+
 ## Desinstalar
 
 1. Si activaste **Iniciar con Windows**, desactívalo en *Ajustes → General* (o borra el valor `GrabaClip` en `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
