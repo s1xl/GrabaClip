@@ -6,6 +6,7 @@ import os
 import sys
 import glob
 import json
+import re
 import shutil
 import tempfile
 import datetime
@@ -30,7 +31,7 @@ SIN_VENTANA = 0x08000000 if sys.platform == "win32" else 0
 # prioridad "por debajo de lo normal": el juego siempre va primero
 BAJA_PRIORIDAD = (0x00004000 | SIN_VENTANA) if sys.platform == "win32" else 0
 # se rellena al abrir: si la GPU puede capturar y comprimir sin pasar por el procesador
-MODO_GPU = {"directo": False, "escala": False}
+MODO_GPU = {"directo": False, "escala": False, "ventana": False, "motivo_ventana": ""}
 CONTADOR = itertools.count()
 
 # Calidad: numero mas bajo = mejor imagen y archivos mas grandes
@@ -68,7 +69,9 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "mic": True, "apps": [], "ajuste_ms": 0,
                   "tecla_clip": "f9", "tecla_grab": "f10", "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
-                  "por_juego": True, "encoder": "auto"}
+                  "por_juego": True, "encoder": "auto",
+                  "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
+                  "quitar_mudas": True}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario
@@ -173,12 +176,79 @@ def probar_gpu(encoder):
     MODO_GPU["directo"] = prueba(base + _sufijo_gpu(encoder))
     if MODO_GPU["directo"]:
         MODO_GPU["escala"] = prueba(base + ",scale_d3d11=width=1280:height=720" + _sufijo_gpu(encoder))
+    # captura de una sola ventana (Windows.Graphics.Capture, FFmpeg 8+)
+    ventana = "gfxcapture=monitor_idx=0:max_framerate=30:resize_mode=scale_aspect,fps=30"
+    MODO_GPU["ventana"] = prueba(ventana + (_sufijo_gpu(encoder) if MODO_GPU["directo"]
+                                            else ",hwdownload,format=bgra,format=yuv420p"))
+    MODO_GPU["motivo_ventana"] = "" if MODO_GPU["ventana"] else \
+        "Tu Windows o tu FFmpeg no permiten capturar una sola ventana (necesita Windows 10 1903+ y FFmpeg 8)."
     return MODO_GPU
 
 
-def filtro_video(encoder, fps, alto_deseado):
-    base = f"ddagrab=output_idx=0:framerate={fps}:draw_mouse=1"
-    ancho_m, alto_m = alto_monitor()
+def monitores():
+    """Lista de pantallas [(ancho, alto)] en pixeles reales, en el orden de Windows."""
+    if sys.platform != "win32":
+        return []
+    try:
+        import ctypes
+        from ctypes import wintypes
+        u32 = ctypes.windll.user32
+        anterior = None
+        try:
+            anterior = u32.SetThreadDpiAwarenessContext(ctypes.c_void_p(-4))  # pixeles reales
+        except Exception:
+            pass
+        lista = []
+        Proc = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p,
+                                  ctypes.POINTER(wintypes.RECT), ctypes.c_void_p)
+
+        def cada(hmon, hdc, rect, dato):
+            r = rect.contents
+            lista.append((r.right - r.left, r.bottom - r.top))
+            return 1
+        u32.EnumDisplayMonitors(None, None, Proc(cada), None)
+        if anterior:
+            try:
+                u32.SetThreadDpiAwarenessContext(ctypes.c_void_p(anterior))
+            except Exception:
+                pass
+        return lista
+    except Exception:
+        return []
+
+
+def tamano_ventana(hwnd):
+    """(ancho, alto) del contenido de una ventana en pixeles reales, o (0, 0)."""
+    try:
+        import ctypes
+        from ctypes import wintypes
+        u32 = ctypes.windll.user32
+        try:
+            u32.SetThreadDpiAwarenessContext(ctypes.c_void_p(-4))
+        except Exception:
+            pass
+        r = wintypes.RECT()
+        if u32.GetClientRect(ctypes.c_void_p(hwnd), ctypes.byref(r)):
+            return r.right - r.left, r.bottom - r.top
+    except Exception:
+        pass
+    return 0, 0
+
+
+def filtro_video(encoder, fps, alto_deseado, fuente=None):
+    """fuente: {"tipo": "monitor", "idx": 0} o {"tipo": "ventana", "hwnd": 1234}."""
+    fuente = fuente or {"tipo": "monitor", "idx": 0}
+    if fuente["tipo"] == "ventana" and MODO_GPU["ventana"]:
+        base = (f"gfxcapture=hwnd={int(fuente['hwnd'])}:max_framerate={fps}:capture_cursor=1"
+                f":resize_mode=scale_aspect,fps={fps}")
+        ancho_m, alto_m = tamano_ventana(fuente["hwnd"])
+        # el tamano del video queda fijo; si la ventana cambia se ajusta con barras negras
+        ancho_m, alto_m = ancho_m - ancho_m % 2, alto_m - alto_m % 2
+    else:
+        idx = int(fuente.get("idx", 0))
+        base = f"ddagrab=output_idx={idx}:framerate={fps}:draw_mouse=1"
+        pantallas = monitores()
+        ancho_m, alto_m = pantallas[idx] if idx < len(pantallas) else alto_monitor()
     reducir = bool(alto_deseado) and (not alto_m or alto_m > alto_deseado)
     if MODO_GPU["directo"] and (not reducir or (MODO_GPU["escala"] and alto_m)):
         if reducir:
@@ -343,7 +413,8 @@ def detener(proc, timeout=8):
 class Sesion:
     """Un ffmpeg (video + pistas de audio) junto con su ayudante de audio."""
 
-    def __init__(self, fps, encoder, cfg, salida_args, nombre_log):
+    def __init__(self, fps, encoder, cfg, salida_args, nombre_log, fuente=None):
+        self.fuente = fuente or {"tipo": "monitor", "idx": int(cfg.get("monitor", 0))}
         self.audio = None
         self.pistas = []  # nombres de las pistas de audio, en orden
         self.aviso = ""
@@ -382,7 +453,7 @@ class Sesion:
                              "-f", "s16le", "-ar", "48000", "-ac", "2",
                              "-i", rf"\\.\pipe\{prefijo}_{i}"]
 
-        filtro = filtro_video(encoder, fps, RESOLUCIONES.get(cfg["resolucion"], 0)) + "[v]"
+        filtro = filtro_video(encoder, fps, RESOLUCIONES.get(cfg["resolucion"], 0), self.fuente) + "[v]"
         mapas = ["-map", "[v]"]
         if self.audio:
             if cfg["mic"]:
@@ -423,6 +494,42 @@ class Sesion:
     def detener(self):
         detener(self.ffmpeg)
         self.cerrar_audio()
+
+
+def quitar_pistas_mudas(ruta, pistas, umbral_db=-70.0):
+    """Quita del video las pistas de audio sin sonido (menos la 1, la mezcla).
+    Devuelve la lista de pistas que quedaron."""
+    if len(pistas) <= 1:
+        return pistas
+    conservar = [0]
+    for i in range(1, len(pistas)):
+        try:
+            r = correr(["ffmpeg", "-hide_banner", "-nostats", "-i", ruta, "-map", f"0:a:{i}",
+                        "-af", "volumedetect", "-f", "null", "-"], timeout=600)
+            texto = r.stderr.decode("utf-8", "replace")
+            m = re.search(r"max_volume:\s*(-?[\d.]+|-inf) dB", texto)
+            pico = -999.0 if (not m or m.group(1) == "-inf") else float(m.group(1))
+        except Exception:
+            pico = 0.0  # ante la duda, se conserva
+        if pico > umbral_db:
+            conservar.append(i)
+    if len(conservar) == len(pistas):
+        return pistas
+    temporal = ruta + ".tmp.mp4"
+    args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", ruta, "-map", "0:v"]
+    for i in conservar:
+        args += ["-map", f"0:a:{i}"]
+    nuevas = [pistas[i] for i in conservar]
+    args += ["-c", "copy"] + metadatos(nuevas) + ["-movflags", "+faststart", temporal]
+    r = correr(args, timeout=1800)
+    if r.returncode != 0 or not os.path.exists(temporal):
+        try:
+            os.remove(temporal)
+        except OSError:
+            pass
+        return pistas
+    os.replace(temporal, ruta)
+    return nuevas
 
 
 def metadatos(pistas):

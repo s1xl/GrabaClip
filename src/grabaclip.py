@@ -60,7 +60,8 @@ def poner_icono(hwnd):
         pass
 CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "ajuste_ms",
                     "tema", "iniciar_con_windows", "clips_al_abrir", "sonido_clip",
-                    "por_juego"}
+                    "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
+                    "quitar_mudas"}
 
 
 def sonido_ok():
@@ -92,9 +93,15 @@ class Api:
         self._hilo_mini = None
         self._encoders = {}
         self._fatal = None
+        self._clips_on = False      # el usuario activo los clips (aunque se este esperando un juego)
+        self._clave_bufer = None    # que se esta grabando en el bufer ahora
+        self._cambio_pendiente = 0
+        self._fallos = []
+        self._monitores = []
         self._rastreador = VA.Rastreador()
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
+        threading.Thread(target=self._seguir_juego, daemon=True).start()
         self._registrar_teclas()
 
     # ---------- comunicacion con la interfaz ----------
@@ -111,7 +118,13 @@ class Api:
 
     def _estado(self):
         return {
-            "clips": self._bufer is not None,
+            "clips": self._clips_on,
+            "esperando": self._clips_on and self._bufer is None,
+            "fuente": self._bufer.fuente.get("nombre") if self._bufer else None,
+            "fuente_tipo": self._bufer.fuente.get("tipo") if self._bufer else None,
+            "ventana_ok": N.MODO_GPU["ventana"],
+            "motivo_ventana": N.MODO_GPU["motivo_ventana"],
+            "monitores": self._monitores,
             "grabando": self._grab is not None,
             "inicio_grab": self._inicio_grab,
             "encoder": N.NOMBRES.get(self._encoder) if self._encoder else None,
@@ -159,18 +172,24 @@ class Api:
     def apps(self):
         marcadas = [a.lower() for a in self._cfg["apps"]]
         lista = N.apps_con_sonido()
+        abiertas = {x.lower() for x in lista}
         for a in self._cfg["apps"]:
             if a.lower() not in [x.lower() for x in lista]:
                 lista.append(a)
         lista.sort(key=str.lower)
-        return [{"exe": e, "nombre": N.nombre_bonito(e), "marcada": e.lower() in marcadas}
-                for e in lista]
+        return [{"exe": e, "nombre": N.nombre_bonito(e), "marcada": e.lower() in marcadas,
+                 "abierta": e.lower() in abiertas} for e in lista]
+
+    def ventanas(self):
+        """Juegos y programas con ventana abierta, para elegir cual grabar."""
+        return [{"exe": v["exe"], "nombre": v["nombre"], "titulo": v["titulo"]}
+                for v in VA.ventanas_abiertas() if v["exe"] not in VA.PROPIOS]
 
     def alternar_clips(self):
         with self._lock:
-            if self._bufer:
-                self._bufer.detener()
-                self._bufer = None
+            if self._clips_on:
+                self._clips_on = False
+                self._parar_bufer()
                 self._aviso("Clips desactivados")
             else:
                 if self._fatal:
@@ -179,24 +198,97 @@ class Api:
                 if not self._encoder:
                     self._aviso("Espera un momento, todavía estoy detectando tu GPU", "error")
                     return self._estado()
-                shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
-                os.makedirs(N.CARPETA_BUFER, exist_ok=True)
-                trozos = int(self._cfg["duracion"]) // N.SEG + 3
-                salida = os.path.join(N.CARPETA_BUFER, "seg%04d.ts")
-                self._bufer = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
-                                       ["-f", "segment", "-segment_time", str(N.SEG),
-                                        "-segment_wrap", str(trozos), "-reset_timestamps", "1",
-                                        "-segment_format", "mpegts", salida],
-                                       "bufer.log")
-                msg = f"Clips activos: {N.tecla_bonita(self._cfg['tecla_clip'])} guarda los últimos {self._cfg['duracion']} s"
-                self._aviso(msg + self._bufer.aviso, "error" if self._bufer.aviso else "ok")
+                self._clips_on = True
+                self._fallos = []
+                fuente = self._fuente_deseada()
+                if fuente:
+                    self._iniciar_bufer(fuente)
+                else:
+                    self._aviso("Clips listos: empezarán a grabar cuando abras un juego", "ok")
         self._avisar_estado()
         return self._estado()
+
+    # ---------- que se graba: la ventana del juego o una pantalla ----------
+    def _fuente_deseada(self):
+        cfg = self._cfg
+        if cfg.get("captura", "juego") == "juego" and N.MODO_GPU["ventana"]:
+            exe = (cfg.get("ventana_exe") or "").lower()
+            if exe:
+                hwnd = VA.ventana_de(exe)
+                nombre = next((v["nombre"] for v in VA.ventanas_abiertas() if v["exe"] == exe), exe)
+            else:
+                juego = self._rastreador.juego_actual()
+                hwnd, nombre = (juego["hwnd"], juego["nombre"]) if juego else (None, None)
+            if hwnd:
+                return {"tipo": "ventana", "hwnd": int(hwnd), "nombre": nombre}
+            if not cfg.get("escritorio_sin_juego", True):
+                return None
+        idx = int(cfg.get("monitor", 0) or 0)
+        if self._monitores and idx >= len(self._monitores):
+            idx = 0
+        return {"tipo": "monitor", "idx": idx, "nombre": f"Pantalla {idx + 1}"}
+
+    @staticmethod
+    def _clave(fuente):
+        if not fuente:
+            return None
+        return ("v", fuente["hwnd"]) if fuente["tipo"] == "ventana" else ("m", fuente["idx"])
+
+    def _iniciar_bufer(self, fuente):
+        shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
+        os.makedirs(N.CARPETA_BUFER, exist_ok=True)
+        trozos = int(self._cfg["duracion"]) // N.SEG + 3
+        salida = os.path.join(N.CARPETA_BUFER, "seg%04d.ts")
+        self._bufer = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
+                               ["-f", "segment", "-segment_time", str(N.SEG),
+                                "-segment_wrap", str(trozos), "-reset_timestamps", "1",
+                                "-segment_format", "mpegts", salida],
+                               "bufer.log", fuente)
+        self._clave_bufer = self._clave(fuente)
+        self._inicio_bufer = time.time()
+        que = fuente["nombre"] if fuente["tipo"] == "ventana" else "la pantalla"
+        msg = f"Clips activos en {que}: {N.tecla_bonita(self._cfg['tecla_clip'])} guarda los últimos {self._cfg['duracion']} s"
+        self._aviso(msg + self._bufer.aviso, "error" if self._bufer.aviso else "ok")
+
+    def _parar_bufer(self):
+        if self._bufer:
+            self._bufer.detener()
+        self._bufer = None
+        self._clave_bufer = None
+
+    def _seguir_juego(self):
+        """Mientras los clips estan activos, cambia lo que se graba si cambia el juego."""
+        while True:
+            time.sleep(2)
+            try:
+                with self._lock:
+                    if not self._clips_on or not self._encoder:
+                        self._cambio_pendiente = 0
+                        continue
+                    fuente = self._fuente_deseada()
+                    clave = self._clave(fuente)
+                    if clave == self._clave_bufer and (self._bufer or not fuente):
+                        self._cambio_pendiente = 0
+                        continue
+                    # se espera dos vueltas (unos 4 s) para no saltar con cada Alt+Tab
+                    self._cambio_pendiente += 1
+                    if self._bufer and self._cambio_pendiente < 2:
+                        continue
+                    self._cambio_pendiente = 0
+                    self._parar_bufer()
+                    if fuente:
+                        self._iniciar_bufer(fuente)
+                    else:
+                        self._aviso("Se cerró el juego: los clips esperan a que abras otro")
+                self._avisar_estado()
+            except Exception:
+                pass
 
     def guardar_clip(self):
         with self._lock:
             if not self._bufer:
-                self._aviso("Activa los clips primero", "error")
+                self._aviso("No hay ningún juego abierto para guardar un clip" if self._clips_on
+                            else "Activa los clips primero", "error")
                 return self._estado()
             trozos = sorted(glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")), key=os.path.getmtime)
             trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
@@ -208,7 +300,7 @@ class Api:
             with open(lista, "w", encoding="utf-8") as f:
                 for t in trozos:
                     f.write("file '" + t.replace("\\", "/").replace("'", "'\\''") + "'\n")
-            juego = self._carpeta_destino()
+            juego = self._carpeta_destino(self._bufer.fuente)
             destino = os.path.join(N.CARPETA_SALIDA, juego, f"clip_{N.marca_tiempo()}.mp4")
             os.makedirs(os.path.dirname(destino), exist_ok=True)
             args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
@@ -221,7 +313,13 @@ class Api:
                 self._ultimo = destino
                 if self._cfg.get("sonido_clip", True):
                     sonido_ok()
-                self._aviso(f"Clip guardado en {juego or 'GrabaClip'}", "ok")
+                extra = ""
+                if self._cfg.get("quitar_mudas", True) and len(self._bufer.pistas) > 1:
+                    quedan = N.quitar_pistas_mudas(destino, self._bufer.pistas)
+                    quitadas = len(self._bufer.pistas) - len(quedan)
+                    if quitadas:
+                        extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
+                self._aviso(f"Clip guardado en {juego or 'GrabaClip'}{extra}", "ok")
                 self._emitir("biblioteca")
             else:
                 os.makedirs(N.CARPETA_LOGS, exist_ok=True)
@@ -235,11 +333,12 @@ class Api:
         with self._lock:
             if self._grab:
                 self._grab.detener()
+                pistas, archivo = self._grab.pistas, self._archivo_grab
                 self._grab = None
                 self._inicio_grab = None
-                self._ultimo = self._archivo_grab
-                self._aviso("Grabación guardada: " + os.path.basename(self._archivo_grab), "ok")
-                self._emitir("biblioteca")
+                self._ultimo = archivo
+                self._aviso("Grabación guardada: " + os.path.basename(archivo), "ok")
+                self._terminar_grabacion(archivo, pistas)
             else:
                 if self._fatal:
                     self._aviso(self._fatal, "error")
@@ -247,11 +346,13 @@ class Api:
                 if not self._encoder:
                     self._aviso("Espera un momento, todavía estoy detectando tu GPU", "error")
                     return self._estado()
-                juego = self._carpeta_destino()
+                fuente = self._fuente_deseada() or {"tipo": "monitor", "idx": int(self._cfg.get("monitor", 0) or 0),
+                                                    "nombre": "Pantalla"}
+                juego = self._carpeta_destino(fuente)
                 self._archivo_grab = os.path.join(N.CARPETA_SALIDA, juego, f"grabacion_{N.marca_tiempo()}.mp4")
                 os.makedirs(os.path.dirname(self._archivo_grab), exist_ok=True)
                 self._grab = N.Sesion(int(self._cfg["fps"]), self._encoder, self._cfg,
-                                      ["-movflags", "+faststart", self._archivo_grab], "grabacion.log")
+                                      ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
                 self._inicio_grab = time.time() * 1000
                 if self._grab.aviso:
                     self._aviso("Grabando" + self._grab.aviso, "error")
@@ -262,7 +363,7 @@ class Api:
 
     def elegir_encoder(self, preferido):
         """Cambiar con que se graba: 'auto', una GPU concreta o el procesador."""
-        if self._bufer or self._grab:
+        if self._clips_on or self._grab:
             self._aviso("Desactiva los clips y deten la grabación para cambiarlo", "error")
             return self._estado()
         if preferido != "auto" and not self._encoders.get(preferido, (False,))[0]:
@@ -287,7 +388,9 @@ class Api:
         try:
             with open(os.path.join(N.CARPETA_LOGS, "gpu.txt"), "w", encoding="utf-8") as f:
                 f.write(f"Preferencia: {self._cfg.get('encoder', 'auto')}\nElegido: {elegido}\n")
-                f.write(f"Captura directa: {N.MODO_GPU['directo']}  Escala en GPU: {N.MODO_GPU['escala']}\n\n")
+                f.write(f"Captura directa: {N.MODO_GPU['directo']}  Escala en GPU: {N.MODO_GPU['escala']}  "
+                        f"Captura de ventana: {N.MODO_GPU['ventana']}\n")
+                f.write(f"Pantallas: {self._monitores}\n\n")
                 for e, (ok, motivo) in self._encoders.items():
                     f.write(f"{e}: {'funciona' if ok else 'no funciona - ' + motivo}\n")
         except Exception:
@@ -403,11 +506,21 @@ class Api:
         if os.path.commonpath([base, os.path.normcase(os.path.abspath(ruta))]) == base and os.path.isdir(ruta):
             os.startfile(ruta)
 
-    def _carpeta_destino(self):
-        """Subcarpeta para el video segun el juego/app activo ('' = carpeta principal)."""
+    def _carpeta_destino(self, fuente=None):
+        """Subcarpeta para el video segun el juego/app ('' = carpeta principal)."""
         if not self._cfg.get("por_juego", True):
             return ""
+        if fuente and fuente.get("tipo") == "ventana" and fuente.get("nombre"):
+            return VA.limpiar_carpeta(fuente["nombre"])
         return VA.limpiar_carpeta(self._rastreador.actual())
+
+    def _terminar_grabacion(self, archivo, pistas):
+        """Despues de grabar: quitar pistas vacias (en segundo plano) y avisar a la biblioteca."""
+        def tarea():
+            if self._cfg.get("quitar_mudas", True) and len(pistas) > 1 and os.path.exists(archivo):
+                N.quitar_pistas_mudas(archivo, pistas)
+            self._emitir("biblioteca")
+        threading.Thread(target=tarea, daemon=True).start()
 
     def _ruta_valida(self, ruta):
         try:
@@ -496,6 +609,7 @@ class Api:
             self._emitir("fatal", motivo)
             return
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
+        self._monitores = [f"Pantalla {i + 1} ({a}×{b})" for i, (a, b) in enumerate(N.monitores())]
         self._encoders = N.probar_encoders()
         self._aplicar_encoder()
         self._avisar_estado()
@@ -509,16 +623,31 @@ class Api:
             with self._lock:
                 cambio = False
                 if self._bufer and not self._bufer.viva():
+                    era_ventana = self._bufer.fuente.get("tipo") == "ventana"
                     self._bufer.cerrar_audio()
                     self._bufer = None
+                    self._clave_bufer = None
                     cambio = True
-                    self._aviso("Los clips se detuvieron por un error (revisa la carpeta logs)", "error")
+                    ahora = time.time()
+                    self._fallos = [t for t in self._fallos if ahora - t < 60] + [ahora]
+                    if len(self._fallos) >= 3 or not era_ventana:
+                        # falla de verdad: se apagan los clips
+                        self._clips_on = False
+                        self._aviso("Los clips se detuvieron por un error (revisa la carpeta logs)", "error")
+                    # si era una ventana (p. ej. se cerro el juego), _seguir_juego elige otra fuente
                 if self._grab and not self._grab.viva():
+                    era_ventana = self._grab.fuente.get("tipo") == "ventana"
+                    pistas, archivo = self._grab.pistas, self._archivo_grab
                     self._grab.cerrar_audio()
                     self._grab = None
                     self._inicio_grab = None
                     cambio = True
-                    self._aviso("La grabación se detuvo por un error (revisa la carpeta logs)", "error")
+                    if era_ventana and archivo and os.path.exists(archivo) and os.path.getsize(archivo) > 0:
+                        self._ultimo = archivo
+                        self._aviso("La grabación terminó porque se cerró la ventana del juego", "ok")
+                        self._terminar_grabacion(archivo, pistas)
+                    else:
+                        self._aviso("La grabación se detuvo por un error (revisa la carpeta logs)", "error")
             if cambio:
                 self._avisar_estado()
 

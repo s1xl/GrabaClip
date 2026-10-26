@@ -105,52 +105,139 @@ def _leer_descripcion(ruta):
     return ""
 
 
+# apps que nunca se consideran "el juego" para la captura de ventana
+NO_JUEGO = PROPIOS | {
+    "explorer.exe", "discord.exe", "discordptb.exe", "discordcanary.exe", "chrome.exe", "msedge.exe",
+    "firefox.exe", "opera.exe", "opera_gx.exe", "brave.exe", "spotify.exe", "steam.exe",
+    "steamwebhelper.exe", "epicgameslauncher.exe", "battle.net.exe", "taskmgr.exe", "claude.exe",
+    "nvidia app.exe", "nvidia overlay.exe", "obs64.exe", "systemsettings.exe", "windowsterminal.exe",
+    "cmd.exe", "powershell.exe", "code.exe", "notepad.exe", "whatsapp.exe", "telegram.exe",
+}
+
+
+def _ruta_de(hwnd):
+    import ctypes
+    from ctypes import wintypes
+    u32, k32 = ctypes.windll.user32, ctypes.windll.kernel32
+    pid = wintypes.DWORD()
+    u32.GetWindowThreadProcessId(ctypes.c_void_p(hwnd), ctypes.byref(pid))
+    ruta = ""
+    h = k32.OpenProcess(0x1000, False, pid.value)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if h:
+        buf = ctypes.create_unicode_buffer(1024)
+        n = wintypes.DWORD(1024)
+        if k32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(n)):
+            ruta = buf.value
+        k32.CloseHandle(h)
+    return pid.value, ruta
+
+
+def _titulo(hwnd):
+    import ctypes
+    t = ctypes.create_unicode_buffer(256)
+    ctypes.windll.user32.GetWindowTextW(ctypes.c_void_p(hwnd), t, 256)
+    return t.value
+
+
+def nombre_para(exe, ruta, titulo=""):
+    """Nombre limpio para carpetas y para mostrar (Overwatch, Fortnite...)."""
+    if exe in CONOCIDOS:
+        return CONOCIDOS[exe]
+    nombre = _descripcion(ruta) if ruta else ""
+    if not nombre or len(nombre) > 40:
+        nombre = os.path.splitext(os.path.basename(ruta))[0] if ruta else titulo
+    return limpiar_carpeta(nombre) if nombre else None
+
+
 def en_primer_plano():
-    """Devuelve (exe, nombre_carpeta) de la ventana activa, o (None, None)."""
+    """Devuelve (exe, nombre_carpeta, hwnd) de la ventana activa, o (None, None, None)."""
     if sys.platform != "win32":
-        return None, None
+        return None, None, None
     try:
         import ctypes
-        from ctypes import wintypes
-        u32 = ctypes.windll.user32
-        k32 = ctypes.windll.kernel32
-        hwnd = u32.GetForegroundWindow()
+        hwnd = ctypes.windll.user32.GetForegroundWindow()
         if not hwnd:
-            return None, None
-        pid = wintypes.DWORD()
-        u32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        if pid.value == os.getpid():
-            return "grabaclip.exe", None
-        titulo = ctypes.create_unicode_buffer(256)
-        u32.GetWindowTextW(hwnd, titulo, 256)
-        ruta = ""
-        h = k32.OpenProcess(0x1000, False, pid.value)  # PROCESS_QUERY_LIMITED_INFORMATION
-        if h:
-            buf = ctypes.create_unicode_buffer(1024)
-            n = wintypes.DWORD(1024)
-            if k32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(n)):
-                ruta = buf.value
-            k32.CloseHandle(h)
+            return None, None, None
+        pid, ruta = _ruta_de(hwnd)
+        if pid == os.getpid():
+            return "grabaclip.exe", None, hwnd
         exe = os.path.basename(ruta).lower() if ruta else ""
         if exe in PROPIOS:
-            return exe, None
-        if exe in CONOCIDOS:
-            return exe, CONOCIDOS[exe]
-        nombre = _descripcion(ruta) if ruta else ""
-        if not nombre or len(nombre) > 40:
-            nombre = os.path.splitext(os.path.basename(ruta))[0] if ruta else titulo.value
-        if not nombre:
-            return exe or None, None
-        return exe or titulo.value, limpiar_carpeta(nombre)
+            return exe, None, hwnd
+        return exe or None, nombre_para(exe, ruta, _titulo(hwnd)), hwnd
     except Exception:
-        return None, None
+        return None, None, None
+
+
+def ventanas_abiertas():
+    """Ventanas normales abiertas, una por programa: [{exe, nombre, hwnd, titulo}]."""
+    if sys.platform != "win32":
+        return []
+    import ctypes
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    dwm = ctypes.windll.dwmapi
+    encontradas = {}
+
+    def cada(hwnd, _):
+        try:
+            if not u32.IsWindowVisible(hwnd) or u32.GetWindow(hwnd, 4):  # GW_OWNER
+                return True
+            if u32.GetWindowLongW(hwnd, -20) & 0x80:  # WS_EX_TOOLWINDOW
+                return True
+            oculta = ctypes.c_int(0)
+            dwm.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(oculta), 4)  # DWMWA_CLOAKED
+            if oculta.value:
+                return True
+            titulo = _titulo(hwnd)
+            if not titulo:
+                return True
+            pid, ruta = _ruta_de(hwnd)
+            exe = os.path.basename(ruta).lower() if ruta else ""
+            if not exe or exe in PROPIOS or pid == os.getpid():
+                return True
+            r = wintypes.RECT()
+            u32.GetWindowRect(hwnd, ctypes.byref(r))
+            area = max(0, r.right - r.left) * max(0, r.bottom - r.top)
+            if exe not in encontradas or area > encontradas[exe]["area"]:
+                encontradas[exe] = {"exe": exe, "nombre": nombre_para(exe, ruta, titulo) or exe,
+                                    "hwnd": int(hwnd), "titulo": titulo, "area": area}
+        except Exception:
+            pass
+        return True
+
+    Proc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    u32.EnumWindows(Proc(cada), None)
+    lista = sorted(encontradas.values(), key=lambda v: v["nombre"].lower())
+    for v in lista:
+        v.pop("area", None)
+    return lista
+
+
+def ventana_de(exe):
+    """hwnd de la ventana principal de un programa, o None si no esta abierto."""
+    exe = (exe or "").lower()
+    for v in ventanas_abiertas():
+        if v["exe"] == exe:
+            return v["hwnd"]
+    return None
+
+
+def ventana_viva(hwnd):
+    try:
+        import ctypes
+        return bool(hwnd) and bool(ctypes.windll.user32.IsWindow(ctypes.c_void_p(hwnd)))
+    except Exception:
+        return False
 
 
 class Rastreador:
-    """Recuerda el ultimo juego/app (que no sea GrabaClip) que estuvo en primer plano."""
+    """Recuerda el ultimo juego/app (que no sea GrabaClip) que estuvo en primer plano,
+    y aparte el ultimo "juego" (excluyendo navegadores, Discord, el escritorio...)."""
 
     def __init__(self):
         self.ultimo = None
+        self.juego = None  # {"exe", "nombre", "hwnd"}
         threading.Thread(target=self._bucle, daemon=True).start()
 
     def _bucle(self):
@@ -160,8 +247,16 @@ class Rastreador:
 
     def actual(self):
         """Lo que esta en primer plano ahora; si es GrabaClip, lo ultimo que hubo antes."""
-        exe, nombre = en_primer_plano()
+        exe, nombre, hwnd = en_primer_plano()
         if nombre:
             self.ultimo = nombre
+            if exe and exe not in NO_JUEGO and hwnd:
+                self.juego = {"exe": exe, "nombre": nombre, "hwnd": int(hwnd)}
             return nombre
         return self.ultimo or SIN_NOMBRE
+
+    def juego_actual(self):
+        """El ultimo juego que tuvo el foco, si su ventana sigue abierta."""
+        if self.juego and ventana_viva(self.juego["hwnd"]):
+            return self.juego
+        return None

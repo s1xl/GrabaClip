@@ -193,6 +193,16 @@
   .paso p { color: var(--tenue); font-size: 13px; }
   kbd { font: 700 11.5px "Segoe UI", sans-serif; padding: 1px 7px; border-radius: 4px; background: rgba(127,127,127,.2); color: var(--fg); }
 
+  .campo-sel { flex: 1; min-width: 0; appearance: none; -webkit-appearance: none; padding: 8px 34px 8px 12px; border-radius: 6px;
+               background: var(--campo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e97' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+               border: 1px solid var(--borde); color: var(--fg); font: 600 13px "Segoe UI", sans-serif; outline: none; cursor: pointer; }
+  .campo-sel:focus, .campo-sel:hover:not(:disabled) { border-color: color-mix(in srgb, var(--acento) 60%, var(--borde)); }
+  .campo-sel:disabled { opacity: .45; cursor: default; }
+  .campo-sel option { background: var(--panel); color: var(--fg); }
+  .en-linea { display: flex; gap: 8px; align-items: center; }
+  .oculto { display: none !important; }
+  .estado-app { font-size: 12px; color: var(--tenue); }
+  .estado-app.abierta { color: #22c55e; }
   #banner { display: none; margin: 14px 26px 0; padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
             border: 1px solid color-mix(in srgb, var(--rojo) 55%, transparent);
             background: color-mix(in srgb, var(--rojo) 14%, transparent); }
@@ -305,6 +315,25 @@
         <h2>Video</h2>
         <div class="bloqueo mezcla-acento">Desactiva los clips y detén la grabación para cambiar estos ajustes.</div>
         <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Qué grabar</h3><b id="fuente-actual"></b></div>
+            <div class="chips" id="chips-captura">
+              <button data-c="juego">Solo el juego</button>
+              <button data-c="escritorio">Pantalla completa</button>
+            </div>
+            <p class="nota" id="nota-captura"></p></div>
+          <div class="fila columna" id="fila-ventana"><div class="cab"><h3>Ventana a grabar</h3></div>
+            <div class="en-linea">
+              <select class="campo-sel" id="sel-ventana"></select>
+              <button class="mini-boton" id="b-ventanas" title="Buscar ventanas abiertas"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>Actualizar</button>
+            </div>
+            <p class="nota">En automático graba el juego que estés usando y cambia solo si cambias de juego. Discord, los navegadores y el escritorio no cuentan como juego.</p></div>
+          <div class="fila" id="fila-escr"><div class="texto"><h3>Grabar la pantalla cuando no haya un juego</h3>
+            <p>Si está apagado, los clips esperan a que abras un juego.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="escritorio_sin_juego"><span></span></label></div>
+          <div class="fila columna" id="fila-monitor"><div class="cab"><h3>Pantalla</h3></div>
+            <div class="chips" id="chips-monitor"></div></div>
+        </div>
+        <div class="tarjeta">
           <div class="fila columna"><div class="cab"><h3>Codificar con</h3><b id="enc-actual"></b></div>
             <div class="chips" id="chips-enc"></div>
             <p class="nota" id="enc-motivos"></p></div>
@@ -328,6 +357,9 @@
           <div class="fila"><div class="texto"><h3>Apps en pista propia</h3><p>Para poder quitarlas al editar (Discord, Spotify…).</p></div>
             <button class="mini-boton" id="b-apps"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>Actualizar</button></div>
           <div id="apps"></div>
+          <div class="fila"><div class="texto"><h3>Quitar pistas sin sonido al guardar</h3>
+            <p>Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista 1 (mezcla) siempre se queda.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="quitar_mudas"><span></span></label></div>
         </div>
         <div class="tarjeta">
           <div class="fila columna"><div class="cab"><h3>Sincronía del audio</h3><b id="aj-v">0 ms</b></div>
@@ -442,6 +474,7 @@ function seccion(s) {
   $$('.lateral button').forEach(b => b.classList.toggle('activa', b.dataset.s === s));
   $$('#v-ajustes .seccion').forEach(x => x.classList.toggle('activa', x.id === 's-' + s));
   if (s === 'audio') cargarApps();
+  if (s === 'video') cargarVentanas();
 }
 $$('#nav button').forEach(b => b.onclick = () => irA(b.dataset.v));
 $$('.lateral button').forEach(b => b.onclick = () => seccion(b.dataset.s));
@@ -607,7 +640,10 @@ function pintarCfg() {
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
   $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
-  $('#clips-desc').textContent = est.clips ? `Activos · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s` : 'Desactivados';
+  $('#clips-desc').textContent = !est.clips ? 'Desactivados'
+    : est.esperando ? 'Esperando a que abras un juego…'
+    : `${est.fuente_tipo === 'ventana' ? est.fuente : 'Pantalla'} · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s`;
+  pintarCaptura();
 }
 $('#r-dur').oninput = e => $('#dur-v').textContent = e.target.value + ' s';
 $('#r-dur').onchange = e => guardar({duracion: +e.target.value});
@@ -628,7 +664,7 @@ async function cargarApps() {
   for (const a of lista) {
     const f = document.createElement('div');
     f.className = 'fila';
-    f.innerHTML = `<div class="app-ini"></div><div class="texto"><h3></h3></div><label class="switch"><input type="checkbox"><span></span></label>`;
+    f.innerHTML = `<div class="app-ini"></div><div class="texto"><h3></h3><span class="estado-app ${a.abierta ? 'abierta' : ''}">${a.abierta ? '● Abierta' : 'Cerrada'}</span></div><label class="switch"><input type="checkbox"><span></span></label>`;
     f.querySelector('.app-ini').textContent = (a.nombre[0] || '?').toUpperCase();
     f.querySelector('h3').textContent = a.nombre;
     const sw = f.querySelector('input');
@@ -684,7 +720,7 @@ function pintarEstado() {
   $('#pie-rec').classList.toggle('grabando', !!est.grabando);
   $('#b-rec').title = est.grabando ? 'Detener grabación' : 'Empezar a grabar';
   document.body.classList.toggle('ocupado', !!ocupado());
-  $$('#s-video .chips button, #r-dur, #sw-mic, #r-aj, #apps input, #b-apps').forEach(x => x.disabled = !!ocupado());
+  $$('#s-video .chips button, #r-dur, #sw-mic, #r-aj, #apps input, #b-apps, #sel-ventana, #b-ventanas, [data-sw="escritorio_sin_juego"]').forEach(x => x.disabled = !!ocupado());
   clearInterval(reloj);
   const tick = () => {
     if (!est.grabando || !est.inicio_grab) { $('#rec-txt').textContent = 'REC'; return; }
@@ -696,6 +732,55 @@ function pintarEstado() {
   pintarEncoders();
   pintarCfg();
 }
+function pintarCaptura() {
+  if (!D) return;
+  const modo = cfg.captura || 'juego';
+  const ventanaOk = est.ventana_ok !== false;
+  $$('#chips-captura button').forEach(b => {
+    b.classList.toggle('sel', b.dataset.c === modo);
+    if (b.dataset.c === 'juego') { b.disabled = b.disabled || (est.encoder && !ventanaOk); b.title = ventanaOk ? '' : (est.motivo_ventana || ''); }
+  });
+  $('#nota-captura').textContent = (est.encoder && !ventanaOk) ? est.motivo_ventana + ' Se grabará la pantalla completa.' : '';
+  const juego = modo === 'juego' && ventanaOk;
+  $('#fila-ventana').classList.toggle('oculto', !juego);
+  $('#fila-escr').classList.toggle('oculto', !juego);
+  $('#fila-monitor').classList.toggle('oculto', juego && !cfg.escritorio_sin_juego);
+  const mons = (est.monitores && est.monitores.length) ? est.monitores : ['Pantalla 1'];
+  const c = $('#chips-monitor');
+  if (c.dataset.n !== String(mons.length)) {
+    c.dataset.n = String(mons.length);
+    c.innerHTML = '';
+    mons.forEach((m, i) => {
+      const b = document.createElement('button');
+      b.textContent = m; b.dataset.i = i;
+      b.onclick = () => guardar({monitor: i});
+      c.append(b);
+    });
+  }
+  [...c.children].forEach(b => { b.classList.toggle('sel', +b.dataset.i === (+cfg.monitor || 0)); b.disabled = !!ocupado(); });
+  $('#fuente-actual').textContent = est.clips && !est.esperando && est.fuente ? 'Grabando: ' + est.fuente : '';
+}
+async function cargarVentanas() {
+  const lista = await api('ventanas');
+  const sel = $('#sel-ventana');
+  sel.innerHTML = '<option value="">Automático: el juego que estés usando</option>';
+  let esta = !cfg.ventana_exe;
+  for (const v of lista) {
+    const o = document.createElement('option');
+    o.value = v.exe; o.textContent = v.nombre + (v.titulo && v.titulo !== v.nombre ? ` — ${v.titulo.slice(0, 50)}` : '');
+    if (v.exe === cfg.ventana_exe) esta = true;
+    sel.append(o);
+  }
+  if (!esta) {
+    const o = document.createElement('option');
+    o.value = cfg.ventana_exe; o.textContent = cfg.ventana_exe.replace(/\.exe$/i, '') + ' (cerrado ahora)';
+    sel.append(o);
+  }
+  sel.value = cfg.ventana_exe || '';
+}
+$$('#chips-captura button').forEach(b => b.onclick = () => guardar({captura: b.dataset.c}));
+$('#sel-ventana').onchange = e => { guardar({ventana_exe: e.target.value}); aviso(e.target.value ? 'Se grabará solo esa ventana' : 'Modo automático: se graba el juego que uses', 'ok'); };
+$('#b-ventanas').onclick = async () => { await cargarVentanas(); aviso('Lista de ventanas actualizada'); };
 function pintarEncoders() {
   const c = $('#chips-enc');
   const lista = est.encoders || [];
@@ -739,6 +824,7 @@ async function iniciar() {
   $('#carpeta-txt').textContent = 'Los videos se guardan en ' + D.carpeta;
   pintarEstado();
   cargarVideos();
+  cargarVentanas();
 }
 if (window.pywebview && window.pywebview.api) iniciar();
 else window.addEventListener('pywebviewready', iniciar);
