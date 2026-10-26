@@ -26,7 +26,7 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 - [x] Botón "Buscar actualizaciones" que descarga e instala la versión nueva (0.11.0).
 - [x] Interruptor "Avisar al abrir" (apagado por defecto) y PRIVACIDAD.md actualizado.
-- [ ] Probar en Windows la primera actualización real (0.11.0 -> la siguiente).
+- [x] Probada en Windows la primera actualización real (0.11.0 -> 0.12.0).
 
 ## 5. Control del espacio en disco
 
