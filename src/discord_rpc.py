@@ -11,6 +11,8 @@ import threading
 import time
 import uuid
 
+from idiomas import t
+
 # ID público de la aplicación "GrabaClip" en el portal de desarrolladores de Discord.
 # Discord muestra el nombre de esa aplicación ("Jugando a GrabaClip").
 APP_ID = "1564255011373056132"
@@ -35,20 +37,20 @@ class Presencia:
         if activo and APP_ID and (estado.get("clips") or estado.get("grabando")):
             juego = estado.get("fuente") if estado.get("fuente_tipo") == "ventana" else None
             if estado.get("grabando"):
-                actividad = {"details": "Grabando con GrabaClip"}
+                actividad = {"details": t("Grabando con GrabaClip")}
                 if estado.get("inicio_grab"):
                     actividad["timestamps"] = {"start": int(estado["inicio_grab"] / 1000)}
             else:
-                actividad = {"details": "Clipeando con GrabaClip"}
+                actividad = {"details": t("Clipeando con GrabaClip")}
             if juego and mostrar_juego:
-                actividad["state"] = "En " + juego[:100]
+                actividad["state"] = t("En " + juego[:100])
             elif estado.get("esperando"):
-                actividad["state"] = "Esperando un juego"
+                actividad["state"] = t("Esperando un juego")
             else:
-                actividad["state"] = "Clips instantáneos activos" if not estado.get("grabando") else "Grabando la pantalla"
+                actividad["state"] = t("Clips instantáneos activos" if not estado.get("grabando") else "Grabando la pantalla")
             actividad["assets"] = {"large_image": IMAGEN,
-                                   "large_text": "GrabaClip · clips instantáneos gratis y open source"}
-            actividad["buttons"] = [{"label": "Descargar GrabaClip", "url": REPO}]
+                                   "large_text": t("GrabaClip · clips instantáneos gratis y open source")}
+            actividad["buttons"] = [{"label": t("Descargar GrabaClip"), "url": REPO}]
         with self._lock:
             self._activo = bool(activo and APP_ID)
             self._deseada = actividad

@@ -7,6 +7,8 @@ acciones del menú corren en hilos aparte para no congelar la interfaz.
 import ctypes
 import threading
 
+from idiomas import t
+
 EVENTO_MOSTRAR = "Local\\GrabaClip_mostrar"  # el lanzador lo activa si GrabaClip ya estaba abierto
 
 
@@ -60,8 +62,11 @@ class Bandeja:
 
             def al_abrir_menu(s, e):
                 est = self._estado()
-                self._items["clips"].Text = "Desactivar clips" if est.get("clips") else "Activar clips"
-                self._items["grabar"].Text = "Detener grabación" if est.get("grabando") else "Empezar a grabar"
+                self._items["abrir"].Text = t("Abrir GrabaClip")
+                self._items["salir"].Text = t("Salir de GrabaClip")
+                self._items["clips"].Text = t("Desactivar clips" if est.get("clips") else "Activar clips")
+                self._items["grabar"].Text = t("Detener grabación" if est.get("grabando") else "Empezar a grabar")
+                self._items["clip"].Text = t("Guardar clip")
                 self._items["clip"].Enabled = bool(est.get("clips"))
             menu.Opening += al_abrir_menu
 

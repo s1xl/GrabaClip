@@ -26,6 +26,7 @@ import actualizador as ACT
 import bandeja as BJ
 import recortes as RC
 import discord_rpc as DR
+import idiomas as I18N
 
 try:
     import keyboard  # teclas rapidas globales
@@ -75,7 +76,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
-                    "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar"}
+                    "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma"}
 
 
 def sonido_ok():
@@ -104,6 +105,9 @@ class Api:
 
     def __init__(self, minimizado=False):
         self._cfg = N.cargar_config()
+        I18N.elegir(self._cfg.get("idioma", "auto"))
+        if I18N.ajustar_frases(self._cfg):
+            N.guardar_config(self._cfg)
         self._lock = threading.RLock()
         self._ventana = None
         self._lista = False
@@ -215,9 +219,9 @@ class Api:
         self._overlay.actualizar(estado)
         self._presencia.actualizar(self._cfg.get("discord"), estado, self._cfg.get("discord_juego", True))
         if self._bandeja:
-            self._bandeja.texto("GrabaClip · " + ("Grabando" if self._grab else
-                                                   "Clips activos" if self._bufer else
-                                                   "Esperando un juego" if self._clips_on else "Clips apagados"))
+            estado_txt = ("Grabando la pantalla" if self._grab else "Clips activos" if self._bufer else
+                          "Esperando un juego" if self._clips_on else "Clips apagados")
+            self._bandeja.texto("GrabaClip · " + I18N.t(estado_txt))
         self._emitir("estado", estado)
 
     # ---------- llamadas desde la interfaz ----------
@@ -237,6 +241,9 @@ class Api:
             "voz": self._voz.estado,
             "version": ACT.version_local(),
             "discord_listo": bool(DR.APP_ID),
+            "idioma": I18N.ACTUAL,
+            "idiomas": I18N.IDIOMAS,
+            "catalogo": I18N.catalogo(I18N.ACTUAL),
             "update": self._update,
         }
 
@@ -255,6 +262,13 @@ class Api:
                 self._voz.configurar(self._cfg_efectiva())
             if "limite_gb" in (cambios or {}) or "limite_grabaciones" in (cambios or {}):
                 threading.Thread(target=self._aplicar_limite, daemon=True).start()
+            if "idioma" in (cambios or {}):
+                I18N.elegir(self._cfg.get("idioma", "auto"))
+                if I18N.ajustar_frases(self._cfg):
+                    N.guardar_config(self._cfg)
+                    self._voz.configurar(self._cfg_efectiva())
+                self._overlay.refrescar()
+                self._avisar_estado()
             if "discord" in (cambios or {}) or "discord_juego" in (cambios or {}):
                 self._avisar_estado()
             if "rendimiento" in (cambios or {}):
@@ -452,7 +466,7 @@ class Api:
             self._aviso(f"{titulo} en {juego or 'GrabaClip'}{extra}", "ok")
             threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
             real = len(trozos) * N.SEG
-            self._overlay.clip_guardado(titulo, f"{juego or 'Escritorio'} · "
+            self._overlay.clip_guardado(I18N.t(titulo), f"{juego or I18N.t('Escritorio')} · "
                                         + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
             self._emitir("biblioteca")
             return destino
@@ -478,7 +492,7 @@ class Api:
                 self._inicio_grab = None
                 self._ultimo = archivo
                 self._aviso("Grabación guardada: " + os.path.basename(archivo), "ok")
-                self._overlay.clip_guardado("Grabación guardada", os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
+                self._overlay.clip_guardado(I18N.t("Grabación guardada"), os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
                 if self._cfg.get("sonido_clip", True):
                     self._sonidos.tocar("clip")
                 self._terminar_grabacion(archivo, pistas)
@@ -1138,7 +1152,7 @@ class Api:
         self._ultimo = destino
         if self._cfg.get("sonido_clip", True):
             self._sonidos.tocar("clip")
-        self._overlay.clip_guardado("Captura guardada", juego or "Escritorio")
+        self._overlay.clip_guardado(I18N.t("Captura guardada"), juego or I18N.t("Escritorio"))
         self._aviso(f"Captura guardada en {juego or 'GrabaClip'}", "ok")
         self._emitir("biblioteca")
 
@@ -1158,7 +1172,7 @@ class Api:
         tiempo = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
         if self._cfg.get("sonido_clip", True):
             self._sonidos.tocar("activar")
-        self._overlay.clip_guardado(f"Marca {len(lista)}", tiempo)
+        self._overlay.clip_guardado(I18N.t(f"Marca {len(lista)}"), tiempo)
         self._aviso(f"Marca {len(lista)} en {tiempo}", "ok")
 
     def _leer_favoritos(self):
@@ -1554,8 +1568,8 @@ class Api:
         if not self._cfg.get("bandeja_aviso_visto"):
             self._cfg["bandeja_aviso_visto"] = True
             N.guardar_config(self._cfg)
-            self._bandeja.globo("GrabaClip sigue funcionando",
-                                "Está junto al reloj (en los íconos ocultos). Clic derecho para salir.")
+            self._bandeja.globo(I18N.t("GrabaClip sigue funcionando"),
+                                I18N.t("Está junto al reloj (en los íconos ocultos). Clic derecho para salir."))
 
     def _mostrar_ventana(self):
         # doble clic en el ícono = dos llamadas seguidas; la segunda no hace nada

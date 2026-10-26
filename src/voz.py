@@ -176,9 +176,14 @@ class Voz:
         for r in instalados:
             if r.Culture.Name.lower() == preferido.lower():
                 return r
-        for r in instalados:  # automatico: primero espanol, despues el que haya
-            if r.Culture.Name.lower().startswith("es"):
-                return r
+        try:
+            from idiomas import ACTUAL
+        except Exception:
+            ACTUAL = "es"
+        for pref in (ACTUAL, "es"):  # automático: el idioma de la app, después español, después el que haya
+            for r in instalados:
+                if r.Culture.Name.lower().startswith(pref):
+                    return r
         return instalados[0]
 
     # ---------- reconocimiento ----------

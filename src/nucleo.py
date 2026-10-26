@@ -90,7 +90,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
                   "tecla_captura": "f7", "tecla_marca": "f6",
                   "tecla_clip_largo": "shift+f9", "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
-                  "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "tema": "Carmesí", "ui_version": 6,
+                  "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto", "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,

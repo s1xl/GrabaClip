@@ -632,9 +632,9 @@
           <div class="fila"><div class="voz-estado" id="voz-estado"><i></i><span>Apagado</span></div></div>
         </div>
         <div class="tarjeta" id="voz-frases">
-          <div class="fila columna" data-accion="clip"><div class="cab"><h3>Guardar clip</h3></div><div class="frases"></div></div>
-          <div class="fila columna" data-accion="grabar"><div class="cab"><h3>Empezar / detener grabación</h3></div><div class="frases"></div></div>
-          <div class="fila columna" data-accion="clips"><div class="cab"><h3>Activar / desactivar clips</h3></div><div class="frases"></div></div>
+          <div class="fila columna" data-accion="clip"><div class="cab"><h3>Guardar clip</h3></div><div class="frases" translate="no"></div></div>
+          <div class="fila columna" data-accion="grabar"><div class="cab"><h3>Empezar / detener grabación</h3></div><div class="frases" translate="no"></div></div>
+          <div class="fila columna" data-accion="clips"><div class="cab"><h3>Activar / desactivar clips</h3></div><div class="frases" translate="no"></div></div>
         </div>
         <div class="tarjeta">
           <div class="fila columna"><div class="cab"><h3>Idioma</h3></div>
@@ -723,6 +723,10 @@
 
       <div class="seccion" id="s-apariencia">
         <h2>Apariencia</h2>
+        <div class="tarjeta" style="margin-bottom:14px">
+          <div class="fila"><div class="texto"><h3>Idioma de la app</h3><p>Idioma / Language / Idioma</p></div>
+            <select class="campo-sel" id="sel-idioma" style="flex:none;width:auto" translate="no"></select></div>
+        </div>
         <div class="temas" id="temas"></div>
       </div>
     </div>
@@ -786,7 +790,7 @@
 
 <div id="avisos"></div>
 <div id="compartir" class="modal"><div class="caja comp-caja">
-  <div class="ed-cab"><div><h3>Compartir</h3><p id="comp-nombre"></p></div>
+  <div class="ed-cab"><div><h3>Compartir</h3><p id="comp-nombre" translate="no"></p></div>
     <button class="ed-x" id="comp-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <button class="comp-op" id="comp-copiar">
     <span class="comp-ico"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span>
@@ -799,7 +803,7 @@
   <div class="botones oculto" id="comp-listo"><button id="comp-carpeta">Mostrar en la carpeta</button><button class="rojo" id="comp-ok">Listo</button></div>
 </div></div>
 <div id="editor"><div class="ed-caja">
-  <div class="ed-cab"><div><h3>Recortar</h3><p id="ed-nombre"></p></div>
+  <div class="ed-cab"><div><h3>Recortar</h3><p id="ed-nombre" translate="no"></p></div>
     <button class="ed-x" id="ed-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <div class="ed-video"><video id="ed-v" preload="auto"></video><div class="ed-cargando" id="ed-cargando">Cargando video…</div></div>
   <div class="ed-linea" id="ed-linea">
@@ -837,6 +841,77 @@
   <div class="botones"><button id="dlg-no">Cancelar</button><button class="rojo" id="dlg-si">Eliminar</button></div></div></div>
 
 <script>
+/* ---------- traducción: la interfaz está escrita en español y se traduce al mostrarse ---------- */
+const TR = {activo: false, exacto: {}, patrones: []};
+function prepararTraduccion(cat, idioma) {
+  TR.activo = idioma !== 'es' && !!cat;
+  if (!TR.activo) return;
+  TR.exacto = cat.exacto || {};
+  TR.patrones = (cat.patrones || []).map(([origen, destino]) => {
+    const orden = [];
+    const rx = origen.split(/(\{\d+\})/).map(p => {
+      const m = p.match(/^\{(\d+)\}$/);
+      if (m) { orden.push(+m[1]); return '(.+?)'; }
+      return p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }).join('');
+    return {rx: new RegExp('^' + rx + '$', 's'), orden, destino};
+  });
+}
+function tr(texto) {
+  if (!TR.activo || !texto) return texto;
+  const m0 = texto.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  const nucleo = m0[2].replace(/\s+/g, ' ');
+  if (!nucleo) return texto;
+  let r = TR.exacto[nucleo];
+  if (r === undefined) {
+    for (const p of TR.patrones) {
+      const m = nucleo.match(p.rx);
+      if (!m) continue;
+      const val = {};
+      p.orden.forEach((n, i) => { const g = m[i + 1]; val[n] = TR.exacto[g] !== undefined ? TR.exacto[g] : g; });
+      r = p.destino.replace(/\{(\d+)\}/g, (x, n) => val[n] !== undefined ? val[n] : x);
+      break;
+    }
+  }
+  return r === undefined ? texto : m0[1] + r + m0[3];
+}
+const yaTraducido = new WeakMap();
+function traducirNodo(raiz) {
+  if (!TR.activo || !raiz) return;
+  const noTocar = el => el && el.closest && el.closest('[translate="no"], script, style');
+  const textos = n => {
+    if (n.nodeType === 3) {
+      if (noTocar(n.parentElement) || yaTraducido.get(n) === n.data) return;
+      const t = tr(n.data);
+      if (t !== n.data) n.data = t;
+      yaTraducido.set(n, n.data);
+      return;
+    }
+    if (n.nodeType !== 1 || noTocar(n)) return;
+    for (const a of ['title', 'placeholder']) {
+      const v = n.getAttribute(a);
+      if (v) { const t = tr(v); if (t !== v) n.setAttribute(a, t); }
+    }
+    for (const c of n.childNodes) textos(c);
+  };
+  textos(raiz);
+}
+const observadorTR = new MutationObserver(cambios => {
+  for (const c of cambios) {
+    if (c.type === 'characterData') traducirNodo(c.target);
+    else if (c.type === 'attributes') {
+      const el = c.target, v = el.getAttribute(c.attributeName);
+      if (v && !el.closest('[translate="no"]')) { const t = tr(v); if (t !== v) el.setAttribute(c.attributeName, t); }
+    }
+    else c.addedNodes.forEach(traducirNodo);
+  }
+});
+function activarTraduccion() {
+  if (!TR.activo) return;
+  traducirNodo(document.body);
+  observadorTR.observe(document.body, {subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['title', 'placeholder']});
+}
+
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 let D = null, cfg = {}, est = {}, reloj = null;
@@ -900,7 +975,7 @@ function duracion(s) {
   return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
 }
 const tamano = b => b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : Math.max(1, Math.round(b / 1e6)) + ' MB';
-const fecha = ms => new Date(ms).toLocaleString('es', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
+const fecha = ms => new Date(ms).toLocaleString({en: 'en-US', pt: 'pt-BR'}[(D && D.idioma)] || 'es', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
 
 /* ---------- biblioteca ---------- */
 async function cargarVideos() {
@@ -1053,7 +1128,7 @@ function pintarVideos() {
         <div class="tv-info">
           <div class="tv-cab"><span class="etiqueta mezcla-acento">${{clip: 'CLIP', captura: 'CAPTURA'}[v.tipo] || 'GRABACIÓN'}</span>
             <button class="estrella ${v.fav ? 'on' : ''}" title="${v.fav ? 'Quitar de favoritos' : 'Marcar como favorito (el límite de espacio nunca lo borra)'}">${ICON.estrella}</button></div>
-          <span class="nombre" title="Clic para renombrar"></span>
+          <span class="nombre" translate="no" title="Clic para renombrar"></span>
           <span class="juego">${ICON.mando}<span></span></span>
           <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}${v.marcas ? ` · <span class="con-marcas">${ICON.marca}${v.marcas}</span>` : ''}</span>
         </div>
@@ -1291,7 +1366,9 @@ function pintarFrases() {
     });
     const entrada = document.createElement('input');
     entrada.className = 'nueva-frase';
-    const ejemplo = {clip: 'Jarvis, sácale clip', grabar: 'Jarvis, graba esto', clips: 'Jarvis, activa los clips'}[accion];
+    const ejemplo = ({es: {clip: 'Jarvis, sácale clip', grabar: 'Jarvis, graba esto', clips: 'Jarvis, activa los clips'},
+                     en: {clip: 'Jarvis, clip that', grabar: 'Jarvis, record this', clips: 'Jarvis, turn on clips'},
+                     pt: {clip: 'Jarvis, clipa isso', grabar: 'Jarvis, grava isso', clips: 'Jarvis, ativa os clipes'}}[(D && D.idioma) || 'es'] || {})[accion];
     entrada.placeholder = lista.length ? 'Agregar otra frase y pulsar Enter' : `Escribe una frase y pulsa Enter (ej. "${ejemplo}")`;
     entrada.onkeydown = e => {
       if (e.key !== 'Enter') return;
@@ -1328,9 +1405,11 @@ async function cargarIdiomasVoz() {
     sel.append(o);
   }
   sel.value = cfg.voz_idioma || '';
-  const hayEs = lista.some(i => i.id.toLowerCase().startsWith('es'));
-  $('#voz-ayuda-idioma').textContent = hayEs ? ''
-    : 'No tienes el reconocimiento de voz en español. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma > Español, y marca "Reconocimiento de voz". Mientras tanto se usa ' + (lista[0] ? lista[0].nombre : 'el idioma de Windows') + '.';
+  const lengua = (D && D.idioma) || 'es';
+  const nombreLengua = {es: 'español', en: 'inglés', pt: 'portugués'}[lengua];
+  const hayIdioma = lista.some(i => i.id.toLowerCase().startsWith(lengua));
+  $('#voz-ayuda-idioma').textContent = hayIdioma ? ''
+    : `No tienes el reconocimiento de voz en ${nombreLengua}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca "Reconocimiento de voz". Mientras tanto se usa ${lista[0] ? lista[0].nombre : 'el idioma de Windows'}.`;
 }
 $('#sel-voz-idioma').onchange = e => guardar({voz_idioma: e.target.value});
 $('#r-conf').oninput = e => $('#conf-v').textContent = e.target.value + ' %';
@@ -1522,6 +1601,20 @@ function progresoRecorte(d) {
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
 }
+
+// ---------- idioma ----------
+function pintarIdiomas() {
+  const sel = $('#sel-idioma');
+  if (!sel || !D || !D.idiomas) return;
+  const auto = {es: 'Automático (el de Windows)', en: 'Automatic (Windows language)', pt: 'Automático (o do Windows)'}[D.idioma] || 'Automático';
+  sel.innerHTML = `<option value="auto">${auto}</option>` +
+    Object.entries(D.idiomas).map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
+  sel.value = cfg.idioma || 'auto';
+}
+$('#sel-idioma').onchange = async e => {
+  await api('guardar', {idioma: e.target.value});
+  location.reload();  // la interfaz se vuelve a cargar ya traducida
+};
 
 // ---------- estadísticas ----------
 function horas(s) {
@@ -1930,6 +2023,10 @@ window.recibir = m => {
 
 async function iniciar() {
   D = await api('inicio');
+  prepararTraduccion(D.catalogo, D.idioma);
+  activarTraduccion();
+  document.documentElement.lang = D.idioma || 'es';
+  pintarIdiomas();
   cfg = D.cfg; est = D.estado; voz = D.voz || {};
   pintarTemas(); pintarChips(); aplicarTema(cfg.tema);
   pintarCarpeta(D.carpeta);

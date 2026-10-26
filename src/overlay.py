@@ -9,6 +9,8 @@ completa exclusiva Windows no deja dibujar nada encima.
 import sys
 import time
 import queue
+
+from idiomas import t
 import threading
 
 CLAVE = "#010203"   # color que se vuelve transparente
@@ -171,9 +173,9 @@ class Overlay:
             texto = "REC  %02d:%02d:%02d" % (s // 3600, s // 60 % 60, s % 60)
             punto = "#ef4444" if self._latido < 10 else "#7f1d1d"
         elif e.get("esperando"):
-            texto, punto = "Clips · esperando juego", "#9ca3af"
+            texto, punto = t("Clips · esperando juego"), "#9ca3af"
         else:
-            texto = "Clips"
+            texto = t("Clips")
             punto = "#22c55e" if self._latido < 12 else "#15803d"
         ancho = 30 + 8 * len(texto) + 20
         alto = 30
