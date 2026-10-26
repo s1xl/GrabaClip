@@ -302,7 +302,7 @@ class Sesion:
         offset = f"{cfg['ajuste_ms'] / 1000:.3f}"
         if self.audio:
             for i in range(len(especies)):
-                entradas += ["-itsoffset", offset, "-thread_queue_size", "4096",
+                entradas += ["-itsoffset", offset,
                              "-f", "s16le", "-ar", "48000", "-ac", "2",
                              "-i", rf"\\.\pipe\{prefijo}_{i}"]
 
