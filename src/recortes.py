@@ -126,48 +126,67 @@ class ServidorVideo:
         self._permitidos = {i: r for i, r in self._lugares.values()}
 
 
-def _nombre_libre(carpeta, base):
+def _nombre_libre(carpeta, base, sufijo="_recorte"):
     n = 1
     while True:
-        nombre = f"{base}_recorte{'' if n == 1 else n}.mp4"
+        nombre = f"{base}{sufijo}{'' if n == 1 else n}.mp4"
         if not os.path.exists(os.path.join(carpeta, nombre)):
             return os.path.join(carpeta, nombre)
         n += 1
 
 
-def recortar(ruta, inicio, fin, encoder, calidad, progreso=None):
-    """Crea <nombre>_recorte.mp4 junto al original. Devuelve la ruta nueva."""
+def pistas_video(ruta):
+    """Nombres de las pistas de audio, en orden (los que puso GrabaClip: Mezcla, Micrófono…)."""
+    import json
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+                            "stream=index:stream_tags=handler_name,title", "-of", "json", ruta],
+                           capture_output=True, creationflags=N.SIN_VENTANA, timeout=30)
+        datos = json.loads(r.stdout or b"{}")
+    except Exception:
+        return []
+    nombres = []
+    for k, st in enumerate(datos.get("streams", [])):
+        t = st.get("tags") or {}
+        nombre = t.get("title") or t.get("handler_name") or ""
+        if not nombre or nombre.lower() in ("soundhandler", "sound handler"):
+            nombre = f"Pista {k + 1}"
+        nombres.append(nombre)
+    return nombres
+
+
+VERTICAL = "crop=trunc(ih*9/16/2)*2:ih,scale=1080:1920:flags=lanczos,setsar=1"
+
+
+def recortar(ruta, inicio, fin, encoder, calidad, progreso=None, pistas=None, vertical=False):
+    """Crea una copia junto al original: recortada, con solo las pistas elegidas
+    (None = todas) y, si se pide, en vertical 9:16 para TikTok/Shorts/Reels."""
     inicio, fin = max(0.0, float(inicio)), float(fin)
     dur = fin - inicio
     if dur < 0.5:
         raise ValueError("El recorte tiene que durar al menos medio segundo")
     carpeta = os.path.dirname(ruta)
-    salida = _nombre_libre(carpeta, os.path.splitext(os.path.basename(ruta))[0])
+    salida = _nombre_libre(carpeta, os.path.splitext(os.path.basename(ruta))[0],
+                           "_vertical" if vertical else "_recorte")
     temporal = salida + ".parcial.mp4"
+    if pistas is None:
+        mapas_audio = ["-map", "0:a?"]
+    else:
+        mapas_audio = []
+        for i in pistas:
+            mapas_audio += ["-map", f"0:a:{int(i)}"]
 
     def intentar(enc):
         args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-                "-ss", f"{inicio:.3f}", "-i", ruta, "-t", f"{dur:.3f}",
-                "-map", "0:v:0", "-map", "0:a?"]
+                "-ss", f"{inicio:.3f}", "-i", ruta, "-t", f"{dur:.3f}", "-map", "0:v:0"] + mapas_audio
+        if vertical:
+            args += ["-vf", VERTICAL]
         args += N.args_encoder(enc, calidad)
-        args += ["-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k",
-                 "-map_metadata", "0", "-movflags", "+faststart",
-                 "-progress", "pipe:1", "-nostats", temporal]
-        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             creationflags=N.BAJA_PRIORIDAD)
-        errores = []
-        hilo = threading.Thread(target=lambda: errores.append(p.stderr.read()), daemon=True)
-        hilo.start()
-        for linea in p.stdout:
-            linea = linea.decode("ascii", "replace").strip()
-            if linea.startswith("out_time_us=") and progreso:
-                try:
-                    progreso(min(1.0, int(linea.split("=", 1)[1]) / 1e6 / dur))
-                except ValueError:
-                    pass
-        p.wait()
-        hilo.join(timeout=2)
-        return p.returncode, (errores[0] if errores else b"")
+        args += ["-pix_fmt", "yuv420p"]
+        if mapas_audio:
+            args += ["-c:a", "aac", "-b:a", "160k"]
+        args += ["-map_metadata", "0", "-movflags", "+faststart", temporal]
+        return _ffmpeg(args, dur, progreso)
 
     codigo, err = intentar(encoder or "libx264")
     if codigo != 0 and encoder and encoder != "libx264":
@@ -180,7 +199,72 @@ def recortar(ruta, inicio, fin, encoder, calidad, progreso=None):
         os.makedirs(N.CARPETA_LOGS, exist_ok=True)
         with open(os.path.join(N.CARPETA_LOGS, "recorte.log"), "wb") as f:
             f.write(err or b"")
-        raise RuntimeError("FFmpeg no pudo recortar el video (revisa logs\\recorte.log)")
+        raise RuntimeError("FFmpeg no pudo crear el video (revisa logs\\recorte.log)")
+    os.replace(temporal, salida)
+    return salida
+
+
+def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
+    """Une varios videos en uno, con un fundido corto entre cada uno.
+    Usa la resolución y los FPS del primero y una sola pista de audio (la mezcla)."""
+    if len(rutas) < 2:
+        raise ValueError("Elige al menos dos videos para unir")
+    infos = [info_video(r) for r in rutas]  # (dur, alto, fps, indice de la mezcla)
+    if any(d <= 0 for d, *_ in infos):
+        raise RuntimeError("No pude leer uno de los videos")
+    import json
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                        "stream=width,height", "-of", "json", rutas[0]],
+                       capture_output=True, creationflags=N.SIN_VENTANA, timeout=30)
+    v0 = (json.loads(r.stdout or b"{}").get("streams") or [{}])[0]
+    ancho, alto = int(v0.get("width") or 1920), int(v0.get("height") or 1080)
+    ancho, alto = ancho - ancho % 2, alto - alto % 2
+    fps = round(infos[0][2] or 60)
+    t = min(transicion, min(d for d, *_ in infos) / 3)
+    entradas, partes = [], []
+    con_audio = [bool(pistas_video(r)) for r in rutas]
+    for k, ruta in enumerate(rutas):
+        entradas += ["-i", ruta]
+    silencio = len(rutas)  # entrada extra de silencio para los videos sin audio
+    entradas += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
+    for k, (dur, _, _, mezcla) in enumerate(infos):
+        fuente_a = f"[{k}:a:{mezcla}]" if con_audio[k] else f"[{silencio}:a]"
+        partes.append(f"[{k}:v:0]scale={ancho}:{alto}:force_original_aspect_ratio=decrease,"
+                      f"pad={ancho}:{alto}:(ow-iw)/2:(oh-ih)/2,fps={fps},format=yuv420p,setsar=1,"
+                      f"trim=duration={dur:.3f},setpts=PTS-STARTPTS[v{k}]")
+        partes.append(f"{fuente_a}aresample=48000,aformat=channel_layouts=stereo,"
+                      f"atrim=duration={dur:.3f},asetpts=PTS-STARTPTS,apad=whole_dur={dur:.3f}[a{k}]")
+    v_ant, a_ant, offset = "v0", "a0", 0.0
+    for k in range(1, len(rutas)):
+        offset += infos[k - 1][0] - t
+        partes.append(f"[{v_ant}][v{k}]xfade=transition=fade:duration={t:.3f}:offset={offset:.3f}[vx{k}]")
+        partes.append(f"[{a_ant}][a{k}]acrossfade=d={t:.3f}[ax{k}]")
+        v_ant, a_ant = f"vx{k}", f"ax{k}"
+    total = sum(d for d, *_ in infos) - t * (len(rutas) - 1)
+    carpeta = os.path.dirname(rutas[0])
+    salida = _nombre_libre(carpeta, f"clip_unido_{N.marca_tiempo()}", "")
+    temporal = salida + ".parcial.mp4"
+
+    def intentar(enc):
+        args = (["ffmpeg", "-hide_banner", "-loglevel", "error", "-y"] + entradas +
+                ["-filter_complex", ";".join(partes), "-map", f"[{v_ant}]", "-map", f"[{a_ant}]"] +
+                N.args_encoder(enc, calidad) +
+                ["-c:a", "aac", "-b:a", "160k", "-metadata:s:a:0", "handler_name=Mezcla",
+                 "-movflags", "+faststart", temporal])
+        return _ffmpeg(args, total, progreso)
+
+    codigo, err = intentar(encoder or "libx264")
+    if codigo != 0 and encoder and encoder != "libx264":
+        codigo, err = intentar("libx264")
+    if codigo != 0 or not os.path.exists(temporal):
+        try:
+            os.remove(temporal)
+        except OSError:
+            pass
+        os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+        with open(os.path.join(N.CARPETA_LOGS, "unir.log"), "wb") as f:
+            f.write(err or b"")
+        raise RuntimeError("FFmpeg no pudo unir los videos (revisa logs\\unir.log)")
     os.replace(temporal, salida)
     return salida
 
@@ -189,7 +273,8 @@ def recortar(ruta, inicio, fin, encoder, calidad, progreso=None):
 
 def _ffmpeg(args, dur, progreso):
     """Corre FFmpeg informando el avance (0..1). Devuelve (codigo, stderr)."""
-    p = subprocess.Popen(args + ["-progress", "pipe:1", "-nostats"], stdout=subprocess.PIPE,
+    args = args[:1] + ["-progress", "pipe:1", "-nostats"] + args[1:]  # opciones globales, antes de la salida
+    p = subprocess.Popen(args, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE, creationflags=N.BAJA_PRIORIDAD)
     errores = []
     hilo = threading.Thread(target=lambda: errores.append(p.stderr.read()), daemon=True)

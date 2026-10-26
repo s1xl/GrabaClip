@@ -129,6 +129,11 @@
   .barra-filtros .total { white-space: nowrap; }
   @media (max-width: 1120px) { .barra-filtros .total { display: none; } .selector select { max-width: 170px; } }
   @media (max-width: 920px) { .filtro[data-f="fav"] { font-size: 0; padding: 6px 10px; } .filtro[data-f="fav"] .estrella-ic { margin: 0; } }
+  .barra-filtros, .barra-seleccion { flex-wrap: wrap; row-gap: 8px; min-width: 0; }
+  #v-grab { min-width: 0; }
+  @media (max-width: 1120px) { .barra-seleccion .mini-boton { padding: 6px 9px; } #sel-todos { display: none; } }
+  .prog-unir { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--acento); white-space: nowrap; }
+  .prog-unir + .filtro { margin-left: 0; }
   .filtro .estrella-ic { width: 13px; height: 13px; vertical-align: -2px; margin-right: 5px; }
   #sel-orden { max-width: 160px; }
   .barra-seleccion { display: flex; align-items: center; gap: 8px; margin: 8px 26px 0; padding: 8px 12px; border-radius: 8px;
@@ -350,6 +355,9 @@
   .ed-x svg { width: 16px; height: 16px; }
   .ed-video { position: relative; background: #000; border-radius: 6px; overflow: hidden; aspect-ratio: 16 / 9; max-height: 52vh; margin: 0 auto; }
   .ed-video video { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .ed-video.vertical::before, .ed-video.vertical::after { content: ""; position: absolute; top: 0; bottom: 0; z-index: 1; pointer-events: none;
+    background: rgba(0,0,0,.6); width: calc((100% - (100% * 9 / 16) * 9 / 16) / 2); }
+  .ed-video.vertical::before { left: 0; } .ed-video.vertical::after { right: 0; }
   .ed-cargando { position: absolute; inset: 0; display: grid; place-items: center; color: #aaa; font-size: 13px; }
   .ed-linea { position: relative; height: 44px; margin: 14px 8px 6px; border-radius: 6px; background: var(--campo); border: 1px solid var(--borde); cursor: pointer; touch-action: none; }
   .ed-rango { position: absolute; top: -1px; bottom: -1px; border: 2px solid var(--acento); border-radius: 6px;
@@ -362,6 +370,16 @@
   .ed-marca svg { width: 12px; height: 12px; fill: #f5b301; stroke: none; display: block; }
   .ed-marca::after { content: ""; position: absolute; left: 5px; top: 10px; width: 2px; height: 37px; background: #f5b301; opacity: .7; }
   .ed-cabezal { position: absolute; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background: var(--fg); pointer-events: none; border-radius: 1px; }
+  .ed-opciones { display: flex; gap: 24px; flex-wrap: wrap; margin: 0 0 12px; }
+  .ed-grupo { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--tenue); }
+  .ed-grupo .chips button { padding: 5px 12px; font-size: 12px; }
+  .ed-pistas { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ed-pista { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; border: 1px solid var(--borde);
+              background: var(--campo); color: var(--tenue); font-weight: 600; font-size: 12px; cursor: pointer; }
+  .ed-pista.on { color: var(--fg); border-color: color-mix(in srgb, var(--acento) 60%, var(--borde)); }
+  .ed-pista i { width: 12px; height: 12px; border-radius: 3px; border: 2px solid currentColor; display: grid; place-items: center; }
+  .ed-pista.on i { background: var(--acento); border-color: var(--acento); }
+  .ed-pista.on i::after { content: ""; width: 5px; height: 3px; border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(-45deg) translate(0.5px, -0.5px); }
   .ed-tiempos { display: flex; justify-content: space-between; color: var(--tenue); font-size: 12.5px; margin: 0 8px 12px; }
   .ed-tiempos b { color: var(--fg); font-variant-numeric: tabular-nums; }
   .ed-controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -443,12 +461,14 @@
         <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <span class="total" id="total"></span>
+      <span class="prog-unir oculto" id="prog-unir"></span>
       <button class="filtro" id="b-seleccionar">Seleccionar</button>
     </div>
     <div class="barra-seleccion oculto" id="barra-sel">
       <b id="sel-cuenta">0 seleccionados</b>
       <button class="mini-boton" id="sel-todos">Seleccionar todos</button>
       <span class="ed-espacio"></span>
+      <button class="mini-boton" id="sel-unir" title="Une los videos elegidos en uno, en el orden en que se grabaron"><svg viewBox="0 0 24 24"><path d="M4 7h7v10H4zM13 7h7v10h-7z"/></svg>Unir</button>
       <button class="mini-boton" id="sel-fav"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favorito</button>
       <button class="mini-boton peligro" id="sel-borrar"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Enviar a la Papelera</button>
       <button class="mini-boton" id="sel-cancelar">Cancelar</button>
@@ -749,6 +769,11 @@
     <div class="ed-cabezal" id="ed-cabezal"></div>
   </div>
   <div class="ed-tiempos"><span>Inicio <b id="ed-t-i">0:00.0</b></span><span>Duración <b id="ed-t-d">0:00.0</b></span><span>Fin <b id="ed-t-f">0:00.0</b></span></div>
+  <div class="ed-opciones">
+    <div class="ed-grupo"><span>Formato</span>
+      <div class="chips" id="ed-formato"><button data-v="0" class="sel">Original</button><button data-v="1">Vertical 9:16</button></div></div>
+    <div class="ed-grupo" id="ed-pistas-g"><span>Pistas de audio</span><div id="ed-pistas" class="ed-pistas"></div></div>
+  </div>
   <div class="ed-controles">
     <button class="mini-boton" id="ed-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Reproducir</button>
     <button class="mini-boton" id="ed-marca-i" title="Tecla I">Inicio aquí</button>
@@ -871,6 +896,8 @@ function pintarSel() {
   const n = sel.rutas.size;
   $('#sel-cuenta').textContent = n === 1 ? '1 seleccionado' : `${n} seleccionados`;
   $('#sel-borrar').disabled = $('#sel-fav').disabled = !n;
+  const nVideos = videos.filter(v => sel.rutas.has(v.ruta) && v.tipo !== 'captura').length;
+  $('#sel-unir').disabled = nVideos < 2 || uniendo;
 }
 function alternarSel(ruta) {
   sel.rutas.has(ruta) ? sel.rutas.delete(ruta) : sel.rutas.add(ruta);
@@ -884,6 +911,20 @@ $('#sel-todos').onclick = () => {
   ultimaLista.forEach(v => todas ? sel.rutas.delete(v.ruta) : sel.rutas.add(v.ruta));
   pintarVideos();
 };
+let uniendo = false;
+$('#sel-unir').onclick = async () => {
+  const elegidos = videos.filter(v => sel.rutas.has(v.ruta) && v.tipo !== 'captura');
+  const total = elegidos.reduce((a, v) => a + (v.duracion || 0), 0);
+  if (!await confirmar(`¿Unir ${elegidos.length} videos?`, `Se crea un video nuevo de unos ${minutos(Math.round(total))} con un fundido corto entre cada uno y una sola pista de audio (la mezcla). Los originales no se tocan.`, 'Unir')) return;
+  const r = await api('unir', elegidos.map(v => v.ruta));
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  uniendo = true; salirSel(); aviso('Uniendo videos… te aviso al terminar');
+};
+function progresoUnir(d) {
+  const p = $('#prog-unir');
+  if (d.pct != null) { p.classList.remove('oculto'); p.textContent = `Uniendo… ${d.pct}%`; }
+  if (d.fin) { uniendo = false; p.classList.add('oculto'); pintarVideos(); }
+}
 $('#sel-fav').onclick = async () => {
   const elegidos = videos.filter(v => sel.rutas.has(v.ruta));
   const valor = !elegidos.every(v => v.fav);
@@ -1284,7 +1325,23 @@ function tiempoFino(s) {
 async function abrirEditor(v) {
   const r = await api('abrir_editor', v.ruta);
   if (!r.ok) { aviso(r.msg, 'error'); return; }
-  Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false, marcas: (r.marcas || []).slice().sort((a, b) => a - b)});
+  Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false, marcas: (r.marcas || []).slice().sort((a, b) => a - b),
+                     pistas: r.pistas || [], activas: new Set((r.pistas || []).map((_, i) => i)), vertical: false});
+  $$('#ed-formato button').forEach(b => b.classList.toggle('sel', b.dataset.v === '0'));
+  const cp = $('#ed-pistas'); cp.innerHTML = '';
+  $('#ed-pistas-g').classList.toggle('oculto', ED.pistas.length < 1);
+  ED.pistas.forEach((nombre, i) => {
+    const b = document.createElement('button');
+    b.className = 'ed-pista on'; b.innerHTML = '<i></i><span></span>';
+    b.querySelector('span').textContent = nombre;
+    b.title = 'Clic para quitar o volver a poner esta pista';
+    b.onclick = () => {
+      if (ED.activas.has(i)) { if (ED.activas.size === 1) { aviso('Deja al menos una pista de audio', 'error'); return; } ED.activas.delete(i); }
+      else ED.activas.add(i);
+      b.classList.toggle('on', ED.activas.has(i)); pintarEditor();
+    };
+    cp.append(b);
+  });
   $('#ed-m-ant').classList.toggle('oculto', !ED.marcas.length);
   $('#ed-m-sig').classList.toggle('oculto', !ED.marcas.length);
   $('#ed-marcas').innerHTML = '';
@@ -1312,7 +1369,7 @@ function pintarEditor() {
   $('#ed-cabezal').style.left = pct(edv().currentTime);
   $('#ed-t-i').textContent = tiempoFino(ED.ini); $('#ed-t-f').textContent = tiempoFino(ED.fin);
   $('#ed-t-d').textContent = tiempoFino(ED.fin - ED.ini);
-  const cambiado = ED.ini > 0.05 || ED.fin < ED.dur - 0.05;
+  const cambiado = ED.ini > 0.05 || ED.fin < ED.dur - 0.05 || ED.vertical || (ED.pistas && ED.activas.size < ED.pistas.length);
   $('#ed-guardar').disabled = ED.guardando || !cambiado || ED.fin - ED.ini < 0.5;
 }
 function pintarPlay() {
@@ -1342,6 +1399,12 @@ function alternarPlay() {
   else v.pause();
 }
 $('#ed-play').onclick = alternarPlay;
+$$('#ed-formato button').forEach(b => b.onclick = () => {
+  ED.vertical = b.dataset.v === '1';
+  $$('#ed-formato button').forEach(x => x.classList.toggle('sel', x === b));
+  $('.ed-video').classList.toggle('vertical', ED.vertical);
+  pintarEditor();
+});
 $('#ed-cerrar').onclick = cerrarEditor;
 $('#editor').onclick = e => { if (e.target.id === 'editor') cerrarEditor(); };
 function marcar(cual) {
@@ -1404,7 +1467,8 @@ $('#ed-guardar').onclick = async () => {
   ED.guardando = true; pintarEditor();
   $('#ed-barra').classList.remove('oculto'); $('#ed-barra i').style.width = '0';
   $('#ed-nota').textContent = 'Recortando…';
-  const r = await api('recortar', ED.v.ruta, ED.ini, ED.fin, reemplazar);
+  const pistas = ED.activas.size < ED.pistas.length ? [...ED.activas].sort((a, b) => a - b) : null;
+  const r = await api('recortar', ED.v.ruta, ED.ini, ED.fin, reemplazar, pistas, ED.vertical);
   if (!r.ok) { ED.guardando = false; pintarEditor(); aviso(r.msg, 'error'); $('#ed-barra').classList.add('oculto'); }
 };
 function progresoRecorte(d) {
@@ -1787,6 +1851,7 @@ window.recibir = m => {
   else if (m.tipo === 'update') pintarUpdate(m.datos);
   else if (m.tipo === 'recorte') progresoRecorte(m.datos);
   else if (m.tipo === 'compartir') progresoCompartir(m.datos);
+  else if (m.tipo === 'unir') progresoUnir(m.datos);
   else if (m.tipo === 'espacio') pintarEspacio(m.datos);
   else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }

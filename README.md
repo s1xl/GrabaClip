@@ -26,7 +26,8 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Discord Rich Presence** (opcional): "Clipeando con GrabaClip" en tu perfil, con el juego y un botón para descargarlo.
 - **Espacio en disco:** muestra cuánto ocupan tus videos y, si pones un límite (20–500 GB), manda los clips más viejos a la Papelera automáticamente.
 - **Compartir:** copia el clip para pegarlo con Ctrl+V en Discord o WhatsApp, o crea una **versión para Discord** de menos de 10 MB que se copia sola.
-- **Recortar clips:** editor dentro de la app con vista previa; elige inicio y fin con la barra o con las teclas I y O. Guarda una copia (o reemplaza el original) conservando todas las pistas de audio.
+- **Editor:** recorta con vista previa (barra, teclas I y O), elige qué pistas de audio van en la copia (por ejemplo, sin Discord) y exporta en **vertical 9:16** para TikTok, Shorts y Reels.
+- **Unir clips:** selecciona varios y GrabaClip los junta en un video con un fundido corto entre cada uno.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).
 - **Ctrl+Shift+G** muestra u oculta GrabaClip; en la biblioteca, los clips se reproducen en la miniatura al pasar el mouse.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.

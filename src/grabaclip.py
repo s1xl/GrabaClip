@@ -787,24 +787,52 @@ class Api:
         if not self._ruta_valida(ruta):
             return {"ok": False, "msg": "No encuentro ese video"}
         return {"ok": True, "url": self._servidor_video.url(ruta),
-                "marcas": self._marcas.get(self._clave_fav(ruta), [])}
+                "marcas": self._marcas.get(self._clave_fav(ruta), []),
+                "pistas": RC.pistas_video(ruta)}
 
     def cerrar_editor(self):
         self._servidor_video.olvidar("editor")
 
-    def recortar(self, ruta, inicio, fin, reemplazar=False):
+    def recortar(self, ruta, inicio, fin, reemplazar=False, pistas=None, vertical=False):
         if not self._ruta_valida(ruta):
             return {"ok": False, "msg": "No encuentro ese video"}
         if self._recortando:
             return {"ok": False, "msg": "Ya hay un recorte en marcha"}
         self._recortando = True
-        threading.Thread(target=self._hacer_recorte, args=(ruta, inicio, fin, bool(reemplazar)), daemon=True).start()
+        threading.Thread(target=self._hacer_recorte, args=(ruta, inicio, fin, bool(reemplazar), pistas, bool(vertical)),
+                         daemon=True).start()
         return {"ok": True}
 
-    def _hacer_recorte(self, ruta, inicio, fin, reemplazar):
+    def unir(self, rutas):
+        rutas = [r for r in (rutas or []) if self._ruta_valida(r) and r.lower().endswith(".mp4")]
+        if len(rutas) < 2:
+            return {"ok": False, "msg": "Elige al menos dos videos para unir"}
+        if self._recortando:
+            return {"ok": False, "msg": "Espera a que termine lo que se está preparando"}
+        self._recortando = True
+        rutas.sort(key=lambda r: os.path.getmtime(r))  # en el orden en que se grabaron
+
+        def tarea():
+            try:
+                nueva = RC.unir(rutas, self._encoder, self._cfg.get("calidad"),
+                                lambda x: self._emitir("unir", {"pct": round(x * 100)}))
+                self._ultimo = nueva
+                self._emitir("unir", {"fin": True, "ok": True})
+                self._aviso(f"Clips unidos: {os.path.basename(nueva)}", "ok")
+                self._emitir("biblioteca")
+            except Exception as ex:
+                self._emitir("unir", {"fin": True, "ok": False})
+                self._aviso(str(ex), "error")
+            finally:
+                self._recortando = False
+        threading.Thread(target=tarea, daemon=True).start()
+        return {"ok": True}
+
+    def _hacer_recorte(self, ruta, inicio, fin, reemplazar, pistas=None, vertical=False):
         try:
             nueva = RC.recortar(ruta, inicio, fin, self._encoder, self._cfg.get("calidad"),
-                                lambda x: self._emitir("recorte", {"pct": round(x * 100)}))
+                                lambda x: self._emitir("recorte", {"pct": round(x * 100)}),
+                                pistas=pistas, vertical=vertical)
             if reemplazar:
                 self._servidor_video.olvidar()
                 time.sleep(0.6)  # que el reproductor suelte el archivo
