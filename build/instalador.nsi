@@ -47,20 +47,20 @@ VIAddVersionKey /LANG=1034 "LegalCopyright" "MIT License"
 !insertmacro MUI_LANGUAGE "Spanish"
 
 ; GrabaClip deja abierto ".abierto" mientras funciona: si no se puede borrar, está abierto.
-!macro ESPERAR_CERRADO
-  reintentar_${__LINE__}:
-  IfFileExists "$INSTDIR\.abierto" 0 libre_${__LINE__}
+!macro ESPERAR_CERRADO ID
+  reintentar_${ID}:
+  IfFileExists "$INSTDIR\.abierto" 0 libre_${ID}
   ClearErrors
   Delete "$INSTDIR\.abierto"
-  IfErrors 0 libre_${__LINE__}
-  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "GrabaClip está abierto.$\r$\nCiérralo (clic derecho en su ícono junto al reloj > Salir) y pulsa Reintentar." IDRETRY reintentar_${__LINE__}
+  IfErrors 0 libre_${ID}
+  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "GrabaClip está abierto.$\r$\nCiérralo (clic derecho en su ícono junto al reloj > Salir) y pulsa Reintentar." IDRETRY reintentar_${ID}
   Abort
-  libre_${__LINE__}:
+  libre_${ID}:
 !macroend
 
 Section "GrabaClip (necesario)" SecApp
   SectionIn RO
-  !insertmacro ESPERAR_CERRADO
+  !insertmacro ESPERAR_CERRADO inst
   SetOutPath "$INSTDIR"
   File /r "${ORIGEN}\*.*"
   WriteUninstaller "$INSTDIR\Desinstalar GrabaClip.exe"
@@ -90,7 +90,7 @@ LangString DESC_Escritorio ${LANG_SPANISH} "Un ícono de GrabaClip en el escrito
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "Uninstall"
-  !insertmacro ESPERAR_CERRADO
+  !insertmacro ESPERAR_CERRADO desinst
   ; Se borra solo lo que pertenece a GrabaClip, por nombre (nunca la carpeta entera con /r:
   ; si alguien lo instaló en una carpeta con otras cosas, esas cosas se quedan). Los videos no se tocan.
   RMDir /r "$INSTDIR\runtime"
