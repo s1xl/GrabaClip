@@ -1,9 +1,10 @@
-# Paquetes para Windows (se descargan como wheel win_amd64 / cp312)
-pywebview>=5.3,<7
-pythonnet>=3.0.3,<4
-clr_loader>=0.2.6,<0.3
-cffi>=1.16
+# Paquetes para Windows (se descargan como wheel win_amd64 / cp312).
+# Versiones fijas y compatibles entre si: pythonnet 3.2 necesita clr_loader 0.3.
+pywebview==6.2.1
+pythonnet==3.2.1
+clr_loader>=0.3.1,<0.4
+cffi>=1.17
 pycparser
-bottle
+bottle==0.13.4
 typing_extensions
 keyboard==0.13.5

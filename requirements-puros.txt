@@ -1,2 +1,2 @@
 # Paquetes 100 % Python que solo se publican como codigo fuente
-proxy_tools
+proxy_tools==0.1.0
