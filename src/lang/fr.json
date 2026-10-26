@@ -1,0 +1,815 @@
+{
+"exacto": {
+"Grabaciones": "Enregistrements",
+"Estadísticas": "Statistiques",
+"Ajustes": "Paramètres",
+"Ayuda": "Aide",
+"Buscar grabaciones": "Rechercher des enregistrements",
+"Cambiar tema": "Changer de thème",
+"Detectando GPU…": "Détection du GPU…",
+"No se puede grabar": "Impossible d'enregistrer",
+"GrabaClip no puede grabar en esta PC": "GrabaClip ne peut pas enregistrer sur ce PC",
+"El video va directo de la pantalla a la tarjeta gráfica, casi sin usar el procesador": "La vidéo passe directement de l'écran à la carte graphique, presque sans utiliser le processeur",
+"Todos": "Tout",
+"Clips": "Clips",
+"Capturas": "Captures",
+"Favoritos": "Favoris",
+"Favorito": "Favori",
+"Todos los juegos": "Tous les jeux",
+"Filtrar por juego o app": "Filtrer par jeu ou appli",
+"Ordenar": "Trier",
+"Más nuevos": "Plus récents",
+"Más viejos": "Plus anciens",
+"Más pesados": "Plus lourds",
+"Más largos": "Plus longs",
+"Nombre": "Nom",
+"Seleccionar": "Sélectionner",
+"Seleccionar todos": "Tout sélectionner",
+"Unir": "Fusionner",
+"Une los videos elegidos en uno, en el orden en que se grabaron": "Fusionne les vidéos choisies en une seule, dans l'ordre où elles ont été enregistrées",
+"Enviar a la Papelera": "Mettre à la Corbeille",
+"Cancelar": "Annuler",
+"Sin clasificar": "Non classé",
+"CLIP": "CLIP",
+"CAPTURA": "CAPTURE",
+"GRABACIÓN": "ENREGISTREMENT",
+"Reproducir": "Lire",
+"Abrir": "Ouvrir",
+"Pausa": "Pause",
+"Compartir": "Partager",
+"Recortar": "Couper",
+"Mostrar en la carpeta": "Afficher dans le dossier",
+"Clic para renombrar": "Cliquer pour renommer",
+"Quitar de favoritos": "Retirer des favoris",
+"Marcar como favorito (el límite de espacio nunca lo borra)": "Marquer comme favori (la limite d'espace ne le supprime jamais)",
+"Sin resultados": "Aucun résultat",
+"Prueba con otra búsqueda o filtro.": "Essaie une autre recherche ou un autre filtre.",
+"Aún no tienes grabaciones": "Pas encore d'enregistrements",
+"Activa los clips instantáneos abajo y pulsa": "Active les clips instantanés en bas et appuie sur",
+", o pulsa REC para grabar.": ", ou appuie sur REC pour enregistrer.",
+"Clips instantáneos": "Clips instantanés",
+"Desactivados": "Désactivés",
+"Esperando a que abras un juego…": "En attente d'un jeu…",
+"Abrir carpeta": "Ouvrir le dossier",
+"REC": "REC",
+"Detener grabación": "Arrêter l'enregistrement",
+"Empezar a grabar": "Commencer à enregistrer",
+"Pantalla": "Écran",
+"Pantalla 1": "Écran 1",
+"Algo falla": "Un problème est survenu",
+"Eliminar": "Supprimer",
+"Aplicar": "Appliquer",
+"Reemplazar": "Remplacer",
+"Listo": "Terminé",
+"Guardar": "Enregistrer",
+"Renombrar": "Renommer",
+"Mostrar más": "Afficher plus",
+"Subir": "Monter",
+"Bajar": "Descendre",
+"Quitar": "Retirer",
+"Cerrar (Esc)": "Fermer (Échap)",
+"Video": "Vidéo",
+"Audio": "Audio",
+"Teclas": "Raccourcis",
+"Voz": "Voix",
+"General": "Général",
+"Apariencia": "Apparence",
+"Desactiva los clips y detén la grabación para cambiar estos ajustes.": "Désactive les clips et arrête l'enregistrement pour modifier ces réglages.",
+"Qué grabar": "Quoi enregistrer",
+"Solo el juego": "Jeu uniquement",
+"Pantalla completa": "Plein écran",
+"Ventana a grabar": "Fenêtre à enregistrer",
+"Automático: el juego que estés usando": "Automatique : le jeu auquel tu joues",
+"Buscar ventanas abiertas": "Chercher les fenêtres ouvertes",
+"Actualizar": "Actualiser",
+"En automático graba el juego que estés usando y cambia solo si cambias de juego. Discord, los navegadores y el escritorio no cuentan como juego.": "En automatique, il enregistre le jeu auquel tu joues et change tout seul si tu changes de jeu. Discord, les navigateurs et le bureau ne comptent pas comme des jeux.",
+"Grabar la pantalla cuando no haya un juego": "Enregistrer l'écran quand il n'y a pas de jeu",
+"Si está apagado, los clips esperan a que abras un juego.": "Si c'est désactivé, les clips attendent que tu ouvres un jeu.",
+"Codificar con": "Encoder avec",
+"Cuadros por segundo": "Images par seconde",
+"Calidad": "Qualité",
+"Resolución": "Résolution",
+"Baja": "Basse",
+"Media": "Moyenne",
+"Alta": "Haute",
+"Muy alta": "Très haute",
+"Máxima": "Maximale",
+"Original": "Originale",
+"Duración de cada clip": "Durée de chaque clip",
+"Duración del clip largo": "Durée du clip long",
+"Para cuando la jugada viene de lejos. El búfer guarda el más largo de los dos, así que más tiempo ocupa más espacio temporal en el disco.": "Pour quand l'action a commencé plus tôt. Le tampon garde le plus long des deux, donc plus de temps prend plus d'espace temporaire sur le disque.",
+"Ajustes por juego": "Réglages par jeu",
+"Cada juego puede tener sus propios FPS, calidad y resolución. Los que no estén aquí usan los ajustes de arriba.": "Chaque jeu peut avoir ses propres FPS, qualité et résolution. Ceux qui ne sont pas ici utilisent les réglages ci-dessus.",
+"Elige un juego o programa abierto…": "Choisis un jeu ou un programme ouvert…",
+"Agregar": "Ajouter",
+"Todavía no hay juegos con ajustes propios.": "Aucun jeu n'a encore ses propres réglages.",
+"FPS general": "FPS par défaut",
+"Calidad general": "Qualité par défaut",
+"Resolución general": "Résolution par défaut",
+"Abre el juego y elígelo de la lista": "Ouvre le jeu et choisis-le dans la liste",
+"Clip automático al cerrar el juego": "Clip automatique à la fermeture du jeu",
+"Cuando cierras el juego, GrabaClip guarda solo los últimos segundos (la pantalla final, el resultado de la partida). Ocupa espacio con cada partida.": "Quand tu fermes le jeu, GrabaClip garde seulement les dernières secondes (l'écran final, le résultat de la partie). Ça prend de la place à chaque partie.",
+"Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.": "Plus de FPS et de qualité donnent des vidéos plus fluides et nettes, mais des fichiers plus gros. Si ton écran est en 60 Hz, enregistrer à plus de 60 FPS n'apporte rien.",
+"Modo automático: se graba el juego que uses": "Mode automatique : le jeu auquel tu joues est enregistré",
+"Se grabará solo esa ventana": "Seule cette fenêtre sera enregistrée",
+" (cerrado ahora)": " (fermée en ce moment)",
+"Lista de ventanas actualizada": "Liste des fenêtres actualisée",
+" · captura directa": " · capture directe",
+" Se grabará la pantalla completa.": " L'écran entier sera enregistré.",
+"Procesador (CPU)": "Processeur (CPU)",
+"Automático": "Automatique",
+"GPU NVIDIA (NVENC)": "GPU NVIDIA (NVENC)",
+"GPU AMD (AMF)": "GPU AMD (AMF)",
+"Procesador (CPU, mas lento)": "Processeur (CPU, plus lent)",
+"No funciono en esta PC.": "N'a pas fonctionné sur ce PC.",
+"Tu driver de NVIDIA es muy antiguo. Actualizalo desde la app de NVIDIA o nvidia.com.": "Ton pilote NVIDIA est trop ancien. Mets-le à jour depuis l'appli NVIDIA ou nvidia.com.",
+"No se encontro una tarjeta NVIDIA compatible.": "Aucune carte NVIDIA compatible n'a été trouvée.",
+"No se encontro una tarjeta AMD compatible (o falta su driver).": "Aucune carte AMD compatible n'a été trouvée (ou son pilote manque).",
+"Intel QuickSync no esta disponible (sin grafica Intel o desactivada).": "Intel QuickSync n'est pas disponible (pas de graphique Intel ou désactivé).",
+"Tu Windows o tu FFmpeg no permiten capturar una sola ventana (necesita Windows 10 1903+ y FFmpeg 8).": "Ton Windows ou ton FFmpeg ne permet pas de capturer une seule fenêtre (il faut Windows 10 1903+ et FFmpeg 8).",
+"Windows bloqueo FFmpeg (Control inteligente de aplicaciones). Desactivalo en Seguridad de Windows > Control de aplicaciones y navegador.": "Windows a bloqué FFmpeg (Smart App Control). Désactive-le dans Sécurité Windows > Contrôle des applications et du navigateur.",
+"Faltan archivos de FFmpeg. Vuelve a descomprimir GrabaClip completo.": "Il manque des fichiers de FFmpeg. Décompresse à nouveau GrabaClip en entier.",
+"Los archivos de FFmpeg estan danados o bloqueados. Vuelve a descomprimir GrabaClip (desbloquea el zip antes).": "Les fichiers de FFmpeg sont endommagés ou bloqués. Décompresse à nouveau GrabaClip (débloque le zip avant).",
+"Windows o el antivirus no dejan ejecutar FFmpeg (acceso denegado).": "Windows ou l'antivirus empêche FFmpeg de s'exécuter (accès refusé).",
+"FFmpeg se cerro de golpe al arrancar.": "FFmpeg s'est fermé brusquement au démarrage.",
+"No se encontro FFmpeg. Vuelve a descomprimir GrabaClip completo.": "FFmpeg est introuvable. Décompresse à nouveau GrabaClip en entier.",
+"Cómo guardar el audio": "Comment enregistrer l'audio",
+"Todo en una pista": "Tout sur une piste",
+"Pistas separadas": "Pistes séparées",
+"Juego, Discord, música y micrófono juntos en una sola pista. Lo más simple para subir o compartir.": "Jeu, Discord, musique et micro ensemble sur une seule piste. Le plus simple pour publier ou partager.",
+"Una pista \"Mezcla\" con todo y otra por cada app que marques, para silenciarlas al editar.": "Une piste « Mix » avec tout et une autre pour chaque appli cochée, pour pouvoir les couper au montage.",
+"Micrófono": "Microphone",
+"Se graba en su propia pista y también en la mezcla.": "Enregistré sur sa propre piste et aussi dans le mix.",
+"Se mezcla con el resto del sonido.": "Mélangé avec le reste du son.",
+"Apps en pista propia": "Applis sur leur propre piste",
+"Para poder quitarlas al editar (Discord, Spotify…).": "Pour pouvoir les retirer au montage (Discord, Spotify…).",
+"con sonido ahora": "avec du son en ce moment",
+"· con sonido ahora": "· avec du son en ce moment",
+"· cerradas; su pista se agrega cuando las abras": "· fermées ; leur piste est ajoutée quand tu les ouvres",
+"cerradas; su pista se agrega cuando las abras": "fermées ; leur piste est ajoutée quand tu les ouvres",
+"● Abierta": "● Ouverte",
+"Cerrada": "Fermée",
+"Lista de apps actualizada": "Liste des applis actualisée",
+"Quitar pistas sin sonido al guardar": "Retirer les pistes silencieuses à l'enregistrement",
+"Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista Mezcla siempre se queda.": "Si une appli était fermée ou silencieuse, sa piste n'apparaît pas dans le clip. La piste Mix reste toujours.",
+"Orden de las pistas": "Ordre des pistes",
+"Así aparecen en DaVinci y en tu editor. Arrastra una pista o usa las flechas.": "C'est ainsi qu'elles apparaissent dans DaVinci et ton logiciel de montage. Fais glisser une piste ou utilise les flèches.",
+"Activas": "Actives",
+"Inactivas": "Inactives",
+"· la app está cerrada; no ocupa lugar en el orden y se agrega al final cuando la abras": "· l'appli est fermée ; elle ne prend pas de place dans l'ordre et s'ajoute à la fin quand tu l'ouvres",
+"Mezcla": "Mix",
+"Todo el sonido junto": "Tout le son ensemble",
+"Tu voz": "Ta voix",
+"App": "Appli",
+"Activa el micrófono o marca apps para ordenar sus pistas.": "Active le micro ou coche des applis pour ordonner leurs pistes.",
+"No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.": "Aucune appli avec du son. Ouvre Discord, Spotify ou ton jeu et appuie sur Actualiser.",
+"Sincronía del audio": "Synchronisation audio",
+"Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.": "À utiliser seulement si le son est en avance ou en retard sur l'image.",
+"La pista \"Mezcla\" lleva todo el sonido junto y nunca se quita.": "La piste « Mix » contient tout le son ensemble et n'est jamais retirée.",
+"Teclas rápidas": "Raccourcis clavier",
+"Activar / desactivar clips": "Activer / désactiver les clips",
+"Enciende o apaga los clips instantáneos sin abrir la ventana (suena un aviso).": "Active ou désactive les clips instantanés sans ouvrir la fenêtre (un son retentit).",
+"Guardar clip": "Enregistrer le clip",
+"Guarda los últimos segundos.": "Enregistre les dernières secondes.",
+"Guardar clip largo": "Enregistrer un clip long",
+"Guarda más tiempo que el clip normal (se elige en Ajustes → Video).": "Enregistre plus de temps qu'un clip normal (réglable dans Paramètres → Vidéo).",
+"Grabar / detener": "Enregistrer / arrêter",
+"Empieza o termina una grabación.": "Démarre ou termine un enregistrement.",
+"Mostrar / ocultar GrabaClip": "Afficher / masquer GrabaClip",
+"Abre la ventana o la vuelve a esconder junto al reloj.": "Ouvre la fenêtre ou la cache à nouveau près de l'horloge.",
+"Captura de pantalla": "Capture d'écran",
+"Guarda una imagen del juego en la biblioteca.": "Enregistre une image du jeu dans la bibliothèque.",
+"Poner una marca": "Placer un marqueur",
+"Mientras grabas, marca el momento para encontrarlo fácil después (en el editor y como capítulo del video).": "Pendant l'enregistrement, marque le moment pour le retrouver facilement ensuite (dans l'éditeur et comme chapitre de la vidéo).",
+"Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.": "Clique sur une touche puis appuie sur la nouvelle touche ou combinaison (par exemple Ctrl + Shift + F9). Échap annule.",
+"Presiona…": "Appuie…",
+"Cambio cancelado": "Changement annulé",
+"Comandos de voz": "Commandes vocales",
+"Escuchar comandos de voz": "Écouter les commandes vocales",
+"Di una de tus frases y GrabaClip lo hace, como \"Jarvis, sácale clip\". Todo se procesa en tu PC con el reconocimiento de voz de Windows, sin internet.": "Dis une de tes phrases et GrabaClip s'en charge, comme « Jarvis, clippe ça ». Tout est traité sur ton PC avec la reconnaissance vocale de Windows, sans internet.",
+"Apagado": "Désactivé",
+"Preparando…": "Préparation…",
+"Idioma": "Langue",
+"Automático (español si está instalado)": "Automatique (langue de Windows)",
+"Exigencia": "Exigence",
+"Más alto = solo reacciona si está muy seguro de lo que dijiste. Si no te entiende, bájalo; si se activa solo, súbelo.": "Plus haut = il ne réagit que s'il est très sûr de ce que tu as dit. S'il ne te comprend pas, baisse-le ; s'il se déclenche tout seul, monte-le.",
+"Lo último que entendí": "La dernière chose comprise",
+"Todavía nada. Prueba diciendo una de tus frases.": "Rien pour l'instant. Essaie de dire une de tes phrases.",
+"Consejo: usa frases de 2 a 4 palabras que empiecen con una palabra poco común, como \"Jarvis\", para que no se active mientras hablas con tus amigos.": "Conseil : utilise des phrases de 2 à 4 mots qui commencent par un mot peu courant, comme « Jarvis », pour éviter qu'il se déclenche pendant que tu parles avec tes amis.",
+"Agregar otra frase y pulsar Enter": "Ajoute une autre phrase et appuie sur Entrée",
+"Frase agregada": "Phrase ajoutée",
+"Usa al menos 2 palabras para que no se active por error": "Utilise au moins 2 mots pour éviter les déclenchements par erreur",
+"el idioma de Windows": "la langue de Windows",
+"Agrega al menos una frase.": "Ajoute au moins une phrase.",
+"System.Speech no disponible": "System.Speech non disponible",
+"No pude cargar el reconocimiento de voz de Windows (detalles en logs\\voz.txt).": "Impossible de charger la reconnaissance vocale de Windows (détails dans logs\\voz.txt).",
+"No encontré un micrófono. Conéctalo o elígelo como predeterminado en Windows.": "Aucun micro trouvé. Branche-le ou choisis-le par défaut dans Windows.",
+"✓ hecho": "✓ fait",
+"no alcanzó la exigencia (o fue muy seguido)": "n'a pas atteint l'exigence (ou trop rapproché)",
+"Modo rendimiento": "Mode performance",
+"Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.": "Seulement l'essentiel : clips, enregistrement et raccourcis. Désactive l'overlay, les commandes vocales, les miniatures et les animations pour que GrabaClip utilise le minimum pendant que tu joues.",
+"Vista previa al pasar el mouse": "Aperçu au survol",
+"En la biblioteca, el clip se reproduce sin sonido sobre su miniatura.": "Dans la bibliothèque, le clip se lit sans son sur sa miniature.",
+"Sin importar este ajuste, cuando cierras la ventana y GrabaClip queda junto al reloj, la interfaz se descarga y libera casi toda su memoria.": "Quel que soit ce réglage, quand tu fermes la fenêtre et que GrabaClip reste près de l'horloge, l'interface se décharge et libère presque toute sa mémoire.",
+"Iniciar con Windows": "Démarrer avec Windows",
+"GrabaClip se abre junto al reloj al encender la PC.": "GrabaClip s'ouvre près de l'horloge au démarrage du PC.",
+"GrabaClip se abrirá al iniciar Windows": "GrabaClip s'ouvrira au démarrage de Windows",
+"Inicio con Windows desactivado": "Démarrage avec Windows désactivé",
+"Al cerrar, seguir junto al reloj": "À la fermeture, rester près de l'horloge",
+"La X esconde la ventana y GrabaClip sigue funcionando en los íconos ocultos. Para salir: clic derecho en su ícono → Salir.": "Le X cache la fenêtre et GrabaClip continue de fonctionner dans les icônes cachées. Pour quitter : clic droit sur son icône → Quitter.",
+"Activar clips al abrir": "Activer les clips à l'ouverture",
+"Empieza a guardar el búfer de clips automáticamente.": "Commence à remplir le tampon de clips automatiquement.",
+"Organizar por juego": "Organiser par jeu",
+"Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.": "Enregistre chaque clip dans un dossier au nom du jeu ou de l'appli ouverte.",
+"Sonidos de aviso": "Sons de notification",
+"Al guardar un clip y al activar o desactivar los clips con la tecla.": "En enregistrant un clip et en activant ou désactivant les clips avec le raccourci.",
+"Overlay en el juego": "Overlay en jeu",
+"Avisos pequeños encima del juego. No reciben clics y no salen en tus clips.": "Petites notifications par-dessus le jeu. Elles ne reçoivent pas de clics et n'apparaissent pas dans tes clips.",
+"Indicador de clips activos": "Indicateur de clips actifs",
+"Una pastilla en la esquina: \"Clips\" mientras se guarda el búfer, o \"REC\" con el tiempo al grabar.": "Une pastille dans le coin : « Clips » pendant que le tampon tourne, ou « REC » avec le temps pendant l'enregistrement.",
+"Aviso al guardar un clip": "Notification à l'enregistrement d'un clip",
+"Aparece unos segundos con el juego y la duración.": "Apparaît quelques secondes avec le jeu et la durée.",
+"Esquina": "Coin",
+"Arriba a la izquierda": "En haut à gauche",
+"Arriba a la derecha": "En haut à droite",
+"Probar": "Tester",
+"Probando…": "Test en cours…",
+"Se ve en juegos en modo ventana o \"pantalla completa sin bordes\". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).": "Visible dans les jeux en fenêtre ou en « plein écran sans bordure ». En plein écran exclusif, Windows ne permet pas de dessiner par-dessus (le son s'entend quand même).",
+"El overlay está desactivado, solo sonó el aviso": "L'overlay est désactivé, seul le son a été joué",
+"Mostrar en Discord": "Afficher sur Discord",
+"Tus amigos ven \"Clipeando con GrabaClip\" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.": "Tes amis voient « Clippe avec GrabaClip » sur ton profil, avec un bouton pour le télécharger. Seulement quand les clips ou un enregistrement sont actifs.",
+"Mostrar el nombre del juego": "Afficher le nom du jeu",
+"Por ejemplo \"En Overwatch\".": "Par exemple « Sur Overwatch ».",
+"Carpeta de videos": "Dossier des vidéos",
+"Restablecer": "Réinitialiser",
+"Cambiar…": "Changer…",
+"Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.": "Les vidéos que tu avais restent où elles étaient ; tu peux les déplacer dans le nouveau dossier avec l'Explorateur.",
+"Espacio en disco": "Espace disque",
+"Calculando…": "Calcul en cours…",
+"Límite de espacio": "Limite d'espace",
+"Sin límite": "Sans limite",
+"Los videos se acumulan sin límite.": "Les vidéos s'accumulent sans limite.",
+"Incluir las grabaciones largas": "Inclure les longs enregistrements",
+"Si está apagado, solo se mandan a la Papelera los clips; tus grabaciones (F10) nunca se tocan.": "Si c'est désactivé, seuls les clips vont à la Corbeille ; tes enregistrements (F10) ne sont jamais touchés.",
+"Actualizaciones": "Mises à jour",
+"Buscar actualizaciones": "Rechercher des mises à jour",
+"Buscando…": "Recherche…",
+"Actualizar ahora": "Mettre à jour maintenant",
+"Avisar al abrir si hay versión nueva": "Prévenir à l'ouverture s'il y a une nouvelle version",
+"Revisa GitHub una vez al abrir GrabaClip. Es la única conexión a internet que hace.": "Vérifie GitHub une fois à l'ouverture de GrabaClip. C'est la seule connexion à internet qu'il fait.",
+"Al actualizar, GrabaClip se cierra unos segundos y se vuelve a abrir solo. Tus ajustes, clips y miniaturas se mantienen.": "Pendant la mise à jour, GrabaClip se ferme quelques secondes et se rouvre tout seul. Tes réglages, clips et miniatures sont conservés.",
+"Instalando… GrabaClip se cerrará y se abrirá solo en unos segundos.": "Installation… GrabaClip va se fermer et se rouvrir tout seul dans quelques secondes.",
+"Tienes la versión …": "Tu as la version …",
+"Idioma de la app": "Langue de l'appli",
+"Automático (el de Windows)": "Automatique (langue de Windows)",
+"Cómo usar GrabaClip": "Comment utiliser GrabaClip",
+"Activa los clips": "Active les clips",
+"Enciende \"Clips instantáneos\" abajo a la izquierda o pulsa": "Active « Clips instantanés » en bas à gauche ou appuie sur",
+"desde el juego. GrabaClip guarda en segundo plano los últimos segundos.": "depuis le jeu. GrabaClip garde les dernières secondes en arrière-plan.",
+"Guarda el momento": "Garde le moment",
+"Cuando pase algo bueno pulsa": "Quand il se passe quelque chose de bien, appuie sur",
+". El clip aparece en Grabaciones.": ". Le clip apparaît dans Enregistrements.",
+"Graba sesiones largas": "Enregistre de longues sessions",
+"Pulsa el botón REC o": "Appuie sur le bouton REC ou",
+"para empezar y otra vez para terminar.": "pour commencer et encore pour terminer.",
+"Edita sin Discord ni música": "Monte sans Discord ni musique",
+"En Ajustes → Audio marca tus apps. En DaVinci cada una sale en su propia pista y puedes silenciarla.": "Dans Paramètres → Audio coche tes applis. Dans DaVinci chacune a sa propre piste et tu peux la couper.",
+"Siempre listo": "Toujours prêt",
+"En Ajustes → General activa \"Iniciar con Windows\" y \"Activar clips al abrir\".": "Dans Paramètres → Général active « Démarrer avec Windows » et « Activer les clips à l'ouverture ».",
+"Revisa la carpeta \"logs\" junto a GrabaClip. Si el audio va desfasado, ajusta la sincronía en Audio.": "Regarde le dossier « logs » à côté de GrabaClip. Si l'audio est décalé, règle la synchronisation dans Audio.",
+"Grabar": "Enregistrer",
+"Empezar / detener grabación": "Commencer / arrêter l'enregistrement",
+"Duración": "Durée",
+"Tus estadísticas": "Tes statistiques",
+"Clips por semana": "Clips par semaine",
+"Por juego": "Par jeu",
+"clip": "clip",
+"clips": "clips",
+"grabaciones": "enregistrements",
+"capturas": "captures",
+"de video": "de vidéo",
+"en disco": "sur le disque",
+"de racha clipeando": "de série de clips",
+"Todavía no hay clips.": "Pas encore de clips.",
+"Cuando guardes clips, aquí verás tus juegos más clipeados.": "Quand tu enregistreras des clips, tu verras ici tes jeux les plus clippés.",
+"Cargando video…": "Chargement de la vidéo…",
+"Inicio": "Début",
+"Fin": "Fin",
+"Inicio aquí": "Début ici",
+"Fin aquí": "Fin ici",
+"Tecla I": "Touche I",
+"Tecla O": "Touche O",
+"◀ Marca": "◀ Marqueur",
+"Marca ▶": "Marqueur ▶",
+"Marca anterior ([)": "Marqueur précédent ([)",
+"Marca siguiente (])": "Marqueur suivant (])",
+"Formato": "Format",
+"Vertical 9:16": "Vertical 9:16",
+"Pistas de audio": "Pistes audio",
+"Clic para quitar o volver a poner esta pista": "Clique pour retirer ou remettre cette piste",
+"Deja al menos una pista de audio": "Garde au moins une piste audio",
+"Reemplazar el original": "Remplacer l'original",
+"Guardar recorte": "Enregistrer la coupe",
+"Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.": "Fais glisser les extrémités de la barre ou utilise I et O pendant la lecture. Espace : lire ou mettre en pause. C'est enregistré comme une nouvelle copie à côté de l'original.",
+"Recortando…": "Découpe…",
+"No se pudo abrir el video en la app. Prueba con Reproducir en la biblioteca.": "Impossible d'ouvrir la vidéo dans l'appli. Essaie Lire dans la bibliothèque.",
+"¿Reemplazar el original?": "Remplacer l'original ?",
+"El video original se enviará a la Papelera y su lugar lo ocupará el recorte.": "La vidéo originale ira à la Corbeille et la coupe prendra sa place.",
+"Copiar el clip": "Copier le clip",
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta.": "Colle-le avec Ctrl+V dans Discord, WhatsApp ou un dossier.",
+"Pégala con Ctrl+V en Discord, WhatsApp o una carpeta.": "Colle-la avec Ctrl+V dans Discord, WhatsApp ou un dossier.",
+"Versión para Discord": "Version pour Discord",
+"Una copia de menos de 10 MB, con una sola pista de audio. Se copia sola al terminar.": "Une copie de moins de 10 Mo, avec une seule piste audio. Elle est copiée automatiquement à la fin.",
+"Preparando la versión para Discord…": "Préparation de la version pour Discord…",
+" Ya está copiada, pégala en Discord con Ctrl+V.": " Elle est déjà copiée, colle-la dans Discord avec Ctrl+V.",
+" (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).": " (Discord gratuit n'accepte que 10 Mo maximum : utilise la version pour Discord).",
+"Escribe un nombre": "Écris un nom",
+"¿Enviar a la Papelera?": "Mettre à la Corbeille ?",
+"Añadido a favoritos": "Ajouté aux favoris",
+"Quitado de favoritos": "Retiré des favoris",
+"Añadidos a favoritos": "Ajoutés aux favoris",
+"Quitados de favoritos": "Retirés des favoris",
+"Uniendo videos… te aviso al terminar": "Fusion des vidéos… je te préviens à la fin",
+"1 seleccionado": "1 sélectionné",
+"Elige al menos dos videos para unir": "Choisis au moins deux vidéos à fusionner",
+"Clips desactivados": "Clips désactivés",
+"Clips activos": "Clips actifs",
+"Clips apagados": "Clips éteints",
+"Esperando un juego": "En attente d'un jeu",
+"Espera un momento, todavía estoy detectando tu GPU": "Un instant, je détecte encore ton GPU",
+"Clips listos: empezarán a grabar cuando abras un juego": "Clips prêts : ils commenceront à enregistrer quand tu ouvriras un jeu",
+"No hay ningún juego abierto para guardar un clip": "Aucun jeu ouvert pour enregistrer un clip",
+"Activa los clips primero": "Active d'abord les clips",
+"Aún no hay suficiente video, espera unos segundos": "Pas encore assez de vidéo, attends quelques secondes",
+"No se pudo guardar el clip": "Impossible d'enregistrer le clip",
+"Clip guardado": "Clip enregistré",
+"Clip largo": "Clip long",
+"Clip del final de la partida": "Clip de fin de partie",
+"Grabación guardada": "Enregistrement sauvegardé",
+"Captura guardada": "Capture enregistrée",
+"Escritorio": "Bureau",
+"Se cerró el juego: los clips esperan a que abras otro": "Le jeu s'est fermé : les clips attendent que tu en ouvres un autre",
+"Los clips se detuvieron por un error (revisa la carpeta logs)": "Les clips se sont arrêtés à cause d'une erreur (regarde le dossier logs)",
+"La grabación terminó porque se cerró la ventana del juego": "L'enregistrement s'est terminé car la fenêtre du jeu s'est fermée",
+"La grabación se detuvo por un error (revisa la carpeta logs)": "L'enregistrement s'est arrêté à cause d'une erreur (regarde le dossier logs)",
+"Desactiva los clips y deten la grabación para cambiarlo": "Désactive les clips et arrête l'enregistrement pour le changer",
+"Termina la grabación antes de cambiar la carpeta.": "Termine l'enregistrement avant de changer de dossier.",
+"Se usará otra vez Videos\\GrabaClip": "Videos\\GrabaClip sera de nouveau utilisé",
+"La actualización ya está en marcha": "La mise à jour est déjà en cours",
+"Termina la grabación antes de actualizar": "Termine l'enregistrement avant de mettre à jour",
+"Primero busca actualizaciones": "Recherche d'abord les mises à jour",
+"No pude revisar GitHub. ¿Tienes internet?": "Impossible de vérifier GitHub. Es-tu connecté à internet ?",
+"Empezó una grabación; termínala y vuelve a pulsar Actualizar": "Un enregistrement a commencé ; termine-le et appuie de nouveau sur Mettre à jour",
+"Acción desconocida": "Action inconnue",
+"No reconocí esa tecla": "Je n'ai pas reconnu cette touche",
+"Esa tecla no se puede usar, prueba otra": "Cette touche ne peut pas être utilisée, essaie-en une autre",
+"No encuentro ese video": "Je ne trouve pas cette vidéo",
+"Ya hay un recorte en marcha": "Une coupe est déjà en cours",
+"Espera a que termine lo que se está preparando": "Attends la fin de ce qui est en préparation",
+"Video enviado a la Papelera": "Vidéo mise à la Corbeille",
+"No se pudo eliminar el video": "Impossible de supprimer la vidéo",
+"No se pudo eliminar": "Impossible de supprimer",
+"Clip copiado: pégalo con Ctrl+V en Discord, WhatsApp o una carpeta": "Clip copié : colle-le avec Ctrl+V dans Discord, WhatsApp ou un dossier",
+"No se pudo copiar al portapapeles": "Impossible de copier dans le presse-papiers",
+"No se puede renombrar la grabación en curso": "L'enregistrement en cours ne peut pas être renommé",
+"Ya hay un video con ese nombre en la misma carpeta": "Il y a déjà une vidéo avec ce nom dans le même dossier",
+"No se pudo renombrar (¿está abierto en otro programa?)": "Impossible de renommer (est-elle ouverte dans un autre programme ?)",
+"El nombre no puede tener < > : \" / \\ | ? * ni ser tan largo": "Le nom ne peut pas contenir < > : \" / \\ | ? * ni être aussi long",
+"No se pudo tomar la captura (revisa logs\\captura.log)": "Impossible de prendre la capture (regarde logs\\captura.log)",
+"Falta GrabaClip.exe para configurar el inicio con Windows": "GrabaClip.exe est introuvable pour configurer le démarrage avec Windows",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera": "Tes vidéos dépassent la limite d'espace, mais il ne reste rien qui puisse aller à la Corbeille",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera (las grabaciones no se tocan)": "Tes vidéos dépassent la limite d'espace, mais il ne reste rien qui puisse aller à la Corbeille (les enregistrements ne sont pas touchés)",
+"El recorte tiene que durar al menos medio segundo": "La coupe doit durer au moins une demi-seconde",
+"FFmpeg no pudo crear el video (revisa logs\\recorte.log)": "FFmpeg n'a pas pu créer la vidéo (regarde logs\\recorte.log)",
+"FFmpeg no pudo unir los videos (revisa logs\\unir.log)": "FFmpeg n'a pas pu fusionner les vidéos (regarde logs\\unir.log)",
+"FFmpeg no pudo crear la versión para Discord (revisa logs\\discord.log)": "FFmpeg n'a pas pu créer la version pour Discord (regarde logs\\discord.log)",
+"No pude leer uno de los videos": "Impossible de lire une des vidéos",
+"No pude leer la duración del video": "Impossible de lire la durée de la vidéo",
+"El archivo descargado está dañado (la huella no coincide). Prueba otra vez.": "Le fichier téléchargé est endommagé (l'empreinte ne correspond pas). Réessaie.",
+"La versión publicada no trae el archivo portable": "La version publiée ne contient pas le fichier portable",
+"GrabaClip sigue funcionando": "GrabaClip fonctionne toujours",
+"Está junto al reloj (en los íconos ocultos). Clic derecho para salir.": "Il est près de l'horloge (dans les icônes cachées). Clic droit pour quitter.",
+"Clips · esperando juego": "Clips · en attente d'un jeu",
+"Abrir GrabaClip": "Ouvrir GrabaClip",
+"Activar clips": "Activer les clips",
+"Desactivar clips": "Désactiver les clips",
+"Salir de GrabaClip": "Quitter GrabaClip",
+"Clipeando con GrabaClip": "Clippe avec GrabaClip",
+"Grabando con GrabaClip": "Enregistre avec GrabaClip",
+"Clips instantáneos activos": "Clips instantanés actifs",
+"Grabando la pantalla": "Enregistre l'écran",
+"Descargar GrabaClip": "Télécharger GrabaClip",
+"GrabaClip · clips instantáneos gratis y open source": "GrabaClip · clips instantanés gratuits et open source",
+"Carmesí": "Cramoisi",
+"Oscuro": "Sombre",
+"Medianoche": "Minuit",
+"Bosque": "Forêt",
+"Atardecer": "Coucher de soleil",
+"Rojo": "Rouge",
+"Claro": "Clair",
+"Arena": "Sable",
+"Rosa": "Rose",
+"Menta": "Menthe",
+"Alto contraste": "Contraste élevé",
+"español": "espagnol",
+"inglés": "anglais",
+"portugués": "portugais",
+"francés": "français",
+"árabe": "arabe",
+"ruso": "russe"
+},
+"patrones": [
+[
+"Clip guardado en {0}",
+"Clip enregistré dans {0}"
+],
+[
+"Clip guardado en {0} (sin {1} pista vacía)",
+"Clip enregistré dans {0} (sans {1} piste vide)"
+],
+[
+"Clip guardado en {0} (sin {1} pistas vacías)",
+"Clip enregistré dans {0} (sans {1} pistes vides)"
+],
+[
+"Clip largo en {0}",
+"Clip long dans {0}"
+],
+[
+"Clip largo en {0} (sin {1} pista vacía)",
+"Clip long dans {0} (sans {1} piste vide)"
+],
+[
+"Clip largo en {0} (sin {1} pistas vacías)",
+"Clip long dans {0} (sans {1} pistes vides)"
+],
+[
+"Clip del final de la partida en {0}",
+"Clip de fin de partie dans {0}"
+],
+[
+"Clips activos en {0}: {1} guarda los últimos {2} s",
+"Clips actifs sur {0} : {1} garde les {2} dernières s"
+],
+[
+"Clips activos en la pantalla: {0} guarda los últimos {1} s",
+"Clips actifs sur l'écran : {0} garde les {1} dernières s"
+],
+[
+"Grabando {0}",
+"Enregistre {0}"
+],
+[
+"Grabando: {0}",
+"Enregistre : {0}"
+],
+[
+"Grabación guardada: {0}",
+"Enregistrement sauvegardé : {0}"
+],
+[
+"Captura guardada en {0}",
+"Capture enregistrée dans {0}"
+],
+[
+"Marca {0} en {1}",
+"Marqueur {0} à {1}"
+],
+[
+"Marca {0}",
+"Marqueur {0}"
+],
+[
+"Las marcas son para grabaciones: pulsa {0} para grabar",
+"Les marqueurs sont pour les enregistrements : appuie sur {0} pour enregistrer"
+],
+[
+"Los nuevos videos se guardarán en {0}",
+"Les nouvelles vidéos seront enregistrées dans {0}"
+],
+[
+"No se pudo abrir el selector: {0}",
+"Impossible d'ouvrir le sélecteur : {0}"
+],
+[
+"No se puede guardar en esa carpeta ({0}).",
+"Impossible d'enregistrer dans ce dossier ({0})."
+],
+[
+"Ya tienes la versión más reciente ({0})",
+"Tu as déjà la version la plus récente ({0})"
+],
+[
+"Hay una versión nueva de GrabaClip ({0}). Actualízala en Ajustes → General",
+"Une nouvelle version de GrabaClip est disponible ({0}). Mets-la à jour dans Paramètres → Général"
+],
+[
+"Hay una versión nueva: {0} (tienes la {1}). Descarga de {2}.",
+"Nouvelle version : {0} (tu as la {1}). Téléchargement de {2}."
+],
+[
+"Tienes la versión {0}.",
+"Tu as la version {0}."
+],
+[
+"Descargando… {0} de {1} ({2}%)",
+"Téléchargement… {0} sur {1} ({2} %)"
+],
+[
+"Descargando… {0} ({1}%)",
+"Téléchargement… {0} ({1} %)"
+],
+[
+"No se pudo actualizar: {0}",
+"Impossible de mettre à jour : {0}"
+],
+[
+"Nueva tecla: {0}",
+"Nouveau raccourci : {0}"
+],
+[
+"{0} ya se usa en otra tecla rápida",
+"{0} est déjà utilisé par un autre raccourci"
+],
+[
+"Así se verá · {0} s",
+"Voilà à quoi ça ressemblera · {0} s"
+],
+[
+"Recorte guardado: {0}",
+"Coupe enregistrée : {0}"
+],
+[
+"Recorte guardado: {0} (el original está en la Papelera)",
+"Coupe enregistrée : {0} (l'original est dans la Corbeille)"
+],
+[
+"Recortando… {0}%",
+"Découpe… {0} %"
+],
+[
+"Clips unidos: {0}",
+"Clips fusionnés : {0}"
+],
+[
+"Uniendo… {0}%",
+"Fusion… {0} %"
+],
+[
+"Versión para Discord lista ({0} MB)",
+"Version pour Discord prête ({0} Mo)"
+],
+[
+"Versión para Discord lista ({0} MB): ya está copiada, pégala con Ctrl+V",
+"Version pour Discord prête ({0} Mo) : elle est déjà copiée, colle-la avec Ctrl+V"
+],
+[
+"Preparando la versión para Discord… {0}%",
+"Préparation de la version pour Discord… {0} %"
+],
+[
+"Lista: {0} MB.",
+"Prête : {0} Mo."
+],
+[
+"Lista: {0} MB. Ya está copiada, pégala en Discord con Ctrl+V.",
+"Prête : {0} Mo. Elle est déjà copiée, colle-la dans Discord avec Ctrl+V."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0}.",
+"Colle-le avec Ctrl+V dans Discord, WhatsApp ou un dossier. Taille : {0}."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0} (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).",
+"Colle-le avec Ctrl+V dans Discord, WhatsApp ou un dossier. Taille : {0} (Discord gratuit n'accepte que 10 Mo maximum : utilise la version pour Discord)."
+],
+[
+"El video dura {0} s: es demasiado largo para que quepa en 10 MB. Recórtalo primero (unos 2 minutos como máximo).",
+"La vidéo dure {0} s : elle est trop longue pour tenir dans 10 Mo. Coupe-la d'abord (environ 2 minutes maximum)."
+],
+[
+"Queda poco espacio en el disco ({0} GB). Borra videos o pon un límite en Ajustes → General",
+"Peu d'espace disque ({0} Go). Supprime des vidéos ou fixe une limite dans Paramètres → Général"
+],
+[
+"Se enviaron {0} video viejo a la Papelera ({1} GB) para no pasar de {2} GB",
+"{0} ancienne vidéo mise à la Corbeille ({1} Go) pour ne pas dépasser {2} Go"
+],
+[
+"Se enviaron {0} videos viejos a la Papelera ({1} GB) para no pasar de {2} GB",
+"{0} anciennes vidéos mises à la Corbeille ({1} Go) pour ne pas dépasser {2} Go"
+],
+[
+"{0} video enviado a la Papelera",
+"{0} vidéo mise à la Corbeille"
+],
+[
+"{0} videos enviados a la Papelera",
+"{0} vidéos mises à la Corbeille"
+],
+[
+"Windows cortó la captura un momento; la grabación sigue en la parte {0}",
+"Windows a interrompu la capture un instant ; l'enregistrement continue dans la partie {0}"
+],
+[
+"Renombrado: {0}",
+"Renommé : {0}"
+],
+[
+"{0} seleccionados",
+"{0} sélectionnés"
+],
+[
+"{0} video · {1}",
+"{0} vidéo · {1}"
+],
+[
+"{0} videos · {1}",
+"{0} vidéos · {1}"
+],
+[
+"Mostrar más ({0} restantes)",
+"Afficher plus ({0} restantes)"
+],
+[
+"Todos los juegos ({0})",
+"Tous les jeux ({0})"
+],
+[
+"Sin clasificar ({0})",
+"Non classé ({0})"
+],
+[
+"Activas ({0})",
+"Actives ({0})"
+],
+[
+"Inactivas ({0})",
+"Inactives ({0})"
+],
+[
+"{0} · {1} guarda {2} s",
+"{0} · {1} garde {2} s"
+],
+[
+"Desactivados · {0} para activar",
+"Désactivés · {0} pour activer"
+],
+[
+"Escuchando en {0}",
+"Écoute en {0}"
+],
+[
+"Escuchando en {0} ({1}) con {2} frases",
+"Écoute en {0} ({1}) avec {2} phrases"
+],
+[
+"No se pudo preparar el reconocimiento de voz: {0}",
+"Impossible de préparer la reconnaissance vocale : {0}"
+],
+[
+"“{0}” · {1} % de seguridad · {2}",
+"« {0} » · {1} % de certitude · {2}"
+],
+[
+"Escribe una frase y pulsa Enter (ej. \"{0}\")",
+"Écris une phrase et appuie sur Entrée (ex. « {0} »)"
+],
+[
+"{0} clips · {1} grab. · {2}",
+"{0} clips · {1} enr. · {2}"
+],
+[
+"Tu mejor semana: la del {0}, con {1} clips.",
+"Ta meilleure semaine : celle du {0}, avec {1} clips."
+],
+[
+"Semana del {0}: {1} clips",
+"Semaine du {0} : {1} clips"
+],
+[
+"{0} día",
+"{0} jour"
+],
+[
+"{0} días",
+"{0} jours"
+],
+[
+"{0} h {1} min",
+"{0} h {1} min"
+],
+[
+"{0} videos ({1} clips: {2})",
+"{0} vidéos ({1} clips : {2})"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite",
+"{0} vidéos ({1} clips : {2}) · {3} % de ta limite"
+],
+[
+"{0} videos ({1} clips: {2}) · Libre en el disco: {3}",
+"{0} vidéos ({1} clips : {2}) · Libre sur le disque : {3}"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite · Libre en el disco: {4}",
+"{0} vidéos ({1} clips : {2}) · {3} % de ta limite · Libre sur le disque : {4}"
+],
+[
+"Al pasar de {0} GB, los clips más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"Au-delà de {0} Go, les clips les plus anciens vont automatiquement à la Corbeille (tu peux les récupérer). Attention : la Corbeille prend aussi de la place tant que tu ne la vides pas."
+],
+[
+"Al pasar de {0} GB, los videos más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"Au-delà de {0} Go, les vidéos les plus anciennes vont automatiquement à la Corbeille (tu peux les récupérer). Attention : la Corbeille prend aussi de la place tant que tu ne la vides pas."
+],
+[
+"¿Poner el límite en {0} GB?",
+"Fixer la limite à {0} Go ?"
+],
+[
+"Ahora tus videos ocupan {0}. Los clips más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"Tes vidéos occupent maintenant {0}. Les clips les plus anciens iront à la Corbeille jusqu'à passer sous {1} Go."
+],
+[
+"Ahora tus videos ocupan {0}. Los videos más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"Tes vidéos occupent maintenant {0}. Les vidéos les plus anciennes iront à la Corbeille jusqu'à passer sous {1} Go."
+],
+[
+"¿Enviar {0} video a la Papelera?",
+"Mettre {0} vidéo à la Corbeille ?"
+],
+[
+"¿Enviar {0} videos a la Papelera?",
+"Mettre {0} vidéos à la Corbeille ?"
+],
+[
+"{0} en total. Puedes recuperarlos desde la Papelera.",
+"{0} au total. Tu peux les récupérer depuis la Corbeille."
+],
+[
+"{0} en total, incluye {1} favorito. Puedes recuperarlos desde la Papelera.",
+"{0} au total, dont {1} favori. Tu peux les récupérer depuis la Corbeille."
+],
+[
+"{0} en total, incluye {1} favoritos. Puedes recuperarlos desde la Papelera.",
+"{0} au total, dont {1} favoris. Tu peux les récupérer depuis la Corbeille."
+],
+[
+"{0} (es un favorito)",
+"{0} (c'est un favori)"
+],
+[
+"¿Unir {0} videos?",
+"Fusionner {0} vidéos ?"
+],
+[
+"Se crea un video nuevo de unos {0} con un fundido corto entre cada uno y una sola pista de audio (la mezcla). Los originales no se tocan.",
+"Une nouvelle vidéo d'environ {0} est créée, avec un court fondu entre chacune et une seule piste audio (le mix). Les originaux ne sont pas touchés."
+],
+[
+"En {0}",
+"Sur {0}"
+],
+[
+"{0} (clic para renombrar)",
+"{0} (cliquer pour renommer)"
+],
+[
+"{0} pista de audio",
+"{0} piste audio"
+],
+[
+"{0} pistas de audio",
+"{0} pistes audio"
+],
+[
+"{0} pista de audio · {1} marca",
+"{0} piste audio · {1} marqueur"
+],
+[
+"{0} pistas de audio · {1} marcas",
+"{0} pistes audio · {1} marqueurs"
+],
+[
+"FFmpeg no pudo arrancar (codigo 0x{0}).",
+"FFmpeg n'a pas pu démarrer (code 0x{0})."
+],
+[
+"FFmpeg termino con el codigo 0x{0} sin dar detalles.",
+"FFmpeg s'est terminé avec le code 0x{0} sans détails."
+],
+[
+"No se pudo ejecutar FFmpeg: {0}",
+"Impossible d'exécuter FFmpeg : {0}"
+],
+[
+"Pantalla {0}",
+"Écran {0}"
+],
+[
+"No tienes el reconocimiento de voz en {0}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca \"Reconocimiento de voz\". Mientras tanto se usa {1}.",
+"Tu n'as pas la reconnaissance vocale en {0}. Pour l'ajouter : Paramètres Windows > Heure et langue > Langue et région > Ajouter une langue, et coche « Reconnaissance vocale ». En attendant, {1} est utilisé."
+]
+]
+}

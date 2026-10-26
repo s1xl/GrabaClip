@@ -10,7 +10,7 @@ import sys
 import time
 import queue
 
-from idiomas import t
+from idiomas import t_overlay as t
 import threading
 
 CLAVE = "#010203"   # color que se vuelve transparente

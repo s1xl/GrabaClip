@@ -436,6 +436,22 @@
   .caja .botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
   .caja button { padding: 8px 16px; border-radius: 6px; font-weight: 600; border: 1px solid var(--borde); }
   .caja button.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  /* ---------- árabe (derecha a izquierda) ---------- */
+  [dir=rtl] .buscar { margin-left: 0; margin-right: auto; }
+  [dir=rtl] .buscar svg { left: auto; right: 11px; }
+  [dir=rtl] .buscar input { padding-left: 12px; padding-right: 34px; }
+  [dir=rtl] .lateral { border-right: 0; border-left: 1px solid var(--borde); }
+  [dir=rtl] .lateral button { text-align: right; }
+  [dir=rtl] .lateral button.activa { box-shadow: inset -3px 0 0 var(--acento); }
+  [dir=rtl] .selector { margin-left: 0; margin-right: 6px; }
+  [dir=rtl] .selector .ic-izq { left: auto; right: 10px; }
+  [dir=rtl] .selector .ic-der { right: auto; left: 10px; }
+  [dir=rtl] .barra-filtros .total, [dir=rtl] .prog-unir { margin-left: 0; margin-right: auto; }
+  [dir=rtl] .estrella { margin-left: 0; margin-right: auto; }
+  [dir=rtl] nav .cuenta { margin-left: 0; margin-right: 4px; }
+  [dir=rtl] .filtro .estrella-ic { margin-right: 0; margin-left: 5px; }
+  [dir=rtl] .marca-sel { left: auto; right: 6px; }
+  [dir=rtl] .switch, [dir=rtl] .ed-linea, [dir=rtl] .ed-tiempos, [dir=rtl] .st-barras, [dir=rtl] input[type=range] { direction: ltr; }
 </style>
 </head>
 <body>
@@ -975,7 +991,7 @@ function duracion(s) {
   return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
 }
 const tamano = b => b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : Math.max(1, Math.round(b / 1e6)) + ' MB';
-const fecha = ms => new Date(ms).toLocaleString({en: 'en-US', pt: 'pt-BR'}[(D && D.idioma)] || 'es', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
+const fecha = ms => new Date(ms).toLocaleString({en: 'en-US', pt: 'pt-BR', fr: 'fr-FR', ar: 'ar-u-nu-latn', ru: 'ru-RU'}[(D && D.idioma)] || 'es', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
 
 /* ---------- biblioteca ---------- */
 async function cargarVideos() {
@@ -1368,7 +1384,9 @@ function pintarFrases() {
     entrada.className = 'nueva-frase';
     const ejemplo = ({es: {clip: 'Jarvis, sácale clip', grabar: 'Jarvis, graba esto', clips: 'Jarvis, activa los clips'},
                      en: {clip: 'Jarvis, clip that', grabar: 'Jarvis, record this', clips: 'Jarvis, turn on clips'},
-                     pt: {clip: 'Jarvis, clipa isso', grabar: 'Jarvis, grava isso', clips: 'Jarvis, ativa os clipes'}}[(D && D.idioma) || 'es'] || {})[accion];
+                     pt: {clip: 'Jarvis, clipa isso', grabar: 'Jarvis, grava isso', clips: 'Jarvis, ativa os clipes'},
+                     fr: {clip: 'Jarvis, clippe ça', grabar: 'Jarvis, enregistre ça', clips: 'Jarvis, active les clips'}}[(D && D.idioma) || 'es']
+                    || {clip: 'Jarvis, clip that', grabar: 'Jarvis, record this', clips: 'Jarvis, turn on clips'})[accion];
     entrada.placeholder = lista.length ? 'Agregar otra frase y pulsar Enter' : `Escribe una frase y pulsa Enter (ej. "${ejemplo}")`;
     entrada.onkeydown = e => {
       if (e.key !== 'Enter') return;
@@ -1406,7 +1424,7 @@ async function cargarIdiomasVoz() {
   }
   sel.value = cfg.voz_idioma || '';
   const lengua = (D && D.idioma) || 'es';
-  const nombreLengua = {es: 'español', en: 'inglés', pt: 'portugués'}[lengua];
+  const nombreLengua = {es: 'español', en: 'inglés', pt: 'portugués', fr: 'francés', ar: 'árabe', ru: 'ruso'}[lengua];
   const hayIdioma = lista.some(i => i.id.toLowerCase().startsWith(lengua));
   $('#voz-ayuda-idioma').textContent = hayIdioma ? ''
     : `No tienes el reconocimiento de voz en ${nombreLengua}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca "Reconocimiento de voz". Mientras tanto se usa ${lista[0] ? lista[0].nombre : 'el idioma de Windows'}.`;
@@ -1606,7 +1624,8 @@ function progresoRecorte(d) {
 function pintarIdiomas() {
   const sel = $('#sel-idioma');
   if (!sel || !D || !D.idiomas) return;
-  const auto = {es: 'Automático (el de Windows)', en: 'Automatic (Windows language)', pt: 'Automático (o do Windows)'}[D.idioma] || 'Automático';
+  const auto = {es: 'Automático (el de Windows)', en: 'Automatic (Windows language)', pt: 'Automático (o do Windows)',
+                fr: 'Automatique (langue de Windows)', ar: 'تلقائي (لغة Windows)', ru: 'Автоматически (язык Windows)'}[D.idioma] || 'Automático';
   sel.innerHTML = `<option value="auto">${auto}</option>` +
     Object.entries(D.idiomas).map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
   sel.value = cfg.idioma || 'auto';
@@ -2026,6 +2045,7 @@ async function iniciar() {
   prepararTraduccion(D.catalogo, D.idioma);
   activarTraduccion();
   document.documentElement.lang = D.idioma || 'es';
+  document.documentElement.dir = D.rtl ? 'rtl' : 'ltr';
   pintarIdiomas();
   cfg = D.cfg; est = D.estado; voz = D.voz || {};
   pintarTemas(); pintarChips(); aplicarTema(cfg.tema);

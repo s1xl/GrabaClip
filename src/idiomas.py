@@ -6,12 +6,17 @@ La app está escrita en español. Este archivo traduce lo que se ve al inglés y
 La interfaz (ui.html) recibe este catálogo y traduce todo lo que aparece en pantalla, incluidos
 los avisos que manda Python. El overlay, el menú del ícono y Discord usan t() de aquí.
 
-Para agregar un idioma: añade su código en IDIOMAS y una columna más en cada T/P
-(si falta una traducción, se muestra en español).
+Francés, árabe y ruso están en lang/<código>.json: {"exacto": {español: traducción},
+"patrones": [[español con {0}, traducción con {0}], ...]}. Para agregar un idioma basta con
+otro archivo así y su nombre en IDIOMAS (si falta una traducción, se muestra en español).
 """
+import json
+import os
 import re
 
-IDIOMAS = {"es": "Español", "en": "English", "pt": "Português (Brasil)"}
+IDIOMAS = {"es": "Español", "en": "English", "pt": "Português (Brasil)", "fr": "Français",
+           "ar": "العربية", "ru": "Русский"}
+RTL = {"ar"}  # idiomas que se escriben de derecha a izquierda
 ACTUAL = "es"
 _EXACTO = {}
 _PATRONES = {}
@@ -736,6 +741,9 @@ P("No tienes el reconocimiento de voz en {0}. Para agregarlo: Configuración de 
 T("español", "Spanish", "espanhol")
 T("inglés", "English", "inglês")
 T("portugués", "Portuguese", "português")
+T("francés", "French", "francês")
+T("árabe", "Arabic", "árabe")
+T("ruso", "Russian", "russo")
 
 
 def _por_especificidad(patrones):
@@ -743,10 +751,30 @@ def _por_especificidad(patrones):
     return sorted(patrones, key=lambda p: -len(re.sub(r"\{\d+\}", "", p[0])))
 
 
+def _cargar_archivos():
+    carpeta = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lang")
+    for codigo in IDIOMAS:
+        ruta = os.path.join(carpeta, codigo + ".json")
+        if codigo in ("es", "en", "pt") or not os.path.isfile(ruta):
+            continue
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                datos = json.load(f)
+            _EXACTO[codigo] = dict(datos.get("exacto", {}))
+            _PATRONES[codigo] = [tuple(p) for p in datos.get("patrones", [])]
+        except Exception:
+            pass
+
+
+_cargar_archivos()
+
 # frases de voz por defecto en cada idioma (se cambian solas si el usuario no las tocó)
 FRASES_VOZ = {"es": ["jarvis sácale clip", "jarvis clipea eso"],
               "en": ["jarvis clip that", "jarvis save the clip"],
-              "pt": ["jarvis clipa isso", "jarvis salva o clipe"]}
+              "pt": ["jarvis clipa isso", "jarvis salva o clipe"],
+              "fr": ["jarvis clippe ça", "jarvis sauvegarde le clip"]}
+# Windows no trae reconocimiento de voz en árabe ni en ruso: ahí se usan las frases en inglés
+FRASES_VOZ["ar"] = FRASES_VOZ["ru"] = FRASES_VOZ["en"]
 
 
 def ajustar_frases(cfg):
@@ -797,9 +825,14 @@ def idioma_de_windows():
     try:
         import ctypes
         primario = ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF
-        return {0x0A: "es", 0x09: "en", 0x16: "pt"}.get(primario, "en")
+        return {0x0A: "es", 0x09: "en", 0x16: "pt", 0x0C: "fr", 0x01: "ar", 0x19: "ru"}.get(primario, "en")
     except Exception:
         return "es"
+
+
+def t_overlay(texto):
+    """El overlay (Tk) no dibuja bien el árabe (sin unir letras ni derecha a izquierda): ahí va en inglés."""
+    return t(texto, "en" if ACTUAL in RTL else None)
 
 
 def elegir(preferido):

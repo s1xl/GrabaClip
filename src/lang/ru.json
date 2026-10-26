@@ -1,0 +1,815 @@
+{
+"exacto": {
+"Grabaciones": "Записи",
+"Estadísticas": "Статистика",
+"Ajustes": "Настройки",
+"Ayuda": "Справка",
+"Buscar grabaciones": "Поиск записей",
+"Cambiar tema": "Сменить тему",
+"Detectando GPU…": "Определение видеокарты…",
+"No se puede grabar": "Запись невозможна",
+"GrabaClip no puede grabar en esta PC": "GrabaClip не может записывать на этом ПК",
+"El video va directo de la pantalla a la tarjeta gráfica, casi sin usar el procesador": "Видео идёт прямо с экрана на видеокарту, почти не нагружая процессор",
+"Todos": "Все",
+"Clips": "Клипы",
+"Capturas": "Скриншоты",
+"Favoritos": "Избранное",
+"Favorito": "В избранное",
+"Todos los juegos": "Все игры",
+"Filtrar por juego o app": "Фильтр по игре или приложению",
+"Ordenar": "Сортировка",
+"Más nuevos": "Сначала новые",
+"Más viejos": "Сначала старые",
+"Más pesados": "Самые большие",
+"Más largos": "Самые длинные",
+"Nombre": "Имя",
+"Seleccionar": "Выбрать",
+"Seleccionar todos": "Выбрать все",
+"Unir": "Объединить",
+"Une los videos elegidos en uno, en el orden en que se grabaron": "Объединяет выбранные видео в одно в порядке записи",
+"Enviar a la Papelera": "В корзину",
+"Cancelar": "Отмена",
+"Sin clasificar": "Без категории",
+"CLIP": "КЛИП",
+"CAPTURA": "СКРИНШОТ",
+"GRABACIÓN": "ЗАПИСЬ",
+"Reproducir": "Смотреть",
+"Abrir": "Открыть",
+"Pausa": "Пауза",
+"Compartir": "Поделиться",
+"Recortar": "Обрезать",
+"Mostrar en la carpeta": "Показать в папке",
+"Clic para renombrar": "Нажмите, чтобы переименовать",
+"Quitar de favoritos": "Убрать из избранного",
+"Marcar como favorito (el límite de espacio nunca lo borra)": "Добавить в избранное (лимит места никогда его не удалит)",
+"Sin resultados": "Ничего не найдено",
+"Prueba con otra búsqueda o filtro.": "Попробуйте другой запрос или фильтр.",
+"Aún no tienes grabaciones": "Записей пока нет",
+"Activa los clips instantáneos abajo y pulsa": "Включите мгновенные клипы внизу и нажмите",
+", o pulsa REC para grabar.": ", или нажмите REC для записи.",
+"Clips instantáneos": "Мгновенные клипы",
+"Desactivados": "Выключены",
+"Esperando a que abras un juego…": "Ждём, когда вы откроете игру…",
+"Abrir carpeta": "Открыть папку",
+"REC": "REC",
+"Detener grabación": "Остановить запись",
+"Empezar a grabar": "Начать запись",
+"Pantalla": "Экран",
+"Pantalla 1": "Экран 1",
+"Algo falla": "Что-то пошло не так",
+"Eliminar": "Удалить",
+"Aplicar": "Применить",
+"Reemplazar": "Заменить",
+"Listo": "Готово",
+"Guardar": "Сохранить",
+"Renombrar": "Переименовать",
+"Mostrar más": "Показать ещё",
+"Subir": "Вверх",
+"Bajar": "Вниз",
+"Quitar": "Убрать",
+"Cerrar (Esc)": "Закрыть (Esc)",
+"Video": "Видео",
+"Audio": "Звук",
+"Teclas": "Клавиши",
+"Voz": "Голос",
+"General": "Общие",
+"Apariencia": "Внешний вид",
+"Desactiva los clips y detén la grabación para cambiar estos ajustes.": "Выключите клипы и остановите запись, чтобы изменить эти настройки.",
+"Qué grabar": "Что записывать",
+"Solo el juego": "Только игру",
+"Pantalla completa": "Весь экран",
+"Ventana a grabar": "Окно для записи",
+"Automático: el juego que estés usando": "Автоматически: игра, в которую вы играете",
+"Buscar ventanas abiertas": "Найти открытые окна",
+"Actualizar": "Обновить",
+"En automático graba el juego que estés usando y cambia solo si cambias de juego. Discord, los navegadores y el escritorio no cuentan como juego.": "В автоматическом режиме записывается игра, в которую вы играете, и запись сама переключается при смене игры. Discord, браузеры и рабочий стол играми не считаются.",
+"Grabar la pantalla cuando no haya un juego": "Записывать экран, когда игры нет",
+"Si está apagado, los clips esperan a que abras un juego.": "Если выключено, клипы ждут, пока вы откроете игру.",
+"Codificar con": "Кодировать с помощью",
+"Cuadros por segundo": "Кадров в секунду",
+"Calidad": "Качество",
+"Resolución": "Разрешение",
+"Baja": "Низкое",
+"Media": "Среднее",
+"Alta": "Высокое",
+"Muy alta": "Очень высокое",
+"Máxima": "Максимальное",
+"Original": "Исходное",
+"Duración de cada clip": "Длина каждого клипа",
+"Duración del clip largo": "Длина длинного клипа",
+"Para cuando la jugada viene de lejos. El búfer guarda el más largo de los dos, así que más tiempo ocupa más espacio temporal en el disco.": "Когда момент начался давно. Буфер хранит более длинный из двух, поэтому больше времени — больше временного места на диске.",
+"Ajustes por juego": "Настройки для игр",
+"Cada juego puede tener sus propios FPS, calidad y resolución. Los que no estén aquí usan los ajustes de arriba.": "У каждой игры могут быть свои FPS, качество и разрешение. Игры, которых здесь нет, используют настройки выше.",
+"Elige un juego o programa abierto…": "Выберите открытую игру или программу…",
+"Agregar": "Добавить",
+"Todavía no hay juegos con ajustes propios.": "Пока нет игр с собственными настройками.",
+"FPS general": "FPS по умолчанию",
+"Calidad general": "Качество по умолчанию",
+"Resolución general": "Разрешение по умолчанию",
+"Abre el juego y elígelo de la lista": "Откройте игру и выберите её в списке",
+"Clip automático al cerrar el juego": "Автоклип при закрытии игры",
+"Cuando cierras el juego, GrabaClip guarda solo los últimos segundos (la pantalla final, el resultado de la partida). Ocupa espacio con cada partida.": "Когда вы закрываете игру, GrabaClip сохраняет только последние секунды (финальный экран, результат матча). Занимает место после каждого матча.",
+"Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.": "Больше FPS и качества — плавнее и чётче видео, но больше файлы. Если у монитора 60 Гц, запись выше 60 FPS ничего не даёт.",
+"Modo automático: se graba el juego que uses": "Автоматический режим: записывается игра, в которую вы играете",
+"Se grabará solo esa ventana": "Будет записываться только это окно",
+" (cerrado ahora)": " (сейчас закрыто)",
+"Lista de ventanas actualizada": "Список окон обновлён",
+" · captura directa": " · прямой захват",
+" Se grabará la pantalla completa.": " Будет записан весь экран.",
+"Procesador (CPU)": "Процессор (CPU)",
+"Automático": "Автоматически",
+"GPU NVIDIA (NVENC)": "Видеокарта NVIDIA (NVENC)",
+"GPU AMD (AMF)": "Видеокарта AMD (AMF)",
+"Procesador (CPU, mas lento)": "Процессор (CPU, медленнее)",
+"No funciono en esta PC.": "Не работает на этом ПК.",
+"Tu driver de NVIDIA es muy antiguo. Actualizalo desde la app de NVIDIA o nvidia.com.": "Драйвер NVIDIA слишком старый. Обновите его через приложение NVIDIA или на nvidia.com.",
+"No se encontro una tarjeta NVIDIA compatible.": "Совместимая видеокарта NVIDIA не найдена.",
+"No se encontro una tarjeta AMD compatible (o falta su driver).": "Совместимая видеокарта AMD не найдена (или нет её драйвера).",
+"Intel QuickSync no esta disponible (sin grafica Intel o desactivada).": "Intel QuickSync недоступен (нет графики Intel или она отключена).",
+"Tu Windows o tu FFmpeg no permiten capturar una sola ventana (necesita Windows 10 1903+ y FFmpeg 8).": "Ваш Windows или FFmpeg не позволяет захватывать одно окно (нужны Windows 10 1903+ и FFmpeg 8).",
+"Windows bloqueo FFmpeg (Control inteligente de aplicaciones). Desactivalo en Seguridad de Windows > Control de aplicaciones y navegador.": "Windows заблокировала FFmpeg (интеллектуальное управление приложениями). Отключите его в «Безопасность Windows» > «Управление приложениями/браузером».",
+"Faltan archivos de FFmpeg. Vuelve a descomprimir GrabaClip completo.": "Не хватает файлов FFmpeg. Распакуйте GrabaClip заново целиком.",
+"Los archivos de FFmpeg estan danados o bloqueados. Vuelve a descomprimir GrabaClip (desbloquea el zip antes).": "Файлы FFmpeg повреждены или заблокированы. Распакуйте GrabaClip заново (сначала разблокируйте zip).",
+"Windows o el antivirus no dejan ejecutar FFmpeg (acceso denegado).": "Windows или антивирус не дают запустить FFmpeg (доступ запрещён).",
+"FFmpeg se cerro de golpe al arrancar.": "FFmpeg внезапно закрылся при запуске.",
+"No se encontro FFmpeg. Vuelve a descomprimir GrabaClip completo.": "FFmpeg не найден. Распакуйте GrabaClip заново целиком.",
+"Cómo guardar el audio": "Как сохранять звук",
+"Todo en una pista": "Всё на одной дорожке",
+"Pistas separadas": "Отдельные дорожки",
+"Juego, Discord, música y micrófono juntos en una sola pista. Lo más simple para subir o compartir.": "Игра, Discord, музыка и микрофон вместе на одной дорожке. Проще всего для публикации и отправки.",
+"Una pista \"Mezcla\" con todo y otra por cada app que marques, para silenciarlas al editar.": "Дорожка «Микс» со всем звуком и по одной на каждое отмеченное приложение, чтобы выключать их при монтаже.",
+"Micrófono": "Микрофон",
+"Se graba en su propia pista y también en la mezcla.": "Записывается на свою дорожку и в микс.",
+"Se mezcla con el resto del sonido.": "Смешивается с остальным звуком.",
+"Apps en pista propia": "Приложения на отдельных дорожках",
+"Para poder quitarlas al editar (Discord, Spotify…).": "Чтобы убирать их при монтаже (Discord, Spotify…).",
+"con sonido ahora": "сейчас со звуком",
+"· con sonido ahora": "· сейчас со звуком",
+"· cerradas; su pista se agrega cuando las abras": "· закрыты; их дорожка добавится, когда вы их откроете",
+"cerradas; su pista se agrega cuando las abras": "закрыты; их дорожка добавится, когда вы их откроете",
+"● Abierta": "● Открыто",
+"Cerrada": "Закрыто",
+"Lista de apps actualizada": "Список приложений обновлён",
+"Quitar pistas sin sonido al guardar": "Убирать беззвучные дорожки при сохранении",
+"Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista Mezcla siempre se queda.": "Если приложение было закрыто или молчало, его дорожки в клипе не будет. Дорожка «Микс» остаётся всегда.",
+"Orden de las pistas": "Порядок дорожек",
+"Así aparecen en DaVinci y en tu editor. Arrastra una pista o usa las flechas.": "Так они будут в DaVinci и вашем редакторе. Перетащите дорожку или используйте стрелки.",
+"Activas": "Активные",
+"Inactivas": "Неактивные",
+"· la app está cerrada; no ocupa lugar en el orden y se agrega al final cuando la abras": "· приложение закрыто; оно не занимает место в порядке и добавится в конец, когда вы его откроете",
+"Mezcla": "Микс",
+"Todo el sonido junto": "Весь звук вместе",
+"Tu voz": "Ваш голос",
+"App": "Приложение",
+"Activa el micrófono o marca apps para ordenar sus pistas.": "Включите микрофон или отметьте приложения, чтобы упорядочить их дорожки.",
+"No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.": "Нет приложений со звуком. Откройте Discord, Spotify или игру и нажмите «Обновить».",
+"Sincronía del audio": "Синхронизация звука",
+"Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.": "Используйте, только если звук опережает изображение или отстаёт от него.",
+"La pista \"Mezcla\" lleva todo el sonido junto y nunca se quita.": "Дорожка «Микс» содержит весь звук и никогда не удаляется.",
+"Teclas rápidas": "Горячие клавиши",
+"Activar / desactivar clips": "Включить / выключить клипы",
+"Enciende o apaga los clips instantáneos sin abrir la ventana (suena un aviso).": "Включает или выключает мгновенные клипы, не открывая окно (звучит сигнал).",
+"Guardar clip": "Сохранить клип",
+"Guarda los últimos segundos.": "Сохраняет последние секунды.",
+"Guardar clip largo": "Сохранить длинный клип",
+"Guarda más tiempo que el clip normal (se elige en Ajustes → Video).": "Сохраняет больше времени, чем обычный клип (задаётся в «Настройки → Видео»).",
+"Grabar / detener": "Запись / стоп",
+"Empieza o termina una grabación.": "Начинает или заканчивает запись.",
+"Mostrar / ocultar GrabaClip": "Показать / скрыть GrabaClip",
+"Abre la ventana o la vuelve a esconder junto al reloj.": "Открывает окно или снова прячет его у часов.",
+"Captura de pantalla": "Скриншот",
+"Guarda una imagen del juego en la biblioteca.": "Сохраняет изображение игры в библиотеку.",
+"Poner una marca": "Поставить метку",
+"Mientras grabas, marca el momento para encontrarlo fácil después (en el editor y como capítulo del video).": "Во время записи отмечает момент, чтобы потом легко его найти (в редакторе и как глава видео).",
+"Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.": "Нажмите на клавишу, затем нажмите новую клавишу или сочетание (например Ctrl + Shift + F9). Esc — отмена.",
+"Presiona…": "Нажмите…",
+"Cambio cancelado": "Изменение отменено",
+"Comandos de voz": "Голосовые команды",
+"Escuchar comandos de voz": "Слушать голосовые команды",
+"Di una de tus frases y GrabaClip lo hace, como \"Jarvis, sácale clip\". Todo se procesa en tu PC con el reconocimiento de voz de Windows, sin internet.": "Скажите одну из своих фраз, и GrabaClip её выполнит, например «Джарвис, сделай клип». Всё обрабатывается на вашем ПК распознаванием речи Windows, без интернета.",
+"Apagado": "Выключено",
+"Preparando…": "Подготовка…",
+"Idioma": "Язык",
+"Automático (español si está instalado)": "Автоматически (язык Windows)",
+"Exigencia": "Строгость",
+"Más alto = solo reacciona si está muy seguro de lo que dijiste. Si no te entiende, bájalo; si se activa solo, súbelo.": "Выше = реагирует, только если уверен в сказанном. Если не понимает вас — уменьшите; если срабатывает сам — увеличьте.",
+"Lo último que entendí": "Последнее, что я понял",
+"Todavía nada. Prueba diciendo una de tus frases.": "Пока ничего. Попробуйте сказать одну из своих фраз.",
+"Consejo: usa frases de 2 a 4 palabras que empiecen con una palabra poco común, como \"Jarvis\", para que no se active mientras hablas con tus amigos.": "Совет: используйте фразы из 2–4 слов, начинающиеся с необычного слова, например «Джарвис», чтобы команда не срабатывала, пока вы общаетесь с друзьями.",
+"Agregar otra frase y pulsar Enter": "Добавьте ещё фразу и нажмите Enter",
+"Frase agregada": "Фраза добавлена",
+"Usa al menos 2 palabras para que no se active por error": "Используйте хотя бы 2 слова, чтобы избежать ложных срабатываний",
+"el idioma de Windows": "язык Windows",
+"Agrega al menos una frase.": "Добавьте хотя бы одну фразу.",
+"System.Speech no disponible": "System.Speech недоступен",
+"No pude cargar el reconocimiento de voz de Windows (detalles en logs\\voz.txt).": "Не удалось загрузить распознавание речи Windows (подробности в logs\\voz.txt).",
+"No encontré un micrófono. Conéctalo o elígelo como predeterminado en Windows.": "Микрофон не найден. Подключите его или выберите по умолчанию в Windows.",
+"✓ hecho": "✓ выполнено",
+"no alcanzó la exigencia (o fue muy seguido)": "ниже порога строгости (или слишком часто)",
+"Modo rendimiento": "Режим производительности",
+"Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.": "Только необходимое: клипы, запись и клавиши. Отключает оверлей, голосовые команды, миниатюры и анимации, чтобы GrabaClip потреблял минимум во время игры.",
+"Vista previa al pasar el mouse": "Предпросмотр при наведении",
+"En la biblioteca, el clip se reproduce sin sonido sobre su miniatura.": "В библиотеке клип воспроизводится без звука поверх миниатюры.",
+"Sin importar este ajuste, cuando cierras la ventana y GrabaClip queda junto al reloj, la interfaz se descarga y libera casi toda su memoria.": "Независимо от этой настройки, когда вы закрываете окно и GrabaClip остаётся у часов, интерфейс выгружается и освобождает почти всю память.",
+"Iniciar con Windows": "Запускать вместе с Windows",
+"GrabaClip se abre junto al reloj al encender la PC.": "GrabaClip открывается у часов при включении ПК.",
+"GrabaClip se abrirá al iniciar Windows": "GrabaClip будет открываться при запуске Windows",
+"Inicio con Windows desactivado": "Запуск вместе с Windows выключен",
+"Al cerrar, seguir junto al reloj": "При закрытии оставаться у часов",
+"La X esconde la ventana y GrabaClip sigue funcionando en los íconos ocultos. Para salir: clic derecho en su ícono → Salir.": "Крестик прячет окно, а GrabaClip продолжает работать в скрытых значках. Чтобы выйти: правый клик по значку → Выход.",
+"Activar clips al abrir": "Включать клипы при открытии",
+"Empieza a guardar el búfer de clips automáticamente.": "Начинает автоматически заполнять буфер клипов.",
+"Organizar por juego": "Сортировать по играм",
+"Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.": "Сохраняет каждый клип в папку с названием игры или приложения, которое было открыто.",
+"Sonidos de aviso": "Звуковые сигналы",
+"Al guardar un clip y al activar o desactivar los clips con la tecla.": "При сохранении клипа и при включении или выключении клипов клавишей.",
+"Overlay en el juego": "Оверлей в игре",
+"Avisos pequeños encima del juego. No reciben clics y no salen en tus clips.": "Небольшие уведомления поверх игры. Не принимают клики и не попадают в клипы.",
+"Indicador de clips activos": "Индикатор активных клипов",
+"Una pastilla en la esquina: \"Clips\" mientras se guarda el búfer, o \"REC\" con el tiempo al grabar.": "Плашка в углу: «Клипы», пока работает буфер, или «REC» со временем во время записи.",
+"Aviso al guardar un clip": "Уведомление о сохранении клипа",
+"Aparece unos segundos con el juego y la duración.": "Появляется на несколько секунд с игрой и длительностью.",
+"Esquina": "Угол",
+"Arriba a la izquierda": "Слева сверху",
+"Arriba a la derecha": "Справа сверху",
+"Probar": "Проверить",
+"Probando…": "Проверка…",
+"Se ve en juegos en modo ventana o \"pantalla completa sin bordes\". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).": "Виден в играх в оконном режиме или «полноэкранном без рамки». В эксклюзивном полноэкранном режиме Windows не позволяет рисовать поверх (звук всё равно слышен).",
+"El overlay está desactivado, solo sonó el aviso": "Оверлей выключен, прозвучал только сигнал",
+"Mostrar en Discord": "Показывать в Discord",
+"Tus amigos ven \"Clipeando con GrabaClip\" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.": "Друзья видят «Делает клипы с GrabaClip» в вашем профиле с кнопкой для скачивания. Только пока включены клипы или идёт запись.",
+"Mostrar el nombre del juego": "Показывать название игры",
+"Por ejemplo \"En Overwatch\".": "Например «В Overwatch».",
+"Carpeta de videos": "Папка для видео",
+"Restablecer": "Сбросить",
+"Cambiar…": "Изменить…",
+"Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.": "Старые видео остаются на месте; их можно перенести в новую папку через Проводник.",
+"Espacio en disco": "Место на диске",
+"Calculando…": "Подсчёт…",
+"Límite de espacio": "Лимит места",
+"Sin límite": "Без лимита",
+"Los videos se acumulan sin límite.": "Видео копятся без ограничений.",
+"Incluir las grabaciones largas": "Включать длинные записи",
+"Si está apagado, solo se mandan a la Papelera los clips; tus grabaciones (F10) nunca se tocan.": "Если выключено, в корзину отправляются только клипы; ваши записи (F10) никогда не трогаются.",
+"Actualizaciones": "Обновления",
+"Buscar actualizaciones": "Проверить обновления",
+"Buscando…": "Проверка…",
+"Actualizar ahora": "Обновить сейчас",
+"Avisar al abrir si hay versión nueva": "Сообщать при запуске о новой версии",
+"Revisa GitHub una vez al abrir GrabaClip. Es la única conexión a internet que hace.": "Проверяет GitHub один раз при запуске GrabaClip. Это единственное подключение к интернету.",
+"Al actualizar, GrabaClip se cierra unos segundos y se vuelve a abrir solo. Tus ajustes, clips y miniaturas se mantienen.": "При обновлении GrabaClip закрывается на несколько секунд и открывается сам. Настройки, клипы и миниатюры сохраняются.",
+"Instalando… GrabaClip se cerrará y se abrirá solo en unos segundos.": "Установка… GrabaClip закроется и сам откроется через несколько секунд.",
+"Tienes la versión …": "У вас версия …",
+"Idioma de la app": "Язык приложения",
+"Automático (el de Windows)": "Автоматически (язык Windows)",
+"Cómo usar GrabaClip": "Как пользоваться GrabaClip",
+"Activa los clips": "Включите клипы",
+"Enciende \"Clips instantáneos\" abajo a la izquierda o pulsa": "Включите «Мгновенные клипы» слева внизу или нажмите",
+"desde el juego. GrabaClip guarda en segundo plano los últimos segundos.": "прямо в игре. GrabaClip хранит последние секунды в фоне.",
+"Guarda el momento": "Сохраните момент",
+"Cuando pase algo bueno pulsa": "Когда случится что-то крутое, нажмите",
+". El clip aparece en Grabaciones.": ". Клип появится в «Записях».",
+"Graba sesiones largas": "Записывайте длинные сессии",
+"Pulsa el botón REC o": "Нажмите кнопку REC или",
+"para empezar y otra vez para terminar.": "чтобы начать, и ещё раз, чтобы закончить.",
+"Edita sin Discord ni música": "Монтируйте без Discord и музыки",
+"En Ajustes → Audio marca tus apps. En DaVinci cada una sale en su propia pista y puedes silenciarla.": "В «Настройки → Звук» отметьте приложения. В DaVinci каждое будет на своей дорожке, и его можно выключить.",
+"Siempre listo": "Всегда наготове",
+"En Ajustes → General activa \"Iniciar con Windows\" y \"Activar clips al abrir\".": "В «Настройки → Общие» включите «Запускать вместе с Windows» и «Включать клипы при открытии».",
+"Revisa la carpeta \"logs\" junto a GrabaClip. Si el audio va desfasado, ajusta la sincronía en Audio.": "Посмотрите папку «logs» рядом с GrabaClip. Если звук не совпадает, настройте синхронизацию в разделе «Звук».",
+"Grabar": "Запись",
+"Empezar / detener grabación": "Начать / остановить запись",
+"Duración": "Длительность",
+"Tus estadísticas": "Ваша статистика",
+"Clips por semana": "Клипов в неделю",
+"Por juego": "По играм",
+"clip": "клип",
+"clips": "клипов",
+"grabaciones": "записей",
+"capturas": "скриншотов",
+"de video": "видео",
+"en disco": "на диске",
+"de racha clipeando": "подряд с клипами",
+"Todavía no hay clips.": "Клипов пока нет.",
+"Cuando guardes clips, aquí verás tus juegos más clipeados.": "Когда вы будете сохранять клипы, здесь появятся ваши самые клипуемые игры.",
+"Cargando video…": "Загрузка видео…",
+"Inicio": "Начало",
+"Fin": "Конец",
+"Inicio aquí": "Начало здесь",
+"Fin aquí": "Конец здесь",
+"Tecla I": "Клавиша I",
+"Tecla O": "Клавиша O",
+"◀ Marca": "◀ Метка",
+"Marca ▶": "Метка ▶",
+"Marca anterior ([)": "Предыдущая метка ([)",
+"Marca siguiente (])": "Следующая метка (])",
+"Formato": "Формат",
+"Vertical 9:16": "Вертикально 9:16",
+"Pistas de audio": "Звуковые дорожки",
+"Clic para quitar o volver a poner esta pista": "Нажмите, чтобы убрать или вернуть эту дорожку",
+"Deja al menos una pista de audio": "Оставьте хотя бы одну звуковую дорожку",
+"Reemplazar el original": "Заменить оригинал",
+"Guardar recorte": "Сохранить обрезку",
+"Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.": "Перетаскивайте края полосы или используйте I и O во время воспроизведения. Пробел — воспроизведение или пауза. Сохраняется как новая копия рядом с оригиналом.",
+"Recortando…": "Обрезка…",
+"No se pudo abrir el video en la app. Prueba con Reproducir en la biblioteca.": "Не удалось открыть видео в приложении. Попробуйте «Смотреть» в библиотеке.",
+"¿Reemplazar el original?": "Заменить оригинал?",
+"El video original se enviará a la Papelera y su lugar lo ocupará el recorte.": "Оригинальное видео отправится в корзину, а его место займёт обрезка.",
+"Copiar el clip": "Копировать клип",
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta.": "Вставьте его через Ctrl+V в Discord, WhatsApp или папку.",
+"Pégala con Ctrl+V en Discord, WhatsApp o una carpeta.": "Вставьте его через Ctrl+V в Discord, WhatsApp или папку.",
+"Versión para Discord": "Версия для Discord",
+"Una copia de menos de 10 MB, con una sola pista de audio. Se copia sola al terminar.": "Копия меньше 10 МБ с одной звуковой дорожкой. Копируется автоматически по готовности.",
+"Preparando la versión para Discord…": "Готовим версию для Discord…",
+" Ya está copiada, pégala en Discord con Ctrl+V.": " Она уже скопирована, вставьте её в Discord через Ctrl+V.",
+" (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).": " (бесплатный Discord принимает максимум 10 МБ: используйте версию для Discord).",
+"Escribe un nombre": "Введите имя",
+"¿Enviar a la Papelera?": "Отправить в корзину?",
+"Añadido a favoritos": "Добавлено в избранное",
+"Quitado de favoritos": "Убрано из избранного",
+"Añadidos a favoritos": "Добавлены в избранное",
+"Quitados de favoritos": "Убраны из избранного",
+"Uniendo videos… te aviso al terminar": "Объединяем видео… сообщу, когда будет готово",
+"1 seleccionado": "Выбран 1",
+"Elige al menos dos videos para unir": "Выберите хотя бы два видео для объединения",
+"Clips desactivados": "Клипы выключены",
+"Clips activos": "Клипы включены",
+"Clips apagados": "Клипы выключены",
+"Esperando un juego": "Ожидание игры",
+"Espera un momento, todavía estoy detectando tu GPU": "Минутку, ещё определяю видеокарту",
+"Clips listos: empezarán a grabar cuando abras un juego": "Клипы готовы: запись начнётся, когда вы откроете игру",
+"No hay ningún juego abierto para guardar un clip": "Нет открытой игры, чтобы сохранить клип",
+"Activa los clips primero": "Сначала включите клипы",
+"Aún no hay suficiente video, espera unos segundos": "Видео пока недостаточно, подождите несколько секунд",
+"No se pudo guardar el clip": "Не удалось сохранить клип",
+"Clip guardado": "Клип сохранён",
+"Clip largo": "Длинный клип",
+"Clip del final de la partida": "Клип конца матча",
+"Grabación guardada": "Запись сохранена",
+"Captura guardada": "Скриншот сохранён",
+"Escritorio": "Рабочий стол",
+"Se cerró el juego: los clips esperan a que abras otro": "Игра закрыта: клипы ждут, пока вы откроете другую",
+"Los clips se detuvieron por un error (revisa la carpeta logs)": "Клипы остановились из-за ошибки (смотрите папку logs)",
+"La grabación terminó porque se cerró la ventana del juego": "Запись завершилась, потому что окно игры закрылось",
+"La grabación se detuvo por un error (revisa la carpeta logs)": "Запись остановилась из-за ошибки (смотрите папку logs)",
+"Desactiva los clips y deten la grabación para cambiarlo": "Выключите клипы и остановите запись, чтобы изменить это",
+"Termina la grabación antes de cambiar la carpeta.": "Завершите запись перед сменой папки.",
+"Se usará otra vez Videos\\GrabaClip": "Снова будет использоваться Videos\\GrabaClip",
+"La actualización ya está en marcha": "Обновление уже идёт",
+"Termina la grabación antes de actualizar": "Завершите запись перед обновлением",
+"Primero busca actualizaciones": "Сначала проверьте обновления",
+"No pude revisar GitHub. ¿Tienes internet?": "Не удалось проверить GitHub. Есть ли интернет?",
+"Empezó una grabación; termínala y vuelve a pulsar Actualizar": "Началась запись; завершите её и снова нажмите «Обновить»",
+"Acción desconocida": "Неизвестное действие",
+"No reconocí esa tecla": "Не удалось распознать эту клавишу",
+"Esa tecla no se puede usar, prueba otra": "Эту клавишу использовать нельзя, попробуйте другую",
+"No encuentro ese video": "Не могу найти это видео",
+"Ya hay un recorte en marcha": "Обрезка уже выполняется",
+"Espera a que termine lo que se está preparando": "Дождитесь завершения текущей задачи",
+"Video enviado a la Papelera": "Видео отправлено в корзину",
+"No se pudo eliminar el video": "Не удалось удалить видео",
+"No se pudo eliminar": "Не удалось удалить",
+"Clip copiado: pégalo con Ctrl+V en Discord, WhatsApp o una carpeta": "Клип скопирован: вставьте его через Ctrl+V в Discord, WhatsApp или папку",
+"No se pudo copiar al portapapeles": "Не удалось скопировать в буфер обмена",
+"No se puede renombrar la grabación en curso": "Текущую запись нельзя переименовать",
+"Ya hay un video con ese nombre en la misma carpeta": "В этой папке уже есть видео с таким именем",
+"No se pudo renombrar (¿está abierto en otro programa?)": "Не удалось переименовать (оно открыто в другой программе?)",
+"El nombre no puede tener < > : \" / \\ | ? * ni ser tan largo": "Имя не может содержать < > : \" / \\ | ? * или быть таким длинным",
+"No se pudo tomar la captura (revisa logs\\captura.log)": "Не удалось сделать скриншот (смотрите logs\\captura.log)",
+"Falta GrabaClip.exe para configurar el inicio con Windows": "Нет файла GrabaClip.exe для настройки запуска с Windows",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera": "Ваши видео превысили лимит места, но больше нечего отправить в корзину",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera (las grabaciones no se tocan)": "Ваши видео превысили лимит места, но больше нечего отправить в корзину (записи не трогаются)",
+"El recorte tiene que durar al menos medio segundo": "Обрезка должна длиться хотя бы полсекунды",
+"FFmpeg no pudo crear el video (revisa logs\\recorte.log)": "FFmpeg не смог создать видео (смотрите logs\\recorte.log)",
+"FFmpeg no pudo unir los videos (revisa logs\\unir.log)": "FFmpeg не смог объединить видео (смотрите logs\\unir.log)",
+"FFmpeg no pudo crear la versión para Discord (revisa logs\\discord.log)": "FFmpeg не смог создать версию для Discord (смотрите logs\\discord.log)",
+"No pude leer uno de los videos": "Не удалось прочитать одно из видео",
+"No pude leer la duración del video": "Не удалось прочитать длительность видео",
+"El archivo descargado está dañado (la huella no coincide). Prueba otra vez.": "Загруженный файл повреждён (контрольная сумма не совпадает). Попробуйте ещё раз.",
+"La versión publicada no trae el archivo portable": "В опубликованной версии нет портативного файла",
+"GrabaClip sigue funcionando": "GrabaClip продолжает работать",
+"Está junto al reloj (en los íconos ocultos). Clic derecho para salir.": "Он у часов (в скрытых значках). Правый клик — чтобы выйти.",
+"Clips · esperando juego": "Клипы · ожидание игры",
+"Abrir GrabaClip": "Открыть GrabaClip",
+"Activar clips": "Включить клипы",
+"Desactivar clips": "Выключить клипы",
+"Salir de GrabaClip": "Выйти из GrabaClip",
+"Clipeando con GrabaClip": "Делает клипы с GrabaClip",
+"Grabando con GrabaClip": "Записывает с GrabaClip",
+"Clips instantáneos activos": "Мгновенные клипы включены",
+"Grabando la pantalla": "Запись экрана",
+"Descargar GrabaClip": "Скачать GrabaClip",
+"GrabaClip · clips instantáneos gratis y open source": "GrabaClip · бесплатные мгновенные клипы с открытым кодом",
+"Carmesí": "Малиновая",
+"Oscuro": "Тёмная",
+"Medianoche": "Полночь",
+"Bosque": "Лес",
+"Atardecer": "Закат",
+"Rojo": "Красная",
+"Claro": "Светлая",
+"Arena": "Песок",
+"Rosa": "Розовая",
+"Menta": "Мята",
+"Alto contraste": "Высокий контраст",
+"español": "испанском",
+"inglés": "английском",
+"portugués": "португальском",
+"francés": "французском",
+"árabe": "арабском",
+"ruso": "русском"
+},
+"patrones": [
+[
+"Clip guardado en {0}",
+"Клип сохранён в {0}"
+],
+[
+"Clip guardado en {0} (sin {1} pista vacía)",
+"Клип сохранён в {0} (без {1} пустой дорожки)"
+],
+[
+"Clip guardado en {0} (sin {1} pistas vacías)",
+"Клип сохранён в {0} (без {1} пустых дорожек)"
+],
+[
+"Clip largo en {0}",
+"Длинный клип в {0}"
+],
+[
+"Clip largo en {0} (sin {1} pista vacía)",
+"Длинный клип в {0} (без {1} пустой дорожки)"
+],
+[
+"Clip largo en {0} (sin {1} pistas vacías)",
+"Длинный клип в {0} (без {1} пустых дорожек)"
+],
+[
+"Clip del final de la partida en {0}",
+"Клип конца матча в {0}"
+],
+[
+"Clips activos en {0}: {1} guarda los últimos {2} s",
+"Клипы включены в {0}: {1} сохраняет последние {2} с"
+],
+[
+"Clips activos en la pantalla: {0} guarda los últimos {1} s",
+"Клипы включены для экрана: {0} сохраняет последние {1} с"
+],
+[
+"Grabando {0}",
+"Запись {0}"
+],
+[
+"Grabando: {0}",
+"Запись: {0}"
+],
+[
+"Grabación guardada: {0}",
+"Запись сохранена: {0}"
+],
+[
+"Captura guardada en {0}",
+"Скриншот сохранён в {0}"
+],
+[
+"Marca {0} en {1}",
+"Метка {0} на {1}"
+],
+[
+"Marca {0}",
+"Метка {0}"
+],
+[
+"Las marcas son para grabaciones: pulsa {0} para grabar",
+"Метки — для записей: нажмите {0}, чтобы начать запись"
+],
+[
+"Los nuevos videos se guardarán en {0}",
+"Новые видео будут сохраняться в {0}"
+],
+[
+"No se pudo abrir el selector: {0}",
+"Не удалось открыть выбор папки: {0}"
+],
+[
+"No se puede guardar en esa carpeta ({0}).",
+"Нельзя сохранять в эту папку ({0})."
+],
+[
+"Ya tienes la versión más reciente ({0})",
+"У вас уже последняя версия ({0})"
+],
+[
+"Hay una versión nueva de GrabaClip ({0}). Actualízala en Ajustes → General",
+"Вышла новая версия GrabaClip ({0}). Обновите её в «Настройки → Общие»"
+],
+[
+"Hay una versión nueva: {0} (tienes la {1}). Descarga de {2}.",
+"Новая версия: {0} (у вас {1}). Загрузка {2}."
+],
+[
+"Tienes la versión {0}.",
+"У вас версия {0}."
+],
+[
+"Descargando… {0} de {1} ({2}%)",
+"Загрузка… {0} из {1} ({2}%)"
+],
+[
+"Descargando… {0} ({1}%)",
+"Загрузка… {0} ({1}%)"
+],
+[
+"No se pudo actualizar: {0}",
+"Не удалось обновить: {0}"
+],
+[
+"Nueva tecla: {0}",
+"Новая клавиша: {0}"
+],
+[
+"{0} ya se usa en otra tecla rápida",
+"{0} уже используется другой горячей клавишей"
+],
+[
+"Así se verá · {0} s",
+"Так это будет выглядеть · {0} с"
+],
+[
+"Recorte guardado: {0}",
+"Обрезка сохранена: {0}"
+],
+[
+"Recorte guardado: {0} (el original está en la Papelera)",
+"Обрезка сохранена: {0} (оригинал в корзине)"
+],
+[
+"Recortando… {0}%",
+"Обрезка… {0}%"
+],
+[
+"Clips unidos: {0}",
+"Клипы объединены: {0}"
+],
+[
+"Uniendo… {0}%",
+"Объединение… {0}%"
+],
+[
+"Versión para Discord lista ({0} MB)",
+"Версия для Discord готова ({0} МБ)"
+],
+[
+"Versión para Discord lista ({0} MB): ya está copiada, pégala con Ctrl+V",
+"Версия для Discord готова ({0} МБ): она уже скопирована, вставьте через Ctrl+V"
+],
+[
+"Preparando la versión para Discord… {0}%",
+"Готовим версию для Discord… {0}%"
+],
+[
+"Lista: {0} MB.",
+"Готово: {0} МБ."
+],
+[
+"Lista: {0} MB. Ya está copiada, pégala en Discord con Ctrl+V.",
+"Готово: {0} МБ. Она уже скопирована, вставьте её в Discord через Ctrl+V."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0}.",
+"Вставьте его через Ctrl+V в Discord, WhatsApp или папку. Размер: {0}."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0} (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).",
+"Вставьте его через Ctrl+V в Discord, WhatsApp или папку. Размер: {0} (бесплатный Discord принимает максимум 10 МБ: используйте версию для Discord)."
+],
+[
+"El video dura {0} s: es demasiado largo para que quepa en 10 MB. Recórtalo primero (unos 2 minutos como máximo).",
+"Видео длится {0} с: оно слишком длинное, чтобы уместиться в 10 МБ. Сначала обрежьте его (примерно до 2 минут)."
+],
+[
+"Queda poco espacio en el disco ({0} GB). Borra videos o pon un límite en Ajustes → General",
+"Мало места на диске ({0} ГБ). Удалите видео или задайте лимит в «Настройки → Общие»"
+],
+[
+"Se enviaron {0} video viejo a la Papelera ({1} GB) para no pasar de {2} GB",
+"{0} старое видео отправлено в корзину ({1} ГБ), чтобы не превысить {2} ГБ"
+],
+[
+"Se enviaron {0} videos viejos a la Papelera ({1} GB) para no pasar de {2} GB",
+"Старых видео в корзине: {0} ({1} ГБ), чтобы не превысить {2} ГБ"
+],
+[
+"{0} video enviado a la Papelera",
+"{0} видео отправлено в корзину"
+],
+[
+"{0} videos enviados a la Papelera",
+"{0} видео отправлено в корзину"
+],
+[
+"Windows cortó la captura un momento; la grabación sigue en la parte {0}",
+"Windows на мгновение прервала захват; запись продолжается в части {0}"
+],
+[
+"Renombrado: {0}",
+"Переименовано: {0}"
+],
+[
+"{0} seleccionados",
+"Выбрано: {0}"
+],
+[
+"{0} video · {1}",
+"{0} видео · {1}"
+],
+[
+"{0} videos · {1}",
+"{0} видео · {1}"
+],
+[
+"Mostrar más ({0} restantes)",
+"Показать ещё (осталось {0})"
+],
+[
+"Todos los juegos ({0})",
+"Все игры ({0})"
+],
+[
+"Sin clasificar ({0})",
+"Без категории ({0})"
+],
+[
+"Activas ({0})",
+"Активные ({0})"
+],
+[
+"Inactivas ({0})",
+"Неактивные ({0})"
+],
+[
+"{0} · {1} guarda {2} s",
+"{0} · {1} сохраняет {2} с"
+],
+[
+"Desactivados · {0} para activar",
+"Выключены · {0}, чтобы включить"
+],
+[
+"Escuchando en {0}",
+"Слушаю на языке: {0}"
+],
+[
+"Escuchando en {0} ({1}) con {2} frases",
+"Слушаю на языке: {0} ({1}), фраз: {2}"
+],
+[
+"No se pudo preparar el reconocimiento de voz: {0}",
+"Не удалось подготовить распознавание речи: {0}"
+],
+[
+"“{0}” · {1} % de seguridad · {2}",
+"«{0}» · уверенность {1}% · {2}"
+],
+[
+"Escribe una frase y pulsa Enter (ej. \"{0}\")",
+"Введите фразу и нажмите Enter (напр. «{0}»)"
+],
+[
+"{0} clips · {1} grab. · {2}",
+"Клипы: {0} · записи: {1} · {2}"
+],
+[
+"Tu mejor semana: la del {0}, con {1} clips.",
+"Ваша лучшая неделя: неделя {0}, клипов: {1}."
+],
+[
+"Semana del {0}: {1} clips",
+"Неделя {0}: клипов {1}"
+],
+[
+"{0} día",
+"Дней: {0}"
+],
+[
+"{0} días",
+"Дней: {0}"
+],
+[
+"{0} h {1} min",
+"{0} ч {1} мин"
+],
+[
+"{0} videos ({1} clips: {2})",
+"Видео: {0} (клипы: {1}, {2})"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite",
+"Видео: {0} (клипы: {1}, {2}) · {3}% от лимита"
+],
+[
+"{0} videos ({1} clips: {2}) · Libre en el disco: {3}",
+"Видео: {0} (клипы: {1}, {2}) · Свободно на диске: {3}"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite · Libre en el disco: {4}",
+"Видео: {0} (клипы: {1}, {2}) · {3}% от лимита · Свободно на диске: {4}"
+],
+[
+"Al pasar de {0} GB, los clips más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"При превышении {0} ГБ самые старые клипы автоматически отправляются в корзину (оттуда их можно вернуть). Учтите: корзина тоже занимает место, пока вы её не очистите."
+],
+[
+"Al pasar de {0} GB, los videos más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"При превышении {0} ГБ самые старые видео автоматически отправляются в корзину (оттуда их можно вернуть). Учтите: корзина тоже занимает место, пока вы её не очистите."
+],
+[
+"¿Poner el límite en {0} GB?",
+"Установить лимит {0} ГБ?"
+],
+[
+"Ahora tus videos ocupan {0}. Los clips más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"Сейчас ваши видео занимают {0}. Самые старые клипы отправятся в корзину, пока объём не станет меньше {1} ГБ."
+],
+[
+"Ahora tus videos ocupan {0}. Los videos más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"Сейчас ваши видео занимают {0}. Самые старые видео отправятся в корзину, пока объём не станет меньше {1} ГБ."
+],
+[
+"¿Enviar {0} video a la Papelera?",
+"Отправить {0} видео в корзину?"
+],
+[
+"¿Enviar {0} videos a la Papelera?",
+"Отправить {0} видео в корзину?"
+],
+[
+"{0} en total. Puedes recuperarlos desde la Papelera.",
+"Всего {0}. Их можно вернуть из корзины."
+],
+[
+"{0} en total, incluye {1} favorito. Puedes recuperarlos desde la Papelera.",
+"Всего {0}, включая {1} избранное. Их можно вернуть из корзины."
+],
+[
+"{0} en total, incluye {1} favoritos. Puedes recuperarlos desde la Papelera.",
+"Всего {0}, включая избранные: {1}. Их можно вернуть из корзины."
+],
+[
+"{0} (es un favorito)",
+"{0} (в избранном)"
+],
+[
+"¿Unir {0} videos?",
+"Объединить {0} видео?"
+],
+[
+"Se crea un video nuevo de unos {0} con un fundido corto entre cada uno y una sola pista de audio (la mezcla). Los originales no se tocan.",
+"Будет создано новое видео длиной около {0} с короткими переходами и одной звуковой дорожкой (микс). Оригиналы не изменятся."
+],
+[
+"En {0}",
+"В {0}"
+],
+[
+"{0} (clic para renombrar)",
+"{0} (нажмите, чтобы переименовать)"
+],
+[
+"{0} pista de audio",
+"Звуковых дорожек: {0}"
+],
+[
+"{0} pistas de audio",
+"Звуковых дорожек: {0}"
+],
+[
+"{0} pista de audio · {1} marca",
+"Звуковых дорожек: {0} · меток: {1}"
+],
+[
+"{0} pistas de audio · {1} marcas",
+"Звуковых дорожек: {0} · меток: {1}"
+],
+[
+"FFmpeg no pudo arrancar (codigo 0x{0}).",
+"FFmpeg не смог запуститься (код 0x{0})."
+],
+[
+"FFmpeg termino con el codigo 0x{0} sin dar detalles.",
+"FFmpeg завершился с кодом 0x{0} без подробностей."
+],
+[
+"No se pudo ejecutar FFmpeg: {0}",
+"Не удалось запустить FFmpeg: {0}"
+],
+[
+"Pantalla {0}",
+"Экран {0}"
+],
+[
+"No tienes el reconocimiento de voz en {0}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca \"Reconocimiento de voz\". Mientras tanto se usa {1}.",
+"У вас нет распознавания речи на {0}. Чтобы добавить: Параметры Windows > Время и язык > Язык и регион > Добавить язык, и отметьте «Распознавание речи». Пока используется {1}."
+]
+]
+}

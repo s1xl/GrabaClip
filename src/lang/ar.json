@@ -1,0 +1,815 @@
+{
+"exacto": {
+"Grabaciones": "التسجيلات",
+"Estadísticas": "الإحصائيات",
+"Ajustes": "الإعدادات",
+"Ayuda": "المساعدة",
+"Buscar grabaciones": "ابحث في التسجيلات",
+"Cambiar tema": "تغيير السمة",
+"Detectando GPU…": "جارٍ اكتشاف بطاقة الرسومات…",
+"No se puede grabar": "لا يمكن التسجيل",
+"GrabaClip no puede grabar en esta PC": "لا يستطيع GrabaClip التسجيل على هذا الجهاز",
+"El video va directo de la pantalla a la tarjeta gráfica, casi sin usar el procesador": "ينتقل الفيديو مباشرة من الشاشة إلى بطاقة الرسومات تقريبًا دون استخدام المعالج",
+"Todos": "الكل",
+"Clips": "المقاطع",
+"Capturas": "لقطات الشاشة",
+"Favoritos": "المفضلة",
+"Favorito": "مفضلة",
+"Todos los juegos": "كل الألعاب",
+"Filtrar por juego o app": "التصفية حسب اللعبة أو التطبيق",
+"Ordenar": "ترتيب",
+"Más nuevos": "الأحدث",
+"Más viejos": "الأقدم",
+"Más pesados": "الأكبر حجمًا",
+"Más largos": "الأطول",
+"Nombre": "الاسم",
+"Seleccionar": "تحديد",
+"Seleccionar todos": "تحديد الكل",
+"Unir": "دمج",
+"Une los videos elegidos en uno, en el orden en que se grabaron": "يدمج الفيديوهات المحددة في فيديو واحد بترتيب تسجيلها",
+"Enviar a la Papelera": "نقل إلى سلة المحذوفات",
+"Cancelar": "إلغاء",
+"Sin clasificar": "غير مصنف",
+"CLIP": "مقطع",
+"CAPTURA": "لقطة شاشة",
+"GRABACIÓN": "تسجيل",
+"Reproducir": "تشغيل",
+"Abrir": "فتح",
+"Pausa": "إيقاف مؤقت",
+"Compartir": "مشاركة",
+"Recortar": "قص",
+"Mostrar en la carpeta": "إظهار في المجلد",
+"Clic para renombrar": "انقر لإعادة التسمية",
+"Quitar de favoritos": "إزالة من المفضلة",
+"Marcar como favorito (el límite de espacio nunca lo borra)": "وضع علامة مفضلة (حد المساحة لا يحذفه أبدًا)",
+"Sin resultados": "لا توجد نتائج",
+"Prueba con otra búsqueda o filtro.": "جرّب بحثًا أو فلترًا آخر.",
+"Aún no tienes grabaciones": "لا توجد تسجيلات بعد",
+"Activa los clips instantáneos abajo y pulsa": "شغّل المقاطع الفورية في الأسفل واضغط",
+", o pulsa REC para grabar.": "، أو اضغط REC للتسجيل.",
+"Clips instantáneos": "المقاطع الفورية",
+"Desactivados": "متوقفة",
+"Esperando a que abras un juego…": "في انتظار فتح لعبة…",
+"Abrir carpeta": "فتح المجلد",
+"REC": "REC",
+"Detener grabación": "إيقاف التسجيل",
+"Empezar a grabar": "بدء التسجيل",
+"Pantalla": "الشاشة",
+"Pantalla 1": "الشاشة 1",
+"Algo falla": "حدث خطأ ما",
+"Eliminar": "حذف",
+"Aplicar": "تطبيق",
+"Reemplazar": "استبدال",
+"Listo": "تم",
+"Guardar": "حفظ",
+"Renombrar": "إعادة التسمية",
+"Mostrar más": "عرض المزيد",
+"Subir": "نقل لأعلى",
+"Bajar": "نقل لأسفل",
+"Quitar": "إزالة",
+"Cerrar (Esc)": "إغلاق (Esc)",
+"Video": "الفيديو",
+"Audio": "الصوت",
+"Teclas": "الاختصارات",
+"Voz": "الصوت والأوامر",
+"General": "عام",
+"Apariencia": "المظهر",
+"Desactiva los clips y detén la grabación para cambiar estos ajustes.": "أوقف المقاطع والتسجيل لتغيير هذه الإعدادات.",
+"Qué grabar": "ماذا تسجّل",
+"Solo el juego": "اللعبة فقط",
+"Pantalla completa": "الشاشة كاملة",
+"Ventana a grabar": "النافذة المراد تسجيلها",
+"Automático: el juego que estés usando": "تلقائي: اللعبة التي تلعبها",
+"Buscar ventanas abiertas": "البحث عن النوافذ المفتوحة",
+"Actualizar": "تحديث",
+"En automático graba el juego que estés usando y cambia solo si cambias de juego. Discord, los navegadores y el escritorio no cuentan como juego.": "في الوضع التلقائي يسجّل اللعبة التي تلعبها ويتغير وحده إذا غيّرت اللعبة. Discord والمتصفحات وسطح المكتب لا تُعد ألعابًا.",
+"Grabar la pantalla cuando no haya un juego": "تسجيل الشاشة عندما لا توجد لعبة",
+"Si está apagado, los clips esperan a que abras un juego.": "إذا كان متوقفًا، تنتظر المقاطع حتى تفتح لعبة.",
+"Codificar con": "الترميز باستخدام",
+"Cuadros por segundo": "الإطارات في الثانية",
+"Calidad": "الجودة",
+"Resolución": "الدقة",
+"Baja": "منخفضة",
+"Media": "متوسطة",
+"Alta": "عالية",
+"Muy alta": "عالية جدًا",
+"Máxima": "قصوى",
+"Original": "الأصلية",
+"Duración de cada clip": "مدة كل مقطع",
+"Duración del clip largo": "مدة المقطع الطويل",
+"Para cuando la jugada viene de lejos. El búfer guarda el más largo de los dos, así que más tiempo ocupa más espacio temporal en el disco.": "لما تبدأ اللقطة من وقت أبعد. يحتفظ المخزن المؤقت بالأطول بين الاثنين، فالوقت الأطول يستهلك مساحة مؤقتة أكبر على القرص.",
+"Ajustes por juego": "إعدادات لكل لعبة",
+"Cada juego puede tener sus propios FPS, calidad y resolución. Los que no estén aquí usan los ajustes de arriba.": "يمكن لكل لعبة أن يكون لها معدل إطارات وجودة ودقة خاصة. الألعاب غير الموجودة هنا تستخدم الإعدادات أعلاه.",
+"Elige un juego o programa abierto…": "اختر لعبة أو برنامجًا مفتوحًا…",
+"Agregar": "إضافة",
+"Todavía no hay juegos con ajustes propios.": "لا توجد ألعاب بإعدادات خاصة بعد.",
+"FPS general": "معدل الإطارات العام",
+"Calidad general": "الجودة العامة",
+"Resolución general": "الدقة العامة",
+"Abre el juego y elígelo de la lista": "افتح اللعبة واخترها من القائمة",
+"Clip automático al cerrar el juego": "مقطع تلقائي عند إغلاق اللعبة",
+"Cuando cierras el juego, GrabaClip guarda solo los últimos segundos (la pantalla final, el resultado de la partida). Ocupa espacio con cada partida.": "عند إغلاق اللعبة يحفظ GrabaClip آخر الثواني فقط (الشاشة الأخيرة ونتيجة المباراة). يستهلك مساحة مع كل مباراة.",
+"Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.": "المزيد من الإطارات والجودة يعطي فيديوهات أنعم وأوضح لكن بملفات أكبر. إذا كانت شاشتك 60 هرتز فالتسجيل بأكثر من 60 إطارًا لا يضيف شيئًا.",
+"Modo automático: se graba el juego que uses": "الوضع التلقائي: تُسجَّل اللعبة التي تلعبها",
+"Se grabará solo esa ventana": "ستُسجَّل تلك النافذة فقط",
+" (cerrado ahora)": " (مغلقة الآن)",
+"Lista de ventanas actualizada": "تم تحديث قائمة النوافذ",
+" · captura directa": " · التقاط مباشر",
+" Se grabará la pantalla completa.": " ستُسجَّل الشاشة كاملة.",
+"Procesador (CPU)": "المعالج (CPU)",
+"Automático": "تلقائي",
+"GPU NVIDIA (NVENC)": "بطاقة NVIDIA (NVENC)",
+"GPU AMD (AMF)": "بطاقة AMD (AMF)",
+"Procesador (CPU, mas lento)": "المعالج (CPU، أبطأ)",
+"No funciono en esta PC.": "لم يعمل على هذا الجهاز.",
+"Tu driver de NVIDIA es muy antiguo. Actualizalo desde la app de NVIDIA o nvidia.com.": "تعريف NVIDIA لديك قديم جدًا. حدّثه من تطبيق NVIDIA أو من nvidia.com.",
+"No se encontro una tarjeta NVIDIA compatible.": "لم يتم العثور على بطاقة NVIDIA متوافقة.",
+"No se encontro una tarjeta AMD compatible (o falta su driver).": "لم يتم العثور على بطاقة AMD متوافقة (أو ينقص تعريفها).",
+"Intel QuickSync no esta disponible (sin grafica Intel o desactivada).": "Intel QuickSync غير متاح (لا توجد رسومات Intel أو أنها معطلة).",
+"Tu Windows o tu FFmpeg no permiten capturar una sola ventana (necesita Windows 10 1903+ y FFmpeg 8).": "نظام Windows أو FFmpeg لديك لا يسمح بالتقاط نافذة واحدة (يحتاج Windows 10 1903+ و FFmpeg 8).",
+"Windows bloqueo FFmpeg (Control inteligente de aplicaciones). Desactivalo en Seguridad de Windows > Control de aplicaciones y navegador.": "حظر Windows برنامج FFmpeg (التحكم الذكي في التطبيقات). عطّله من أمان Windows > التحكم في التطبيقات والمتصفح.",
+"Faltan archivos de FFmpeg. Vuelve a descomprimir GrabaClip completo.": "ملفات FFmpeg ناقصة. فك ضغط GrabaClip كاملًا مرة أخرى.",
+"Los archivos de FFmpeg estan danados o bloqueados. Vuelve a descomprimir GrabaClip (desbloquea el zip antes).": "ملفات FFmpeg تالفة أو محظورة. فك ضغط GrabaClip مرة أخرى (ألغِ حظر ملف zip أولًا).",
+"Windows o el antivirus no dejan ejecutar FFmpeg (acceso denegado).": "Windows أو برنامج مكافحة الفيروسات يمنع تشغيل FFmpeg (تم رفض الوصول).",
+"FFmpeg se cerro de golpe al arrancar.": "أُغلق FFmpeg فجأة عند التشغيل.",
+"No se encontro FFmpeg. Vuelve a descomprimir GrabaClip completo.": "لم يتم العثور على FFmpeg. فك ضغط GrabaClip كاملًا مرة أخرى.",
+"Cómo guardar el audio": "طريقة حفظ الصوت",
+"Todo en una pista": "كل شيء في مسار واحد",
+"Pistas separadas": "مسارات منفصلة",
+"Juego, Discord, música y micrófono juntos en una sola pista. Lo más simple para subir o compartir.": "اللعبة وDiscord والموسيقى والميكروفون معًا في مسار واحد. الأسهل للنشر أو المشاركة.",
+"Una pista \"Mezcla\" con todo y otra por cada app que marques, para silenciarlas al editar.": "مسار «المزيج» يضم كل شيء، ومسار آخر لكل تطبيق تختاره لتتمكن من كتمه عند التحرير.",
+"Micrófono": "الميكروفون",
+"Se graba en su propia pista y también en la mezcla.": "يُسجَّل في مساره الخاص وفي المزيج أيضًا.",
+"Se mezcla con el resto del sonido.": "يُدمج مع باقي الصوت.",
+"Apps en pista propia": "تطبيقات في مسار خاص",
+"Para poder quitarlas al editar (Discord, Spotify…).": "لتتمكن من إزالتها عند التحرير (Discord وSpotify…).",
+"con sonido ahora": "يصدر صوتًا الآن",
+"· con sonido ahora": "· يصدر صوتًا الآن",
+"· cerradas; su pista se agrega cuando las abras": "· مغلقة؛ يُضاف مسارها عندما تفتحها",
+"cerradas; su pista se agrega cuando las abras": "مغلقة؛ يُضاف مسارها عندما تفتحها",
+"● Abierta": "● مفتوح",
+"Cerrada": "مغلق",
+"Lista de apps actualizada": "تم تحديث قائمة التطبيقات",
+"Quitar pistas sin sonido al guardar": "إزالة المسارات الصامتة عند الحفظ",
+"Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista Mezcla siempre se queda.": "إذا كان التطبيق مغلقًا أو صامتًا فلن يظهر مساره في المقطع. مسار المزيج يبقى دائمًا.",
+"Orden de las pistas": "ترتيب المسارات",
+"Así aparecen en DaVinci y en tu editor. Arrastra una pista o usa las flechas.": "هكذا تظهر في DaVinci وفي برنامج التحرير. اسحب مسارًا أو استخدم الأسهم.",
+"Activas": "نشطة",
+"Inactivas": "غير نشطة",
+"· la app está cerrada; no ocupa lugar en el orden y se agrega al final cuando la abras": "· التطبيق مغلق؛ لا يأخذ مكانًا في الترتيب ويُضاف في النهاية عندما تفتحه",
+"Mezcla": "المزيج",
+"Todo el sonido junto": "كل الصوت معًا",
+"Tu voz": "صوتك",
+"App": "تطبيق",
+"Activa el micrófono o marca apps para ordenar sus pistas.": "شغّل الميكروفون أو اختر تطبيقات لترتيب مساراتها.",
+"No hay apps con sonido. Abre Discord, Spotify o tu juego y pulsa Actualizar.": "لا توجد تطبيقات تصدر صوتًا. افتح Discord أو Spotify أو لعبتك واضغط تحديث.",
+"Sincronía del audio": "مزامنة الصوت",
+"Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.": "استخدمه فقط إذا كان الصوت متقدمًا أو متأخرًا عن الصورة.",
+"La pista \"Mezcla\" lleva todo el sonido junto y nunca se quita.": "مسار «المزيج» يحمل كل الصوت معًا ولا يُزال أبدًا.",
+"Teclas rápidas": "اختصارات لوحة المفاتيح",
+"Activar / desactivar clips": "تشغيل / إيقاف المقاطع",
+"Enciende o apaga los clips instantáneos sin abrir la ventana (suena un aviso).": "يشغّل المقاطع الفورية أو يوقفها دون فتح النافذة (يصدر تنبيه صوتي).",
+"Guardar clip": "حفظ مقطع",
+"Guarda los últimos segundos.": "يحفظ آخر الثواني.",
+"Guardar clip largo": "حفظ مقطع طويل",
+"Guarda más tiempo que el clip normal (se elige en Ajustes → Video).": "يحفظ وقتًا أطول من المقطع العادي (يُحدَّد في الإعدادات ← الفيديو).",
+"Grabar / detener": "تسجيل / إيقاف",
+"Empieza o termina una grabación.": "يبدأ التسجيل أو ينهيه.",
+"Mostrar / ocultar GrabaClip": "إظهار / إخفاء GrabaClip",
+"Abre la ventana o la vuelve a esconder junto al reloj.": "يفتح النافذة أو يخفيها مجددًا بجوار الساعة.",
+"Captura de pantalla": "لقطة شاشة",
+"Guarda una imagen del juego en la biblioteca.": "يحفظ صورة من اللعبة في المكتبة.",
+"Poner una marca": "وضع علامة",
+"Mientras grabas, marca el momento para encontrarlo fácil después (en el editor y como capítulo del video).": "أثناء التسجيل، يضع علامة على اللحظة لتجدها بسهولة لاحقًا (في المحرر وكفصل في الفيديو).",
+"Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.": "انقر على مفتاح ثم اضغط المفتاح أو الاختصار الجديد (مثلًا Ctrl + Shift + F9). Esc للإلغاء.",
+"Presiona…": "اضغط…",
+"Cambio cancelado": "تم إلغاء التغيير",
+"Comandos de voz": "الأوامر الصوتية",
+"Escuchar comandos de voz": "الاستماع للأوامر الصوتية",
+"Di una de tus frases y GrabaClip lo hace, como \"Jarvis, sácale clip\". Todo se procesa en tu PC con el reconocimiento de voz de Windows, sin internet.": "قل إحدى عباراتك وسيقوم GrabaClip بالأمر، مثل «جارفيس، سجّل مقطعًا». تتم المعالجة كلها على جهازك عبر التعرف على الكلام في Windows، دون إنترنت.",
+"Apagado": "متوقف",
+"Preparando…": "جارٍ التحضير…",
+"Idioma": "اللغة",
+"Automático (español si está instalado)": "تلقائي (لغة Windows)",
+"Exigencia": "الدقة المطلوبة",
+"Más alto = solo reacciona si está muy seguro de lo que dijiste. Si no te entiende, bájalo; si se activa solo, súbelo.": "أعلى = لا يستجيب إلا إذا كان متأكدًا جدًا مما قلته. إذا لم يفهمك فاخفضه، وإذا كان يعمل وحده فارفعه.",
+"Lo último que entendí": "آخر ما فهمته",
+"Todavía nada. Prueba diciendo una de tus frases.": "لا شيء بعد. جرّب قول إحدى عباراتك.",
+"Consejo: usa frases de 2 a 4 palabras que empiecen con una palabra poco común, como \"Jarvis\", para que no se active mientras hablas con tus amigos.": "نصيحة: استخدم عبارات من 2 إلى 4 كلمات تبدأ بكلمة غير شائعة مثل «جارفيس» حتى لا يعمل أثناء حديثك مع أصدقائك.",
+"Agregar otra frase y pulsar Enter": "أضف عبارة أخرى واضغط Enter",
+"Frase agregada": "تمت إضافة العبارة",
+"Usa al menos 2 palabras para que no se active por error": "استخدم كلمتين على الأقل حتى لا يعمل بالخطأ",
+"el idioma de Windows": "لغة Windows",
+"Agrega al menos una frase.": "أضف عبارة واحدة على الأقل.",
+"System.Speech no disponible": "System.Speech غير متاح",
+"No pude cargar el reconocimiento de voz de Windows (detalles en logs\\voz.txt).": "تعذّر تحميل التعرف على الكلام في Windows (التفاصيل في logs\\voz.txt).",
+"No encontré un micrófono. Conéctalo o elígelo como predeterminado en Windows.": "لم يتم العثور على ميكروفون. وصّله أو اختره كافتراضي في Windows.",
+"✓ hecho": "✓ تم",
+"no alcanzó la exigencia (o fue muy seguido)": "لم يبلغ الدقة المطلوبة (أو كان متقاربًا جدًا)",
+"Modo rendimiento": "وضع الأداء",
+"Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.": "الضروري فقط: المقاطع والتسجيل والاختصارات. يوقف التراكب والأوامر الصوتية والصور المصغرة والحركات ليستهلك GrabaClip أقل قدر أثناء اللعب.",
+"Vista previa al pasar el mouse": "معاينة عند تمرير الماوس",
+"En la biblioteca, el clip se reproduce sin sonido sobre su miniatura.": "في المكتبة، يُشغَّل المقطع دون صوت فوق صورته المصغرة.",
+"Sin importar este ajuste, cuando cierras la ventana y GrabaClip queda junto al reloj, la interfaz se descarga y libera casi toda su memoria.": "بغض النظر عن هذا الإعداد، عندما تغلق النافذة ويبقى GrabaClip بجوار الساعة، تُفرَّغ الواجهة وتحرر معظم ذاكرتها.",
+"Iniciar con Windows": "التشغيل مع Windows",
+"GrabaClip se abre junto al reloj al encender la PC.": "يفتح GrabaClip بجوار الساعة عند تشغيل الجهاز.",
+"GrabaClip se abrirá al iniciar Windows": "سيفتح GrabaClip عند بدء Windows",
+"Inicio con Windows desactivado": "تم إيقاف التشغيل مع Windows",
+"Al cerrar, seguir junto al reloj": "عند الإغلاق، البقاء بجوار الساعة",
+"La X esconde la ventana y GrabaClip sigue funcionando en los íconos ocultos. Para salir: clic derecho en su ícono → Salir.": "زر X يخفي النافذة ويستمر GrabaClip في العمل ضمن الأيقونات المخفية. للخروج: انقر بزر الماوس الأيمن على أيقونته ← خروج.",
+"Activar clips al abrir": "تشغيل المقاطع عند الفتح",
+"Empieza a guardar el búfer de clips automáticamente.": "يبدأ بملء مخزن المقاطع تلقائيًا.",
+"Organizar por juego": "التنظيم حسب اللعبة",
+"Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.": "يحفظ كل مقطع في مجلد باسم اللعبة أو التطبيق الذي كان مفتوحًا.",
+"Sonidos de aviso": "أصوات التنبيه",
+"Al guardar un clip y al activar o desactivar los clips con la tecla.": "عند حفظ مقطع وعند تشغيل المقاطع أو إيقافها بالاختصار.",
+"Overlay en el juego": "التراكب داخل اللعبة",
+"Avisos pequeños encima del juego. No reciben clics y no salen en tus clips.": "تنبيهات صغيرة فوق اللعبة. لا تستقبل النقرات ولا تظهر في مقاطعك.",
+"Indicador de clips activos": "مؤشر المقاطع النشطة",
+"Una pastilla en la esquina: \"Clips\" mientras se guarda el búfer, o \"REC\" con el tiempo al grabar.": "شارة في الزاوية: «مقاطع» أثناء عمل المخزن المؤقت، أو «REC» مع الوقت أثناء التسجيل.",
+"Aviso al guardar un clip": "تنبيه عند حفظ مقطع",
+"Aparece unos segundos con el juego y la duración.": "يظهر لبضع ثوانٍ مع اسم اللعبة والمدة.",
+"Esquina": "الزاوية",
+"Arriba a la izquierda": "أعلى اليسار",
+"Arriba a la derecha": "أعلى اليمين",
+"Probar": "اختبار",
+"Probando…": "جارٍ الاختبار…",
+"Se ve en juegos en modo ventana o \"pantalla completa sin bordes\". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).": "يظهر في الألعاب بوضع النافذة أو «ملء الشاشة بلا حدود». في ملء الشاشة الحصري لا يسمح Windows بالرسم فوقها (لكن الصوت يُسمع).",
+"El overlay está desactivado, solo sonó el aviso": "التراكب متوقف، تم تشغيل التنبيه الصوتي فقط",
+"Mostrar en Discord": "الإظهار في Discord",
+"Tus amigos ven \"Clipeando con GrabaClip\" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.": "يرى أصدقاؤك «يصنع مقاطع مع GrabaClip» في ملفك الشخصي مع زر لتنزيله. فقط أثناء تشغيل المقاطع أو التسجيل.",
+"Mostrar el nombre del juego": "إظهار اسم اللعبة",
+"Por ejemplo \"En Overwatch\".": "مثلًا «في Overwatch».",
+"Carpeta de videos": "مجلد الفيديوهات",
+"Restablecer": "استعادة الافتراضي",
+"Cambiar…": "تغيير…",
+"Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.": "تبقى الفيديوهات السابقة في مكانها؛ يمكنك نقلها إلى المجلد الجديد بمستكشف الملفات.",
+"Espacio en disco": "مساحة القرص",
+"Calculando…": "جارٍ الحساب…",
+"Límite de espacio": "حد المساحة",
+"Sin límite": "بلا حد",
+"Los videos se acumulan sin límite.": "تتراكم الفيديوهات بلا حد.",
+"Incluir las grabaciones largas": "تضمين التسجيلات الطويلة",
+"Si está apagado, solo se mandan a la Papelera los clips; tus grabaciones (F10) nunca se tocan.": "إذا كان متوقفًا، تُنقل المقاطع فقط إلى سلة المحذوفات؛ تسجيلاتك (F10) لا تُمس أبدًا.",
+"Actualizaciones": "التحديثات",
+"Buscar actualizaciones": "البحث عن تحديثات",
+"Buscando…": "جارٍ البحث…",
+"Actualizar ahora": "التحديث الآن",
+"Avisar al abrir si hay versión nueva": "التنبيه عند الفتح إذا توفر إصدار جديد",
+"Revisa GitHub una vez al abrir GrabaClip. Es la única conexión a internet que hace.": "يتحقق من GitHub مرة واحدة عند فتح GrabaClip. إنه الاتصال الوحيد بالإنترنت الذي يجريه.",
+"Al actualizar, GrabaClip se cierra unos segundos y se vuelve a abrir solo. Tus ajustes, clips y miniaturas se mantienen.": "عند التحديث يُغلق GrabaClip لبضع ثوانٍ ثم يُفتح وحده. تُحفظ إعداداتك ومقاطعك وصورك المصغرة.",
+"Instalando… GrabaClip se cerrará y se abrirá solo en unos segundos.": "جارٍ التثبيت… سيُغلق GrabaClip ويُفتح وحده خلال ثوانٍ.",
+"Tienes la versión …": "لديك الإصدار …",
+"Idioma de la app": "لغة التطبيق",
+"Automático (el de Windows)": "تلقائي (لغة Windows)",
+"Cómo usar GrabaClip": "طريقة استخدام GrabaClip",
+"Activa los clips": "شغّل المقاطع",
+"Enciende \"Clips instantáneos\" abajo a la izquierda o pulsa": "شغّل «المقاطع الفورية» أسفل اليسار أو اضغط",
+"desde el juego. GrabaClip guarda en segundo plano los últimos segundos.": "من داخل اللعبة. يحتفظ GrabaClip بآخر الثواني في الخلفية.",
+"Guarda el momento": "احفظ اللحظة",
+"Cuando pase algo bueno pulsa": "عندما يحدث شيء رائع اضغط",
+". El clip aparece en Grabaciones.": ". يظهر المقطع في التسجيلات.",
+"Graba sesiones largas": "سجّل جلسات طويلة",
+"Pulsa el botón REC o": "اضغط زر REC أو",
+"para empezar y otra vez para terminar.": "للبدء ومرة أخرى للإنهاء.",
+"Edita sin Discord ni música": "حرّر دون Discord أو موسيقى",
+"En Ajustes → Audio marca tus apps. En DaVinci cada una sale en su propia pista y puedes silenciarla.": "في الإعدادات ← الصوت اختر تطبيقاتك. في DaVinci يظهر كل تطبيق في مساره ويمكنك كتمه.",
+"Siempre listo": "جاهز دائمًا",
+"En Ajustes → General activa \"Iniciar con Windows\" y \"Activar clips al abrir\".": "في الإعدادات ← عام شغّل «التشغيل مع Windows» و«تشغيل المقاطع عند الفتح».",
+"Revisa la carpeta \"logs\" junto a GrabaClip. Si el audio va desfasado, ajusta la sincronía en Audio.": "راجع مجلد «logs» بجوار GrabaClip. إذا كان الصوت غير متزامن، اضبط المزامنة في الصوت.",
+"Grabar": "تسجيل",
+"Empezar / detener grabación": "بدء / إيقاف التسجيل",
+"Duración": "المدة",
+"Tus estadísticas": "إحصائياتك",
+"Clips por semana": "المقاطع في الأسبوع",
+"Por juego": "حسب اللعبة",
+"clip": "مقطع",
+"clips": "مقاطع",
+"grabaciones": "تسجيلات",
+"capturas": "لقطات شاشة",
+"de video": "من الفيديو",
+"en disco": "على القرص",
+"de racha clipeando": "من صنع المقاطع المتتالي",
+"Todavía no hay clips.": "لا توجد مقاطع بعد.",
+"Cuando guardes clips, aquí verás tus juegos más clipeados.": "عندما تحفظ مقاطع، سترى هنا ألعابك الأكثر تسجيلًا.",
+"Cargando video…": "جارٍ تحميل الفيديو…",
+"Inicio": "البداية",
+"Fin": "النهاية",
+"Inicio aquí": "البداية هنا",
+"Fin aquí": "النهاية هنا",
+"Tecla I": "المفتاح I",
+"Tecla O": "المفتاح O",
+"◀ Marca": "◀ علامة",
+"Marca ▶": "علامة ▶",
+"Marca anterior ([)": "العلامة السابقة ([)",
+"Marca siguiente (])": "العلامة التالية (])",
+"Formato": "التنسيق",
+"Vertical 9:16": "عمودي 9:16",
+"Pistas de audio": "مسارات الصوت",
+"Clic para quitar o volver a poner esta pista": "انقر لإزالة هذا المسار أو إعادته",
+"Deja al menos una pista de audio": "اترك مسار صوت واحدًا على الأقل",
+"Reemplazar el original": "استبدال الأصلي",
+"Guardar recorte": "حفظ القص",
+"Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.": "اسحب طرفي الشريط أو استخدم I و O أثناء التشغيل. المسافة: تشغيل أو إيقاف مؤقت. يُحفظ كنسخة جديدة بجوار الأصلي.",
+"Recortando…": "جارٍ القص…",
+"No se pudo abrir el video en la app. Prueba con Reproducir en la biblioteca.": "تعذّر فتح الفيديو في التطبيق. جرّب تشغيل من المكتبة.",
+"¿Reemplazar el original?": "هل تريد استبدال الأصلي؟",
+"El video original se enviará a la Papelera y su lugar lo ocupará el recorte.": "سيُنقل الفيديو الأصلي إلى سلة المحذوفات وسيأخذ القص مكانه.",
+"Copiar el clip": "نسخ المقطع",
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta.": "الصقه بـ Ctrl+V في Discord أو WhatsApp أو مجلد.",
+"Pégala con Ctrl+V en Discord, WhatsApp o una carpeta.": "الصقها بـ Ctrl+V في Discord أو WhatsApp أو مجلد.",
+"Versión para Discord": "نسخة Discord",
+"Una copia de menos de 10 MB, con una sola pista de audio. Se copia sola al terminar.": "نسخة أقل من 10 ميغابايت بمسار صوت واحد. تُنسخ تلقائيًا عند الانتهاء.",
+"Preparando la versión para Discord…": "جارٍ تجهيز نسخة Discord…",
+" Ya está copiada, pégala en Discord con Ctrl+V.": " لقد نُسخت بالفعل، الصقها في Discord بـ Ctrl+V.",
+" (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).": " (Discord المجاني يقبل حتى 10 ميغابايت فقط: استخدم نسخة Discord).",
+"Escribe un nombre": "اكتب اسمًا",
+"¿Enviar a la Papelera?": "نقل إلى سلة المحذوفات؟",
+"Añadido a favoritos": "أُضيف إلى المفضلة",
+"Quitado de favoritos": "أُزيل من المفضلة",
+"Añadidos a favoritos": "أُضيفت إلى المفضلة",
+"Quitados de favoritos": "أُزيلت من المفضلة",
+"Uniendo videos… te aviso al terminar": "جارٍ دمج الفيديوهات… سأخبرك عند الانتهاء",
+"1 seleccionado": "تم تحديد 1",
+"Elige al menos dos videos para unir": "اختر فيديوهين على الأقل للدمج",
+"Clips desactivados": "المقاطع متوقفة",
+"Clips activos": "المقاطع نشطة",
+"Clips apagados": "المقاطع مطفأة",
+"Esperando un juego": "في انتظار لعبة",
+"Espera un momento, todavía estoy detectando tu GPU": "لحظة، ما زلت أكتشف بطاقة الرسومات",
+"Clips listos: empezarán a grabar cuando abras un juego": "المقاطع جاهزة: ستبدأ التسجيل عندما تفتح لعبة",
+"No hay ningún juego abierto para guardar un clip": "لا توجد لعبة مفتوحة لحفظ مقطع منها",
+"Activa los clips primero": "شغّل المقاطع أولًا",
+"Aún no hay suficiente video, espera unos segundos": "لا يوجد فيديو كافٍ بعد، انتظر بضع ثوانٍ",
+"No se pudo guardar el clip": "تعذّر حفظ المقطع",
+"Clip guardado": "تم حفظ المقطع",
+"Clip largo": "مقطع طويل",
+"Clip del final de la partida": "مقطع نهاية المباراة",
+"Grabación guardada": "تم حفظ التسجيل",
+"Captura guardada": "تم حفظ لقطة الشاشة",
+"Escritorio": "سطح المكتب",
+"Se cerró el juego: los clips esperan a que abras otro": "أُغلقت اللعبة: المقاطع تنتظر أن تفتح لعبة أخرى",
+"Los clips se detuvieron por un error (revisa la carpeta logs)": "توقفت المقاطع بسبب خطأ (راجع مجلد logs)",
+"La grabación terminó porque se cerró la ventana del juego": "انتهى التسجيل لأن نافذة اللعبة أُغلقت",
+"La grabación se detuvo por un error (revisa la carpeta logs)": "توقف التسجيل بسبب خطأ (راجع مجلد logs)",
+"Desactiva los clips y deten la grabación para cambiarlo": "أوقف المقاطع والتسجيل لتغييره",
+"Termina la grabación antes de cambiar la carpeta.": "أنهِ التسجيل قبل تغيير المجلد.",
+"Se usará otra vez Videos\\GrabaClip": "سيُستخدم Videos\\GrabaClip مرة أخرى",
+"La actualización ya está en marcha": "التحديث قيد التنفيذ بالفعل",
+"Termina la grabación antes de actualizar": "أنهِ التسجيل قبل التحديث",
+"Primero busca actualizaciones": "ابحث عن التحديثات أولًا",
+"No pude revisar GitHub. ¿Tienes internet?": "تعذّر التحقق من GitHub. هل أنت متصل بالإنترنت؟",
+"Empezó una grabación; termínala y vuelve a pulsar Actualizar": "بدأ تسجيل؛ أنهِه واضغط تحديث مرة أخرى",
+"Acción desconocida": "إجراء غير معروف",
+"No reconocí esa tecla": "لم أتعرف على هذا المفتاح",
+"Esa tecla no se puede usar, prueba otra": "لا يمكن استخدام هذا المفتاح، جرّب غيره",
+"No encuentro ese video": "لا أجد هذا الفيديو",
+"Ya hay un recorte en marcha": "يوجد قص قيد التنفيذ بالفعل",
+"Espera a que termine lo que se está preparando": "انتظر حتى ينتهي ما يتم تجهيزه",
+"Video enviado a la Papelera": "تم نقل الفيديو إلى سلة المحذوفات",
+"No se pudo eliminar el video": "تعذّر حذف الفيديو",
+"No se pudo eliminar": "تعذّر الحذف",
+"Clip copiado: pégalo con Ctrl+V en Discord, WhatsApp o una carpeta": "تم نسخ المقطع: الصقه بـ Ctrl+V في Discord أو WhatsApp أو مجلد",
+"No se pudo copiar al portapapeles": "تعذّر النسخ إلى الحافظة",
+"No se puede renombrar la grabación en curso": "لا يمكن إعادة تسمية التسجيل الجاري",
+"Ya hay un video con ese nombre en la misma carpeta": "يوجد فيديو بهذا الاسم في المجلد نفسه",
+"No se pudo renombrar (¿está abierto en otro programa?)": "تعذّرت إعادة التسمية (هل هو مفتوح في برنامج آخر؟)",
+"El nombre no puede tener < > : \" / \\ | ? * ni ser tan largo": "لا يمكن أن يحتوي الاسم على < > : \" / \\ | ? * أو أن يكون طويلًا بهذا الشكل",
+"No se pudo tomar la captura (revisa logs\\captura.log)": "تعذّر التقاط الشاشة (راجع logs\\captura.log)",
+"Falta GrabaClip.exe para configurar el inicio con Windows": "ملف GrabaClip.exe مفقود لإعداد التشغيل مع Windows",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera": "تجاوزت فيديوهاتك حد المساحة، لكن لم يبقَ ما يمكن نقله إلى سلة المحذوفات",
+"Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera (las grabaciones no se tocan)": "تجاوزت فيديوهاتك حد المساحة، لكن لم يبقَ ما يمكن نقله إلى سلة المحذوفات (التسجيلات لا تُمس)",
+"El recorte tiene que durar al menos medio segundo": "يجب أن يدوم القص نصف ثانية على الأقل",
+"FFmpeg no pudo crear el video (revisa logs\\recorte.log)": "لم يتمكن FFmpeg من إنشاء الفيديو (راجع logs\\recorte.log)",
+"FFmpeg no pudo unir los videos (revisa logs\\unir.log)": "لم يتمكن FFmpeg من دمج الفيديوهات (راجع logs\\unir.log)",
+"FFmpeg no pudo crear la versión para Discord (revisa logs\\discord.log)": "لم يتمكن FFmpeg من إنشاء نسخة Discord (راجع logs\\discord.log)",
+"No pude leer uno de los videos": "تعذّرت قراءة أحد الفيديوهات",
+"No pude leer la duración del video": "تعذّرت قراءة مدة الفيديو",
+"El archivo descargado está dañado (la huella no coincide). Prueba otra vez.": "الملف الذي تم تنزيله تالف (البصمة غير مطابقة). حاول مرة أخرى.",
+"La versión publicada no trae el archivo portable": "الإصدار المنشور لا يتضمن الملف المحمول",
+"GrabaClip sigue funcionando": "ما زال GrabaClip يعمل",
+"Está junto al reloj (en los íconos ocultos). Clic derecho para salir.": "إنه بجوار الساعة (ضمن الأيقونات المخفية). انقر بزر الماوس الأيمن للخروج.",
+"Clips · esperando juego": "مقاطع · في انتظار لعبة",
+"Abrir GrabaClip": "فتح GrabaClip",
+"Activar clips": "تشغيل المقاطع",
+"Desactivar clips": "إيقاف المقاطع",
+"Salir de GrabaClip": "الخروج من GrabaClip",
+"Clipeando con GrabaClip": "يصنع مقاطع مع GrabaClip",
+"Grabando con GrabaClip": "يسجّل مع GrabaClip",
+"Clips instantáneos activos": "المقاطع الفورية نشطة",
+"Grabando la pantalla": "يسجّل الشاشة",
+"Descargar GrabaClip": "تنزيل GrabaClip",
+"GrabaClip · clips instantáneos gratis y open source": "GrabaClip · مقاطع فورية مجانية ومفتوحة المصدر",
+"Carmesí": "قرمزي",
+"Oscuro": "داكن",
+"Medianoche": "منتصف الليل",
+"Bosque": "غابة",
+"Atardecer": "غروب",
+"Rojo": "أحمر",
+"Claro": "فاتح",
+"Arena": "رملي",
+"Rosa": "وردي",
+"Menta": "نعناعي",
+"Alto contraste": "تباين عالٍ",
+"español": "الإسبانية",
+"inglés": "الإنجليزية",
+"portugués": "البرتغالية",
+"francés": "الفرنسية",
+"árabe": "العربية",
+"ruso": "الروسية"
+},
+"patrones": [
+[
+"Clip guardado en {0}",
+"تم حفظ المقطع في {0}"
+],
+[
+"Clip guardado en {0} (sin {1} pista vacía)",
+"تم حفظ المقطع في {0} (دون {1} مسار فارغ)"
+],
+[
+"Clip guardado en {0} (sin {1} pistas vacías)",
+"تم حفظ المقطع في {0} (دون {1} مسارات فارغة)"
+],
+[
+"Clip largo en {0}",
+"مقطع طويل في {0}"
+],
+[
+"Clip largo en {0} (sin {1} pista vacía)",
+"مقطع طويل في {0} (دون {1} مسار فارغ)"
+],
+[
+"Clip largo en {0} (sin {1} pistas vacías)",
+"مقطع طويل في {0} (دون {1} مسارات فارغة)"
+],
+[
+"Clip del final de la partida en {0}",
+"مقطع نهاية المباراة في {0}"
+],
+[
+"Clips activos en {0}: {1} guarda los últimos {2} s",
+"المقاطع نشطة في {0}: {1} يحفظ آخر {2} ث"
+],
+[
+"Clips activos en la pantalla: {0} guarda los últimos {1} s",
+"المقاطع نشطة للشاشة: {0} يحفظ آخر {1} ث"
+],
+[
+"Grabando {0}",
+"جارٍ تسجيل {0}"
+],
+[
+"Grabando: {0}",
+"جارٍ التسجيل: {0}"
+],
+[
+"Grabación guardada: {0}",
+"تم حفظ التسجيل: {0}"
+],
+[
+"Captura guardada en {0}",
+"تم حفظ لقطة الشاشة في {0}"
+],
+[
+"Marca {0} en {1}",
+"العلامة {0} عند {1}"
+],
+[
+"Marca {0}",
+"العلامة {0}"
+],
+[
+"Las marcas son para grabaciones: pulsa {0} para grabar",
+"العلامات خاصة بالتسجيلات: اضغط {0} للتسجيل"
+],
+[
+"Los nuevos videos se guardarán en {0}",
+"ستُحفظ الفيديوهات الجديدة في {0}"
+],
+[
+"No se pudo abrir el selector: {0}",
+"تعذّر فتح أداة الاختيار: {0}"
+],
+[
+"No se puede guardar en esa carpeta ({0}).",
+"لا يمكن الحفظ في هذا المجلد ({0})."
+],
+[
+"Ya tienes la versión más reciente ({0})",
+"لديك أحدث إصدار بالفعل ({0})"
+],
+[
+"Hay una versión nueva de GrabaClip ({0}). Actualízala en Ajustes → General",
+"يتوفر إصدار جديد من GrabaClip ({0}). حدّثه من الإعدادات ← عام"
+],
+[
+"Hay una versión nueva: {0} (tienes la {1}). Descarga de {2}.",
+"يتوفر إصدار جديد: {0} (لديك {1}). حجم التنزيل {2}."
+],
+[
+"Tienes la versión {0}.",
+"لديك الإصدار {0}."
+],
+[
+"Descargando… {0} de {1} ({2}%)",
+"جارٍ التنزيل… {0} من {1} ({2}٪)"
+],
+[
+"Descargando… {0} ({1}%)",
+"جارٍ التنزيل… {0} ({1}٪)"
+],
+[
+"No se pudo actualizar: {0}",
+"تعذّر التحديث: {0}"
+],
+[
+"Nueva tecla: {0}",
+"اختصار جديد: {0}"
+],
+[
+"{0} ya se usa en otra tecla rápida",
+"{0} مستخدم بالفعل في اختصار آخر"
+],
+[
+"Así se verá · {0} s",
+"هكذا سيبدو · {0} ث"
+],
+[
+"Recorte guardado: {0}",
+"تم حفظ القص: {0}"
+],
+[
+"Recorte guardado: {0} (el original está en la Papelera)",
+"تم حفظ القص: {0} (الأصلي في سلة المحذوفات)"
+],
+[
+"Recortando… {0}%",
+"جارٍ القص… {0}٪"
+],
+[
+"Clips unidos: {0}",
+"تم دمج المقاطع: {0}"
+],
+[
+"Uniendo… {0}%",
+"جارٍ الدمج… {0}٪"
+],
+[
+"Versión para Discord lista ({0} MB)",
+"نسخة Discord جاهزة ({0} ميغابايت)"
+],
+[
+"Versión para Discord lista ({0} MB): ya está copiada, pégala con Ctrl+V",
+"نسخة Discord جاهزة ({0} ميغابايت): نُسخت بالفعل، الصقها بـ Ctrl+V"
+],
+[
+"Preparando la versión para Discord… {0}%",
+"جارٍ تجهيز نسخة Discord… {0}٪"
+],
+[
+"Lista: {0} MB.",
+"جاهزة: {0} ميغابايت."
+],
+[
+"Lista: {0} MB. Ya está copiada, pégala en Discord con Ctrl+V.",
+"جاهزة: {0} ميغابايت. نُسخت بالفعل، الصقها في Discord بـ Ctrl+V."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0}.",
+"الصقه بـ Ctrl+V في Discord أو WhatsApp أو مجلد. الحجم: {0}."
+],
+[
+"Pégalo con Ctrl+V en Discord, WhatsApp o una carpeta. Pesa {0} (Discord gratis solo acepta hasta 10 MB: usa la versión para Discord).",
+"الصقه بـ Ctrl+V في Discord أو WhatsApp أو مجلد. الحجم: {0} (Discord المجاني يقبل حتى 10 ميغابايت فقط: استخدم نسخة Discord)."
+],
+[
+"El video dura {0} s: es demasiado largo para que quepa en 10 MB. Recórtalo primero (unos 2 minutos como máximo).",
+"مدة الفيديو {0} ث: إنه أطول من أن يتسع في 10 ميغابايت. قصّه أولًا (دقيقتان تقريبًا كحد أقصى)."
+],
+[
+"Queda poco espacio en el disco ({0} GB). Borra videos o pon un límite en Ajustes → General",
+"مساحة القرص قليلة ({0} غيغابايت). احذف فيديوهات أو ضع حدًا في الإعدادات ← عام"
+],
+[
+"Se enviaron {0} video viejo a la Papelera ({1} GB) para no pasar de {2} GB",
+"نُقل {0} فيديو قديم إلى سلة المحذوفات ({1} غيغابايت) لعدم تجاوز {2} غيغابايت"
+],
+[
+"Se enviaron {0} videos viejos a la Papelera ({1} GB) para no pasar de {2} GB",
+"نُقلت {0} فيديوهات قديمة إلى سلة المحذوفات ({1} غيغابايت) لعدم تجاوز {2} غيغابايت"
+],
+[
+"{0} video enviado a la Papelera",
+"نُقل {0} فيديو إلى سلة المحذوفات"
+],
+[
+"{0} videos enviados a la Papelera",
+"نُقلت {0} فيديوهات إلى سلة المحذوفات"
+],
+[
+"Windows cortó la captura un momento; la grabación sigue en la parte {0}",
+"قطع Windows الالتقاط للحظة؛ يستمر التسجيل في الجزء {0}"
+],
+[
+"Renombrado: {0}",
+"تمت إعادة التسمية: {0}"
+],
+[
+"{0} seleccionados",
+"تم تحديد {0}"
+],
+[
+"{0} video · {1}",
+"{0} فيديو · {1}"
+],
+[
+"{0} videos · {1}",
+"{0} فيديوهات · {1}"
+],
+[
+"Mostrar más ({0} restantes)",
+"عرض المزيد ({0} متبقية)"
+],
+[
+"Todos los juegos ({0})",
+"كل الألعاب ({0})"
+],
+[
+"Sin clasificar ({0})",
+"غير مصنف ({0})"
+],
+[
+"Activas ({0})",
+"نشطة ({0})"
+],
+[
+"Inactivas ({0})",
+"غير نشطة ({0})"
+],
+[
+"{0} · {1} guarda {2} s",
+"{0} · {1} يحفظ {2} ث"
+],
+[
+"Desactivados · {0} para activar",
+"متوقفة · {0} للتشغيل"
+],
+[
+"Escuchando en {0}",
+"يستمع باللغة: {0}"
+],
+[
+"Escuchando en {0} ({1}) con {2} frases",
+"يستمع باللغة: {0} ({1}) مع {2} عبارات"
+],
+[
+"No se pudo preparar el reconocimiento de voz: {0}",
+"تعذّر تجهيز التعرف على الكلام: {0}"
+],
+[
+"“{0}” · {1} % de seguridad · {2}",
+"«{0}» · ثقة {1}٪ · {2}"
+],
+[
+"Escribe una frase y pulsa Enter (ej. \"{0}\")",
+"اكتب عبارة واضغط Enter (مثال: «{0}»)"
+],
+[
+"{0} clips · {1} grab. · {2}",
+"{0} مقاطع · {1} تسجيلات · {2}"
+],
+[
+"Tu mejor semana: la del {0}, con {1} clips.",
+"أفضل أسبوع لك: أسبوع {0}، بـ {1} مقطعًا."
+],
+[
+"Semana del {0}: {1} clips",
+"أسبوع {0}: {1} مقاطع"
+],
+[
+"{0} día",
+"{0} يوم"
+],
+[
+"{0} días",
+"{0} أيام"
+],
+[
+"{0} h {1} min",
+"{0} س {1} د"
+],
+[
+"{0} videos ({1} clips: {2})",
+"{0} فيديوهات ({1} مقاطع: {2})"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite",
+"{0} فيديوهات ({1} مقاطع: {2}) · {3}٪ من حدك"
+],
+[
+"{0} videos ({1} clips: {2}) · Libre en el disco: {3}",
+"{0} فيديوهات ({1} مقاطع: {2}) · المساحة الحرة: {3}"
+],
+[
+"{0} videos ({1} clips: {2}) · {3} % de tu límite · Libre en el disco: {4}",
+"{0} فيديوهات ({1} مقاطع: {2}) · {3}٪ من حدك · المساحة الحرة: {4}"
+],
+[
+"Al pasar de {0} GB, los clips más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"عند تجاوز {0} غيغابايت تُنقل أقدم المقاطع تلقائيًا إلى سلة المحذوفات (يمكنك استعادتها منها). تنبيه: سلة المحذوفات تشغل مساحة أيضًا حتى تفرغها."
+],
+[
+"Al pasar de {0} GB, los videos más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.",
+"عند تجاوز {0} غيغابايت تُنقل أقدم الفيديوهات تلقائيًا إلى سلة المحذوفات (يمكنك استعادتها منها). تنبيه: سلة المحذوفات تشغل مساحة أيضًا حتى تفرغها."
+],
+[
+"¿Poner el límite en {0} GB?",
+"هل تريد ضبط الحد على {0} غيغابايت؟"
+],
+[
+"Ahora tus videos ocupan {0}. Los clips más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"تشغل فيديوهاتك الآن {0}. ستُنقل أقدم المقاطع إلى سلة المحذوفات حتى تنزل عن {1} غيغابايت."
+],
+[
+"Ahora tus videos ocupan {0}. Los videos más viejos se mandarán a la Papelera hasta bajar de {1} GB.",
+"تشغل فيديوهاتك الآن {0}. ستُنقل أقدم الفيديوهات إلى سلة المحذوفات حتى تنزل عن {1} غيغابايت."
+],
+[
+"¿Enviar {0} video a la Papelera?",
+"نقل {0} فيديو إلى سلة المحذوفات؟"
+],
+[
+"¿Enviar {0} videos a la Papelera?",
+"نقل {0} فيديوهات إلى سلة المحذوفات؟"
+],
+[
+"{0} en total. Puedes recuperarlos desde la Papelera.",
+"{0} إجمالًا. يمكنك استعادتها من سلة المحذوفات."
+],
+[
+"{0} en total, incluye {1} favorito. Puedes recuperarlos desde la Papelera.",
+"{0} إجمالًا، منها {1} مفضل. يمكنك استعادتها من سلة المحذوفات."
+],
+[
+"{0} en total, incluye {1} favoritos. Puedes recuperarlos desde la Papelera.",
+"{0} إجمالًا، منها {1} مفضلة. يمكنك استعادتها من سلة المحذوفات."
+],
+[
+"{0} (es un favorito)",
+"{0} (إنه مفضل)"
+],
+[
+"¿Unir {0} videos?",
+"دمج {0} فيديوهات؟"
+],
+[
+"Se crea un video nuevo de unos {0} con un fundido corto entre cada uno y una sola pista de audio (la mezcla). Los originales no se tocan.",
+"سيُنشأ فيديو جديد مدته نحو {0} مع انتقال قصير بين كل فيديو ومسار صوت واحد (المزيج). الأصليات لا تُمس."
+],
+[
+"En {0}",
+"في {0}"
+],
+[
+"{0} (clic para renombrar)",
+"{0} (انقر لإعادة التسمية)"
+],
+[
+"{0} pista de audio",
+"{0} مسار صوت"
+],
+[
+"{0} pistas de audio",
+"{0} مسارات صوت"
+],
+[
+"{0} pista de audio · {1} marca",
+"{0} مسار صوت · {1} علامة"
+],
+[
+"{0} pistas de audio · {1} marcas",
+"{0} مسارات صوت · {1} علامات"
+],
+[
+"FFmpeg no pudo arrancar (codigo 0x{0}).",
+"تعذّر تشغيل FFmpeg (الرمز 0x{0})."
+],
+[
+"FFmpeg termino con el codigo 0x{0} sin dar detalles.",
+"انتهى FFmpeg بالرمز 0x{0} دون تفاصيل."
+],
+[
+"No se pudo ejecutar FFmpeg: {0}",
+"تعذّر تشغيل FFmpeg: {0}"
+],
+[
+"Pantalla {0}",
+"الشاشة {0}"
+],
+[
+"No tienes el reconocimiento de voz en {0}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca \"Reconocimiento de voz\". Mientras tanto se usa {1}.",
+"ليس لديك التعرف على الكلام باللغة {0}. لإضافته: إعدادات Windows > الوقت واللغة > اللغة والمنطقة > إضافة لغة، وفعّل «التعرف على الكلام». في الأثناء تُستخدم {1}."
+]
+]
+}

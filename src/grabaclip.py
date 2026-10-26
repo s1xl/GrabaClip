@@ -242,6 +242,7 @@ class Api:
             "version": ACT.version_local(),
             "discord_listo": bool(DR.APP_ID),
             "idioma": I18N.ACTUAL,
+            "rtl": I18N.ACTUAL in I18N.RTL,
             "idiomas": I18N.IDIOMAS,
             "catalogo": I18N.catalogo(I18N.ACTUAL),
             "update": self._update,
@@ -466,7 +467,7 @@ class Api:
             self._aviso(f"{titulo} en {juego or 'GrabaClip'}{extra}", "ok")
             threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
             real = len(trozos) * N.SEG
-            self._overlay.clip_guardado(I18N.t(titulo), f"{juego or I18N.t('Escritorio')} · "
+            self._overlay.clip_guardado(I18N.t_overlay(titulo), f"{juego or I18N.t_overlay('Escritorio')} · "
                                         + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
             self._emitir("biblioteca")
             return destino
@@ -492,7 +493,7 @@ class Api:
                 self._inicio_grab = None
                 self._ultimo = archivo
                 self._aviso("Grabación guardada: " + os.path.basename(archivo), "ok")
-                self._overlay.clip_guardado(I18N.t("Grabación guardada"), os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
+                self._overlay.clip_guardado(I18N.t_overlay("Grabación guardada"), os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
                 if self._cfg.get("sonido_clip", True):
                     self._sonidos.tocar("clip")
                 self._terminar_grabacion(archivo, pistas)
@@ -1152,7 +1153,7 @@ class Api:
         self._ultimo = destino
         if self._cfg.get("sonido_clip", True):
             self._sonidos.tocar("clip")
-        self._overlay.clip_guardado(I18N.t("Captura guardada"), juego or I18N.t("Escritorio"))
+        self._overlay.clip_guardado(I18N.t_overlay("Captura guardada"), juego or I18N.t_overlay("Escritorio"))
         self._aviso(f"Captura guardada en {juego or 'GrabaClip'}", "ok")
         self._emitir("biblioteca")
 
@@ -1172,7 +1173,7 @@ class Api:
         tiempo = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
         if self._cfg.get("sonido_clip", True):
             self._sonidos.tocar("activar")
-        self._overlay.clip_guardado(I18N.t(f"Marca {len(lista)}"), tiempo)
+        self._overlay.clip_guardado(I18N.t_overlay(f"Marca {len(lista)}"), tiempo)
         self._aviso(f"Marca {len(lista)} en {tiempo}", "ok")
 
     def _leer_favoritos(self):

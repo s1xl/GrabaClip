@@ -180,7 +180,7 @@ class Voz:
             from idiomas import ACTUAL
         except Exception:
             ACTUAL = "es"
-        for pref in (ACTUAL, "es"):  # automático: el idioma de la app, después español, después el que haya
+        for pref in (ACTUAL, "en", "es"):  # automático: el de la app, después inglés o español, después el que haya
             for r in instalados:
                 if r.Culture.Name.lower().startswith(pref):
                     return r
