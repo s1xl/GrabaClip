@@ -109,6 +109,8 @@
   .tv-abajo .pistas { flex: 1; min-width: 0; font-size: 12px; color: var(--tenue); white-space: nowrap;
                       overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
   .tv-abajo .pistas svg { width: 14px; height: 14px; }
+  .con-marcas { color: #d99a00; white-space: nowrap; }
+  .con-marcas svg { width: 11px; height: 11px; fill: currentColor; stroke: none; vertical-align: -1px; margin-right: 2px; }
   .accion { width: 30px; height: 30px; border-radius: 4px; display: grid; place-items: center; color: var(--tenue); }
   .accion:hover { background: var(--campo); color: var(--fg); }
   .accion.peligro:hover { color: var(--rojo); }
@@ -349,6 +351,9 @@
   .ed-fuera.der { left: auto; right: 0; }
   .ed-asa { position: absolute; top: -4px; bottom: -4px; width: 14px; margin-left: -7px; border-radius: 4px; background: var(--acento); cursor: ew-resize; }
   .ed-asa::after { content: ""; position: absolute; left: 5px; top: 30%; bottom: 30%; width: 4px; border-left: 1px solid var(--acento-fg); border-right: 1px solid var(--acento-fg); opacity: .8; }
+  .ed-marca { position: absolute; top: -9px; width: 12px; margin-left: -6px; height: 12px; pointer-events: none; color: #f5b301; }
+  .ed-marca svg { width: 12px; height: 12px; fill: #f5b301; stroke: none; display: block; }
+  .ed-marca::after { content: ""; position: absolute; left: 5px; top: 10px; width: 2px; height: 37px; background: #f5b301; opacity: .7; }
   .ed-cabezal { position: absolute; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background: var(--fg); pointer-events: none; border-radius: 1px; }
   .ed-tiempos { display: flex; justify-content: space-between; color: var(--tenue); font-size: 12.5px; margin: 0 8px 12px; }
   .ed-tiempos b { color: var(--fg); font-variant-numeric: tabular-nums; }
@@ -415,6 +420,7 @@
       <button class="filtro sel" data-f="todos">Todos</button>
       <button class="filtro" data-f="clip">Clips</button>
       <button class="filtro" data-f="grabacion">Grabaciones</button>
+      <button class="filtro" data-f="captura">Capturas</button>
       <button class="filtro" data-f="fav" title="Favoritos"><svg class="estrella-ic" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favoritos</button>
       <div class="selector" title="Filtrar por juego o app">
         <svg class="ic-izq" viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6L2 15a3 3 0 0 0 5.3 2l1.6-2h6.2l1.6 2A3 3 0 0 0 22 15l-.7-6.4A4 4 0 0 0 17.3 5z"/></svg>
@@ -539,6 +545,10 @@
             <button class="tecla" data-tecla="tecla_clip">F9</button></div>
           <div class="fila"><div class="texto"><h3>Grabar / detener</h3><p>Empieza o termina una grabación.</p></div>
             <button class="tecla" data-tecla="tecla_grab">F10</button></div>
+          <div class="fila"><div class="texto"><h3>Captura de pantalla</h3><p>Guarda una imagen del juego en la biblioteca.</p></div>
+            <button class="tecla" data-tecla="tecla_captura">F7</button></div>
+          <div class="fila"><div class="texto"><h3>Poner una marca</h3><p>Mientras grabas, marca el momento para encontrarlo fácil después (en el editor y como capítulo del video).</p></div>
+            <button class="tecla" data-tecla="tecla_marca">F6</button></div>
         </div>
         <p class="nota">Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.</p>
       </div>
@@ -708,6 +718,7 @@
     <div class="ed-fuera" id="ed-fuera-i"></div><div class="ed-fuera der" id="ed-fuera-f"></div>
     <div class="ed-rango" id="ed-rango"></div>
     <div class="ed-asa" id="ed-asa-i" title="Inicio"></div><div class="ed-asa" id="ed-asa-f" title="Fin"></div>
+    <div id="ed-marcas"></div>
     <div class="ed-cabezal" id="ed-cabezal"></div>
   </div>
   <div class="ed-tiempos"><span>Inicio <b id="ed-t-i">0:00.0</b></span><span>Duración <b id="ed-t-d">0:00.0</b></span><span>Fin <b id="ed-t-f">0:00.0</b></span></div>
@@ -715,6 +726,8 @@
     <button class="mini-boton" id="ed-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Reproducir</button>
     <button class="mini-boton" id="ed-marca-i" title="Tecla I">Inicio aquí</button>
     <button class="mini-boton" id="ed-marca-f" title="Tecla O">Fin aquí</button>
+    <button class="mini-boton oculto" id="ed-m-ant" title="Marca anterior ([)">◀ Marca</button>
+    <button class="mini-boton oculto" id="ed-m-sig" title="Marca siguiente (])">Marca ▶</button>
     <span class="ed-espacio"></span>
     <label class="ed-reemplazar"><label class="switch"><input type="checkbox" id="ed-reemplazar"><span></span></label>Reemplazar el original</label>
     <button class="mini-boton primario" id="ed-guardar">Guardar recorte</button>
@@ -724,7 +737,7 @@
 </div></div>
 <div id="dlg-texto" class="modal-simple"><div class="caja">
   <h3>Renombrar</h3><p id="dt-p"></p>
-  <div class="dt-campo"><span id="dt-prefijo">clip_</span><input id="dt-input" spellcheck="false" maxlength="120"><span>.mp4</span></div>
+  <div class="dt-campo"><span id="dt-prefijo">clip_</span><input id="dt-input" spellcheck="false" maxlength="120"><span id="dt-ext">.mp4</span></div>
   <p class="nota" id="dt-error"></p>
   <div class="botones"><button id="dt-no">Cancelar</button><button class="rojo" id="dt-si">Guardar</button></div></div></div>
 <div id="dialogo"><div class="caja"><h3 id="dlg-t"></h3><p id="dlg-p"></p>
@@ -739,6 +752,7 @@ let videos = [], filtro = 'todos', juegoSel = '*';
 const api = (n, ...a) => window.pywebview.api[n](...a);
 const ICON = {
   compartir: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  marca: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
   estrella: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
   tijera: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
   jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
@@ -845,11 +859,13 @@ document.addEventListener('keydown', e => {
 });
 // renombrar
 function renombrar(v) {
-  const prefijo = v.nombre.toLowerCase().startsWith('clip_') ? 'clip_' : (v.nombre.toLowerCase().startsWith('grabacion_') ? 'grabacion_' : '');
+  const prefijo = ['clip_', 'captura_', 'grabacion_'].find(p => v.nombre.toLowerCase().startsWith(p)) || '';
+  const ext = v.nombre.toLowerCase().endsWith('.png') ? '.png' : '.mp4';
   $('#dt-prefijo').textContent = prefijo || 'grabacion_';
+  $('#dt-ext').textContent = ext;
   $('#dt-p').textContent = v.juego ? 'En ' + v.juego : '';
   const inp = $('#dt-input');
-  inp.value = v.nombre.slice(prefijo.length).replace(/\.mp4$/i, '');
+  inp.value = v.nombre.slice(prefijo.length).replace(/\.(mp4|png)$/i, '');
   $('#dt-error').textContent = '';
   $('#dlg-texto').classList.add('abierto');
   setTimeout(() => { inp.focus(); inp.select(); }, 30);
@@ -903,21 +919,22 @@ function pintarVideos() {
       <div class="tv-arriba">
         <div class="mini ${v.mini ? '' : 'cargando'}"><i class="marca-sel"></i>${v.duracion ? `<span class="dur">${duracion(v.duracion)}</span>` : ''}<div class="jugar">${ICON.jugar}</div></div>
         <div class="tv-info">
-          <div class="tv-cab"><span class="etiqueta mezcla-acento">${v.tipo === 'clip' ? 'CLIP' : 'GRABACIÓN'}</span>
+          <div class="tv-cab"><span class="etiqueta mezcla-acento">${{clip: 'CLIP', captura: 'CAPTURA'}[v.tipo] || 'GRABACIÓN'}</span>
             <button class="estrella ${v.fav ? 'on' : ''}" title="${v.fav ? 'Quitar de favoritos' : 'Marcar como favorito (el límite de espacio nunca lo borra)'}">${ICON.estrella}</button></div>
           <span class="nombre" title="Clic para renombrar"></span>
           <span class="juego">${ICON.mando}<span></span></span>
-          <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}</span>
+          <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}${v.marcas ? ` · <span class="con-marcas">${ICON.marca}${v.marcas}</span>` : ''}</span>
         </div>
       </div>
       <div class="tv-abajo">
-        <span class="pistas" title="${v.pistas ? v.pistas + (v.pistas === 1 ? ' pista de audio' : ' pistas de audio') : ''}">${v.pistas ? ICON.audio + v.pistas : ''}</span>
+        <span class="pistas" title="${v.pistas ? v.pistas + (v.pistas === 1 ? ' pista de audio' : ' pistas de audio') : ''}${v.marcas ? ' · ' + v.marcas + (v.marcas === 1 ? ' marca' : ' marcas') : ''}">${v.pistas ? ICON.audio + v.pistas : ''}</span>
         <button class="accion" title="Compartir">${ICON.compartir}</button>
         <button class="accion" title="Recortar">${ICON.tijera}</button>
         <button class="accion" title="Mostrar en la carpeta">${ICON.carpeta}</button>
         <button class="accion peligro" title="Enviar a la Papelera">${ICON.basura}</button>
-        <button class="play">Reproducir</button>
+        <button class="play">${v.tipo === 'captura' ? 'Abrir' : 'Reproducir'}</button>
       </div>`;
+    if (v.tipo === 'captura') t.querySelectorAll('.accion')[1].classList.add('oculto');
     t.querySelector('.nombre').textContent = v.nombre;
     t.querySelector('.nombre').title = v.nombre + ' (clic para renombrar)';
     t.querySelector('.nombre').onclick = () => renombrar(v);
@@ -1157,7 +1174,10 @@ function tiempoFino(s) {
 async function abrirEditor(v) {
   const r = await api('abrir_editor', v.ruta);
   if (!r.ok) { aviso(r.msg, 'error'); return; }
-  Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false});
+  Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false, marcas: (r.marcas || []).slice().sort((a, b) => a - b)});
+  $('#ed-m-ant').classList.toggle('oculto', !ED.marcas.length);
+  $('#ed-m-sig').classList.toggle('oculto', !ED.marcas.length);
+  $('#ed-marcas').innerHTML = '';
   $('#ed-nombre').textContent = (v.juego ? v.juego + ' · ' : '') + v.nombre;
   $('#ed-reemplazar').checked = false;
   $('#ed-barra').classList.add('oculto');
@@ -1192,6 +1212,8 @@ function pintarPlay() {
 }
 edv().addEventListener('loadedmetadata', () => {
   ED.dur = edv().duration || 0; ED.ini = 0; ED.fin = ED.dur;
+  $('#ed-marcas').innerHTML = ED.marcas.filter(m => m < ED.dur).map((m, i) =>
+    `<div class="ed-marca" style="left:${m / ED.dur * 100}%" title="Marca ${i + 1}">${ICON.marca}</div>`).join('');
   $('#ed-cargando').classList.add('oculto'); pintarEditor();
 });
 edv().addEventListener('error', () => {
@@ -1220,6 +1242,14 @@ function marcar(cual) {
   pintarEditor();
 }
 $('#ed-marca-i').onclick = () => marcar('i');
+function irMarca(dir) {
+  if (!ED.marcas || !ED.marcas.length) return;
+  const t = edv().currentTime;
+  const m = dir > 0 ? ED.marcas.find(x => x > t + 0.3) : [...ED.marcas].reverse().find(x => x < t - 0.3);
+  if (m != null) { edv().currentTime = m; pintarEditor(); }
+}
+$('#ed-m-ant').onclick = () => irMarca(-1);
+$('#ed-m-sig').onclick = () => irMarca(1);
 $('#ed-marca-f').onclick = () => marcar('f');
 // arrastrar las asas o hacer clic en la barra para moverse
 (() => {
@@ -1251,6 +1281,8 @@ document.addEventListener('keydown', e => {
   else if (e.key === ' ') { alternarPlay(); e.preventDefault(); }
   else if (e.key === 'i' || e.key === 'I') marcar('i');
   else if (e.key === 'o' || e.key === 'O') marcar('f');
+  else if (e.key === '[') irMarca(-1);
+  else if (e.key === ']') irMarca(1);
   else if (e.key === 'ArrowLeft') edv().currentTime = Math.max(0, edv().currentTime - (e.shiftKey ? 1 : 0.1));
   else if (e.key === 'ArrowRight') edv().currentTime = Math.min(ED.dur, edv().currentTime + (e.shiftKey ? 1 : 0.1));
 }, true);
@@ -1312,6 +1344,8 @@ function abrirCompartir(v) {
   $('#comp-barra').classList.add('oculto'); $('#comp-listo').classList.add('oculto');
   $('#comp-nota').textContent = '';
   $$('.comp-op').forEach(b => b.disabled = false);
+  $('#comp-discord').classList.toggle('oculto', v.tipo === 'captura');
+  if (v.tipo === 'captura') $('#comp-copiar-p').textContent = 'Pégala con Ctrl+V en Discord, WhatsApp o una carpeta.';
   $('#compartir').classList.add('abierto');
 }
 function cerrarCompartir() { if (!CP.ocupado) $('#compartir').classList.remove('abierto'); }

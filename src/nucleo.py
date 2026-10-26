@@ -87,7 +87,8 @@ NOMBRES = {
 }
 CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": "Original",
                   "mic": True, "apps": [], "ajuste_ms": 0,
-                  "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8", "tema": "Carmesí", "ui_version": 6,
+                  "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
+                  "tecla_captura": "f7", "tecla_marca": "f6", "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
@@ -283,6 +284,60 @@ def filtro_video(encoder, fps, alto_deseado, fuente=None):
         return base + _sufijo_gpu(encoder)
     escala = f"scale=-2:'min(ih,{alto_deseado})':flags=bicubic," if alto_deseado else ""
     return base + f",hwdownload,format=bgra,{escala}format=yuv420p"
+
+
+def captura_pantalla(fuente, destino):
+    """Guarda una imagen PNG de lo que se ve ahora (ventana del juego o pantalla)."""
+    fuente = fuente or {"tipo": "monitor", "idx": 0}
+    if fuente.get("tipo") == "ventana" and MODO_GPU["ventana"]:
+        base = f"gfxcapture=hwnd={int(fuente['hwnd'])}:max_framerate=30:capture_cursor=0"
+    else:
+        base = f"ddagrab=output_idx={int(fuente.get('idx', 0))}:framerate=30:draw_mouse=0"
+    # el primer cuadro de la captura a veces sale vacío: se toma el tercero
+    r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                base + ",hwdownload,format=bgra,select=gte(n\\,2)", "-frames:v", "1",
+                "-update", "1", destino], timeout=15)
+    return r.returncode == 0 and os.path.exists(destino), r.stderr.decode("utf-8", "replace")[-500:]
+
+
+def capitulos(ruta, marcas):
+    """Mete las marcas como capítulos del MP4 (se ven en VLC, DaVinci, etc.), sin recomprimir."""
+    if not marcas or not os.path.exists(ruta):
+        return False
+    try:
+        r = correr(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", ruta], timeout=30)
+        dur = float(r.stdout.decode().strip() or 0)
+    except Exception:
+        dur = 0
+    marcas = sorted(m for m in marcas if 0 <= m < (dur or 1e9))
+    if not marcas:
+        return False
+    texto = [";FFMETADATA1"]
+    puntos = [0.0] + marcas if marcas[0] > 0.5 else marcas
+    for i, ini in enumerate(puntos):
+        fin = puntos[i + 1] if i + 1 < len(puntos) else (dur or ini + 1)
+        titulo = "Inicio" if (i == 0 and puntos[0] == 0.0 and marcas[0] > 0.5) else f"Marca {marcas.index(ini) + 1}"
+        texto += ["[CHAPTER]", "TIMEBASE=1/1000", f"START={int(ini * 1000)}", f"END={int(fin * 1000)}", f"title={titulo}"]
+    meta = ruta + ".capitulos.txt"
+    temporal = ruta + ".capitulos.mp4"
+    try:
+        with open(meta, "w", encoding="utf-8") as f:
+            f.write("\n".join(texto) + "\n")
+        r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", ruta, "-i", meta,
+                    "-map", "0", "-map_metadata", "0", "-map_chapters", "1", "-c", "copy",
+                    "-movflags", "+faststart", temporal], timeout=1800)
+        if r.returncode == 0:
+            os.replace(temporal, ruta)
+            return True
+    except Exception:
+        pass
+    finally:
+        for x in (meta, temporal):
+            try:
+                os.remove(x)
+            except OSError:
+                pass
+    return False
 
 
 CANDIDATOS = ["h264_nvenc", "h264_amf", "h264_qsv"]

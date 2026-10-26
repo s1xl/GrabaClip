@@ -38,6 +38,7 @@ LANZADOR = os.path.join(N.CARPETA_APP, "GrabaClip.exe")
 CARPETA_MINI = os.path.join(N.CARPETA_APP, "miniaturas")
 ARCHIVO_INDICE = os.path.join(CARPETA_MINI, "indice.json")
 ARCHIVO_FAVORITOS = os.path.join(N.CARPETA_APP, "favoritos.json")
+ARCHIVO_MARCAS = os.path.join(N.CARPETA_APP, "marcas.json")
 NO_VALIDOS = set('<>:"/\\|?*')
 ARCHIVO_ICONO = os.path.join(N.CARPETA_APP, "grabaclip.ico")
 
@@ -115,6 +116,8 @@ class Api:
         self._minimizado = minimizado
         self._indice = self._leer_indice()
         self._favoritos = self._leer_favoritos()
+        self._marcas = self._leer_json(ARCHIVO_MARCAS, {})  # ruta de la grabación -> segundos marcados
+        self._inicio_parte = None
         self._pendientes = []
         self._hilo_mini = None
         self._encoders = {}
@@ -480,6 +483,7 @@ class Api:
                               ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
         if not base:
             self._inicio_grab = time.time() * 1000
+        self._inicio_parte = time.time()
         return juego
 
     def _puede_reintentar(self):
@@ -653,7 +657,7 @@ class Api:
         self._registrar_teclas()
 
     def poner_tecla(self, cual, combo):
-        teclas = ("tecla_clip", "tecla_grab", "tecla_activar")
+        teclas = ("tecla_clip", "tecla_grab", "tecla_activar", "tecla_captura", "tecla_marca")
         if cual not in teclas:
             return {"ok": False, "msg": "Acción desconocida"}
         otras = [self._cfg.get(t) for t in teclas if t != cual]
@@ -683,6 +687,7 @@ class Api:
         """Lista de videos en la carpeta, del mas nuevo al mas viejo."""
         try:
             archivos = glob.glob(os.path.join(glob.escape(N.CARPETA_SALIDA), "**", "*.mp4"), recursive=True)
+            archivos += glob.glob(os.path.join(glob.escape(N.CARPETA_SALIDA), "**", "captura_*.png"), recursive=True)
         except Exception:
             archivos = []
         en_curso = self._archivo_grab if self._grab else None
@@ -703,7 +708,9 @@ class Api:
             item = {
                 "ruta": ruta, "nombre": nombre, "clave": clave,
                 "fecha": st.st_mtime * 1000, "tamano": st.st_size,
-                "tipo": "clip" if nombre.lower().startswith("clip_") else "grabacion",
+                "tipo": ("clip" if nombre.lower().startswith("clip_") else
+                         "captura" if nombre.lower().endswith(".png") else "grabacion"),
+                "marcas": len(self._marcas.get(self._clave_fav(ruta), [])),
                 "fav": self._es_favorito(ruta),
                 "juego": juego,
                 "duracion": info.get("dur") if info else None,
@@ -729,7 +736,8 @@ class Api:
     def abrir_editor(self, ruta):
         if not self._ruta_valida(ruta):
             return {"ok": False, "msg": "No encuentro ese video"}
-        return {"ok": True, "url": self._servidor_video.url(ruta)}
+        return {"ok": True, "url": self._servidor_video.url(ruta),
+                "marcas": self._marcas.get(self._clave_fav(ruta), [])}
 
     def cerrar_editor(self):
         self._servidor_video.olvidar()
@@ -928,6 +936,9 @@ class Api:
         def tarea():
             if self._cfg.get("quitar_mudas", True) and len(pistas) > 1 and os.path.exists(archivo):
                 N.quitar_pistas_mudas(archivo, pistas)
+            marcas = self._marcas.get(self._clave_fav(archivo))
+            if marcas:
+                N.capitulos(archivo, marcas)  # las marcas también quedan como capítulos del MP4
             self._emitir("biblioteca")
         threading.Thread(target=tarea, daemon=True).start()
 
@@ -943,6 +954,64 @@ class Api:
     @staticmethod
     def _clave_fav(ruta):
         return os.path.normcase(os.path.abspath(ruta))
+
+    @staticmethod
+    def _leer_json(ruta, defecto):
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return defecto
+
+    @staticmethod
+    def _guardar_json(ruta, datos):
+        try:
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos, f, ensure_ascii=False)
+        except Exception:
+            pass
+
+    # ---------- capturas de pantalla y marcas ----------
+    def tomar_captura(self):
+        if self._fatal:
+            self._aviso(self._fatal, "error")
+            return
+        fuente = (self._bufer.fuente if self._bufer else None) or (self._grab.fuente if self._grab else None) \
+            or self._fuente_deseada() or {"tipo": "monitor", "idx": int(self._cfg.get("monitor", 0) or 0)}
+        juego = self._carpeta_destino(fuente)
+        destino = os.path.join(N.CARPETA_SALIDA, juego, f"captura_{N.marca_tiempo()}.png")
+        os.makedirs(os.path.dirname(destino), exist_ok=True)
+        ok, err = N.captura_pantalla(fuente, destino)
+        if not ok:
+            with open(os.path.join(N.CARPETA_LOGS, "captura.log"), "w", encoding="utf-8") as f:
+                f.write(err)
+            self._aviso("No se pudo tomar la captura (revisa logs\\captura.log)", "error")
+            return
+        self._ultimo = destino
+        if self._cfg.get("sonido_clip", True):
+            self._sonidos.tocar("clip")
+        self._overlay.clip_guardado("Captura guardada", juego or "Escritorio")
+        self._aviso(f"Captura guardada en {juego or 'GrabaClip'}", "ok")
+        self._emitir("biblioteca")
+
+    def poner_marca(self):
+        if not self._grab or not self._inicio_parte:
+            self._aviso(f"Las marcas son para grabaciones: pulsa {N.tecla_bonita(self._cfg['tecla_grab'])} para grabar", "error")
+            if self._cfg.get("sonido_clip", True):
+                self._sonidos.tocar("desactivar")
+            return
+        seg = max(0.0, time.time() - self._inicio_parte - 0.5)
+        clave = self._clave_fav(self._archivo_grab)
+        lista = self._marcas.setdefault(clave, [])
+        lista.append(round(seg, 2))
+        self._guardar_json(ARCHIVO_MARCAS, self._marcas)
+        m, s = divmod(int(seg), 60)
+        h, m = divmod(m, 60)
+        tiempo = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+        if self._cfg.get("sonido_clip", True):
+            self._sonidos.tocar("activar")
+        self._overlay.clip_guardado(f"Marca {len(lista)}", tiempo)
+        self._aviso(f"Marca {len(lista)} en {tiempo}", "ok")
 
     def _leer_favoritos(self):
         try:
@@ -985,16 +1054,17 @@ class Api:
             return {"ok": False, "msg": "No encuentro ese video"}
         if self._grab and os.path.normcase(ruta) == os.path.normcase(self._archivo_grab or ""):
             return {"ok": False, "msg": "No se puede renombrar la grabación en curso"}
-        texto = " ".join((texto or "").replace(".mp4", "").split()).strip(" .")
+        ext = os.path.splitext(ruta)[1].lower() or ".mp4"
+        texto = " ".join((texto or "").replace(ext, "").split()).strip(" .")
         if not texto:
             return {"ok": False, "msg": "Escribe un nombre"}
         if any(c in NO_VALIDOS for c in texto) or len(texto) > 120:
             return {"ok": False, "msg": 'El nombre no puede tener < > : " / \\ | ? * ni ser tan largo'}
         viejo = os.path.basename(ruta)
-        prefijo = "clip_" if viejo.lower().startswith("clip_") else "grabacion_"
+        prefijo = next((p for p in ("clip_", "captura_", "grabacion_") if viejo.lower().startswith(p)), "grabacion_")
         if texto.lower().startswith(prefijo):
             texto = texto[len(prefijo):]
-        nuevo = os.path.join(os.path.dirname(ruta), f"{prefijo}{texto}.mp4")
+        nuevo = os.path.join(os.path.dirname(ruta), f"{prefijo}{texto}{ext}")
         if os.path.normcase(nuevo) == os.path.normcase(ruta):
             return {"ok": True, "ruta": ruta, "nombre": viejo}
         if os.path.exists(nuevo):
@@ -1015,6 +1085,9 @@ class Api:
                     json.dump(self._indice, f)
             except Exception:
                 pass
+        if self._clave_fav(ruta) in self._marcas:
+            self._marcas[self._clave_fav(nuevo)] = self._marcas.pop(self._clave_fav(ruta))
+            self._guardar_json(ARCHIVO_MARCAS, self._marcas)
         if self._clave_fav(ruta) in self._favoritos:
             self._favoritos.discard(self._clave_fav(ruta))
             self._favoritos.add(self._clave_fav(nuevo))
@@ -1063,7 +1136,9 @@ class Api:
             except Exception:
                 pass
             nombre_mini = f"{abs(hash(clave)) % 10**12}.jpg"
-            momento = min(2.0, (info["dur"] or 2) / 3)
+            momento = 0 if ruta.lower().endswith(".png") else min(2.0, (info["dur"] or 2) / 3)
+            if ruta.lower().endswith(".png"):
+                info["dur"], info["pistas"] = None, None
             try:
                 r = N.correr(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{momento:.2f}",
                               "-i", ruta, "-frames:v", "1", "-vf", "scale=320:-2", "-q:v", "4",
@@ -1090,7 +1165,8 @@ class Api:
         except Exception:
             pass
         acciones = (("tecla_clip", self.guardar_clip), ("tecla_grab", self.alternar_grabacion),
-                    ("tecla_activar", self._alternar_clips_con_tecla))
+                    ("tecla_activar", self._alternar_clips_con_tecla), ("tecla_captura", self.tomar_captura),
+                    ("tecla_marca", self.poner_marca))
         for clave, funcion in acciones:
             def disparar(f=funcion):
                 threading.Thread(target=f, daemon=True).start()
