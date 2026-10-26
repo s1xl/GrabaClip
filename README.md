@@ -3,6 +3,12 @@
 Grabador de pantalla y **clips instantáneos** para Windows, ligero y open source.
 Guarda los últimos segundos de tu partida con una tecla, como el "Instant Replay" de NVIDIA.
 
+<p align="center">
+  <a href="docs/GrabaClip-anuncio.mp4"><img src="docs/anuncio.webp" alt="Anuncio de GrabaClip" width="100%"></a>
+</p>
+
+<p align="center"><a href="https://github.com/s1xl/GrabaClip/releases/latest"><b>⬇ Descargar GrabaClip</b></a> · <a href="docs/GrabaClip-anuncio.mp4">Ver el anuncio con sonido</a></p>
+
 ## Funciones
 
 - **Clips instantáneos:** GrabaClip graba en segundo plano y, al pulsar **F9**, guarda los últimos 10–300 segundos.
