@@ -546,6 +546,12 @@
             </div>
             <p class="nota">Se ve en juegos en modo ventana o "pantalla completa sin bordes". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).</p></div>
         </div>
+        <div class="tarjeta" id="tarjeta-discord">
+          <div class="fila"><div class="texto"><h3>Mostrar en Discord</h3><p>Tus amigos ven "Clipeando con GrabaClip" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="discord"><span></span></label></div>
+          <div class="fila sub-discord"><div class="texto"><h3>Mostrar el nombre del juego</h3><p>Por ejemplo "En Overwatch".</p></div>
+            <label class="switch"><input type="checkbox" data-sw="discord_juego"><span></span></label></div>
+        </div>
         <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Carpeta de videos</h3><p id="carpeta-txt"></p></div>
             <button class="mini-boton" id="b-carpeta-def">Restablecer</button>
@@ -861,6 +867,8 @@ function pintarCfg() {
   document.body.classList.toggle('rendimiento', !!cfg.rendimiento);
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
+  $$('.sub-discord').forEach(f => f.classList.toggle('oculto', !cfg.discord));
+  if (D) $('#tarjeta-discord').classList.toggle('oculto', !D.discord_listo);
   $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));

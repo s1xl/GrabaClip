@@ -25,6 +25,7 @@ import voz as VZ
 import actualizador as ACT
 import bandeja as BJ
 import recortes as RC
+import discord_rpc as DR
 
 try:
     import keyboard  # teclas rapidas globales
@@ -70,7 +71,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento"}
+                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego"}
 
 
 def sonido_ok():
@@ -121,6 +122,7 @@ class Api:
         self._fallos = []
         self._bandeja = None
         self._saliendo = False
+        self._presencia = DR.Presencia()
         self._cola_ui = queue.Queue()
         self._emisor_ocupado = 0
         self._emisor_actual = None
@@ -204,6 +206,7 @@ class Api:
     def _avisar_estado(self):
         estado = self._estado()
         self._overlay.actualizar(estado)
+        self._presencia.actualizar(self._cfg.get("discord"), estado, self._cfg.get("discord_juego", True))
         if self._bandeja:
             self._bandeja.texto("GrabaClip · " + ("Grabando" if self._grab else
                                                    "Clips activos" if self._bufer else
@@ -226,6 +229,7 @@ class Api:
             "carpeta": N.CARPETA_SALIDA,
             "voz": self._voz.estado,
             "version": ACT.version_local(),
+            "discord_listo": bool(DR.APP_ID),
             "update": self._update,
         }
 
@@ -242,6 +246,8 @@ class Api:
                 self._sincronizar_inicio()
             if any(k.startswith("voz") or k == "rendimiento" for k in (cambios or {})):
                 self._voz.configurar(self._cfg_efectiva())
+            if "discord" in (cambios or {}) or "discord_juego" in (cambios or {}):
+                self._avisar_estado()
             if "rendimiento" in (cambios or {}):
                 self._overlay.refrescar()
                 self._avisar_estado()
@@ -1169,6 +1175,10 @@ class Api:
             os._exit(0)
 
     def _cerrar(self):
+        try:
+            self._presencia.cerrar()
+        except Exception:
+            pass
         if self._bandeja:
             self._bandeja.quitar()
             self._bandeja = None
