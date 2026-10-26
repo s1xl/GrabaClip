@@ -13,7 +13,7 @@ import uuid
 
 # ID público de la aplicación "GrabaClip" en el portal de desarrolladores de Discord.
 # Discord muestra el nombre de esa aplicación ("Jugando a GrabaClip").
-APP_ID = ""
+APP_ID = "1564255011373056132"
 REPO = "https://github.com/s1xl/GrabaClip"
 IMAGEN = "https://raw.githubusercontent.com/s1xl/GrabaClip/main/docs/icono.png"
 
