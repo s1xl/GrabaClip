@@ -75,7 +75,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
-                    "duracion_larga", "por_juego_cfg", "vista_previa"}
+                    "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar"}
 
 
 def sonido_ok():
@@ -384,6 +384,10 @@ class Api:
                     if self._bufer and self._cambio_pendiente < 2:
                         continue
                     self._cambio_pendiente = 0
+                    if self._bufer and self._bufer.fuente.get("tipo") == "ventana" \
+                            and not VA.ventana_viva(self._bufer.fuente.get("hwnd")):
+                        self._bufer.detener()
+                        self._clip_de_cierre(self._bufer)  # se cerró el juego
                     self._parar_bufer()
                     if fuente:
                         self._iniciar_bufer(fuente)
@@ -403,48 +407,67 @@ class Api:
                 self._aviso("No hay ningún juego abierto para guardar un clip" if self._clips_on
                             else "Activa los clips primero", "error")
                 return self._estado()
+            self._guardar_tramo(segundos, self._bufer.fuente, self._bufer.pistas, titulo)
+        self._avisar_estado()
+        return self._estado()
+
+    def _guardar_tramo(self, segundos, fuente, pistas, titulo="Clip guardado", sufijo="", quitar_ultimo=True):
+        """Junta los últimos trozos del búfer en un MP4 (sin recomprimir)."""
+        with self._lock:
             trozos = sorted(glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")), key=os.path.getmtime)
-            trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
-            trozos = trozos[-max(1, segundos // N.SEG):]
+            if quitar_ultimo:
+                trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
+            trozos = [t for t in trozos if os.path.getsize(t) > 0][-max(1, segundos // N.SEG):]
             if not trozos:
                 self._aviso("Aún no hay suficiente video, espera unos segundos", "error")
-                return self._estado()
+                return None
             lista = os.path.join(N.CARPETA_BUFER, "lista.txt")
             with open(lista, "w", encoding="utf-8") as f:
                 for t in trozos:
                     f.write("file '" + t.replace("\\", "/").replace("'", "'\\''") + "'\n")
-            juego = self._carpeta_destino(self._bufer.fuente)
-            destino = os.path.join(N.CARPETA_SALIDA, juego, f"clip_{N.marca_tiempo()}.mp4")
+            juego = self._carpeta_destino(fuente)
+            destino = os.path.join(N.CARPETA_SALIDA, juego, f"clip_{N.marca_tiempo()}{sufijo}.mp4")
             os.makedirs(os.path.dirname(destino), exist_ok=True)
             args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
                     "-f", "concat", "-safe", "0", "-i", lista, "-map", "0", "-c", "copy"]
-            if self._bufer.pistas:
-                args += ["-bsf:a", "aac_adtstoasc"] + N.metadatos(self._bufer.pistas)
+            if pistas:
+                args += ["-bsf:a", "aac_adtstoasc"] + N.metadatos(pistas)
             args += ["-movflags", "+faststart", destino]
             r = N.correr(args)
-            if r.returncode == 0:
-                self._ultimo = destino
-                if self._cfg.get("sonido_clip", True):
-                    self._sonidos.tocar("clip")
-                extra = ""
-                if self._cfg.get("quitar_mudas", True) and len(self._bufer.pistas) > 1:
-                    quedan = N.quitar_pistas_mudas(destino, self._bufer.pistas)
-                    quitadas = len(self._bufer.pistas) - len(quedan)
-                    if quitadas:
-                        extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
-                self._aviso(f"Clip guardado en {juego or 'GrabaClip'}{extra}", "ok")
-                threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
-                real = len(trozos) * N.SEG
-                self._overlay.clip_guardado(titulo, f"{juego or 'Escritorio'} · "
-                                            + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
-                self._emitir("biblioteca")
-            else:
+            if r.returncode != 0:
                 os.makedirs(N.CARPETA_LOGS, exist_ok=True)
                 with open(os.path.join(N.CARPETA_LOGS, "clip.log"), "wb") as f:
                     f.write(r.stderr)
                 self._aviso("No se pudo guardar el clip", "error")
-        self._avisar_estado()
-        return self._estado()
+                return None
+            self._ultimo = destino
+            if self._cfg.get("sonido_clip", True):
+                self._sonidos.tocar("clip")
+            extra = ""
+            if self._cfg.get("quitar_mudas", True) and len(pistas or []) > 1:
+                quedan = N.quitar_pistas_mudas(destino, pistas)
+                quitadas = len(pistas) - len(quedan)
+                if quitadas:
+                    extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
+            self._aviso(f"{titulo} en {juego or 'GrabaClip'}{extra}", "ok")
+            threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
+            real = len(trozos) * N.SEG
+            self._overlay.clip_guardado(titulo, f"{juego or 'Escritorio'} · "
+                                        + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
+            self._emitir("biblioteca")
+            return destino
+
+    def _clip_de_cierre(self, sesion):
+        """Al cerrarse el juego, guarda solo el último tramo (si se activó en Ajustes)."""
+        if not sesion or not self._cfg.get("clip_al_cerrar") or sesion.fuente.get("tipo") != "ventana":
+            return
+        if getattr(sesion, "_cierre_guardado", False):
+            return
+        sesion._cierre_guardado = True
+        if time.time() - (self._inicio_bufer or 0) < 20:  # el juego apenas estuvo abierto
+            return
+        self._guardar_tramo(int(self._cfg["duracion"]), sesion.fuente, sesion.pistas,
+                            "Clip del final de la partida", "_final", quitar_ultimo=False)
 
     def alternar_grabacion(self):
         with self._lock:
@@ -849,6 +872,53 @@ class Api:
             self._aviso(str(ex), "error")
         finally:
             self._recortando = False
+
+    # ---------- estadísticas ----------
+    def estadisticas(self):
+        """Resumen de la biblioteca: por juego, por semana y totales."""
+        import datetime
+        items = self.biblioteca()
+        por_juego, semanas = {}, {}
+        hoy = datetime.date.today()
+        lunes = hoy - datetime.timedelta(days=hoy.weekday())
+        for v in items:
+            j = v["juego"] or "Sin clasificar"
+            d = por_juego.setdefault(j, {"juego": j, "clips": 0, "grabaciones": 0, "capturas": 0, "segundos": 0, "bytes": 0})
+            d[{"clip": "clips", "grabacion": "grabaciones", "captura": "capturas"}[v["tipo"]]] += 1
+            d["segundos"] += v.get("duracion") or 0
+            d["bytes"] += v["tamano"]
+            if v["tipo"] == "clip":
+                fecha = datetime.date.fromtimestamp(v["fecha"] / 1000)
+                ini = fecha - datetime.timedelta(days=fecha.weekday())
+                semanas[ini] = semanas.get(ini, 0) + 1
+        ultimas = []
+        for k in range(11, -1, -1):  # las últimas 12 semanas, de la más vieja a la actual
+            ini = lunes - datetime.timedelta(weeks=k)
+            ultimas.append({"desde": ini.strftime("%d/%m"), "clips": semanas.get(ini, 0)})
+        mejor = max(semanas.items(), key=lambda x: x[1]) if semanas else None
+        dias = {}
+        for v in items:
+            if v["tipo"] == "clip":
+                d = datetime.date.fromtimestamp(v["fecha"] / 1000)
+                dias[d] = dias.get(d, 0) + 1
+        # racha: días seguidos con al menos un clip, contando hasta hoy (o hasta ayer si hoy aún no hay)
+        d = hoy if dias.get(hoy) else hoy - datetime.timedelta(days=1)
+        racha = 0
+        while dias.get(d):
+            racha += 1
+            d -= datetime.timedelta(days=1)
+        return {
+            "juegos": sorted(por_juego.values(), key=lambda x: (-x["clips"], -x["grabaciones"], x["juego"])),
+            "semanas": ultimas,
+            "mejor_semana": {"desde": mejor[0].strftime("%d/%m/%Y"), "clips": mejor[1]} if mejor else None,
+            "totales": {"clips": sum(1 for v in items if v["tipo"] == "clip"),
+                        "grabaciones": sum(1 for v in items if v["tipo"] == "grabacion"),
+                        "capturas": sum(1 for v in items if v["tipo"] == "captura"),
+                        "favoritos": sum(1 for v in items if v.get("fav")),
+                        "segundos": sum(v.get("duracion") or 0 for v in items),
+                        "bytes": sum(v["tamano"] for v in items)},
+            "racha": racha,
+        }
 
     # ---------- espacio en disco ----------
     def _avisar_poco_espacio(self):
@@ -1299,6 +1369,8 @@ class Api:
                 if self._bufer and not self._bufer.viva():
                     era_ventana = self._bufer.fuente.get("tipo") == "ventana"
                     self._bufer.cerrar_audio()
+                    if era_ventana and not VA.ventana_viva(self._bufer.fuente.get("hwnd")):
+                        self._clip_de_cierre(self._bufer)  # se cerró el juego
                     self._bufer = None
                     self._clave_bufer = None
                     cambio = True

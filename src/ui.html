@@ -233,6 +233,28 @@
 
   /* ---------- ayuda ---------- */
   #v-ayuda .contenido { max-width: 900px; }
+  #v-stats .contenido { max-width: 1000px; }
+  .st-cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .st-cifra { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 14px 16px; }
+  .st-cifra b { display: block; font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .st-cifra span { font-size: 12px; color: var(--tenue); }
+  .st-cifra.acento b { color: var(--acento); }
+  .st-dos { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+  @media (max-width: 900px) { .st-dos { grid-template-columns: 1fr; } }
+  .st-caja { padding: 16px 18px; }
+  .st-caja h3 { font-size: 14px; margin-bottom: 4px; }
+  .st-barras { display: flex; align-items: flex-end; gap: 6px; height: 170px; margin-top: 14px; }
+  .st-barra { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; min-width: 0; }
+  .st-barra i { width: 100%; max-width: 30px; border-radius: 4px 4px 0 0; background: color-mix(in srgb, var(--acento) 45%, transparent); min-height: 2px; }
+  .st-barra.actual i { background: var(--acento); }
+  .st-barra b { font-size: 11px; color: var(--fg); font-variant-numeric: tabular-nums; min-height: 14px; }
+  .st-barra span { font-size: 10px; color: var(--tenue); white-space: nowrap; }
+  .st-juego { padding: 10px 0; border-top: 1px solid var(--borde); }
+  .st-juego:first-of-type { border-top: 0; }
+  .st-juego .cab { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; gap: 8px; }
+  .st-juego .cab span { color: var(--tenue); font-weight: 500; font-size: 12px; white-space: nowrap; }
+  .st-juego .linea-b { height: 6px; border-radius: 3px; background: var(--campo); margin-top: 6px; overflow: hidden; }
+  .st-juego .linea-b i { display: block; height: 100%; background: var(--acento); border-radius: 3px; }
   .pasos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
   .paso { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 18px; }
   .paso .num { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; font-weight: 700;
@@ -432,6 +454,7 @@
   </div>
   <nav id="nav">
     <button data-v="grab" class="activa">Grabaciones<span class="cuenta" id="cuenta"></span></button>
+    <button data-v="stats">Estadísticas</button>
     <button data-v="ajustes">Ajustes</button>
     <button data-v="ayuda">Ayuda</button>
   </nav>
@@ -530,6 +553,10 @@
               <select class="campo-sel" id="pj-sel"></select>
               <button class="mini-boton" id="pj-agregar">Agregar</button>
             </div></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Clip automático al cerrar el juego</h3><p>Cuando cierras el juego, GrabaClip guarda solo los últimos segundos (la pantalla final, el resultado de la partida). Ocupa espacio con cada partida.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="clip_al_cerrar"><span></span></label></div>
         </div>
         <p class="nota">Más FPS y calidad dan videos más fluidos y nítidos, pero archivos más grandes. Si tu monitor es de 60 Hz, grabar a más de 60 FPS no aporta nada.</p>
       </div>
@@ -701,6 +728,20 @@
     </div>
   </section>
 
+  <!-- ESTADÍSTICAS -->
+  <section class="vista" id="v-stats">
+    <div class="contenido desliza">
+      <div class="seccion activa" style="max-width:none">
+        <h2>Tus estadísticas</h2>
+        <div class="st-cifras" id="st-cifras"></div>
+        <div class="st-dos">
+          <div class="tarjeta st-caja"><h3>Clips por semana</h3><p class="nota" id="st-mejor"></p><div class="st-barras" id="st-semanas"></div></div>
+          <div class="tarjeta st-caja"><h3>Por juego</h3><div id="st-juegos"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- AYUDA -->
   <section class="vista" id="v-ayuda">
     <div class="contenido desliza">
@@ -820,6 +861,7 @@ function irA(v) {
   $$('#nav button').forEach(b => b.classList.toggle('activa', b.dataset.v === v));
   $$('.vista').forEach(s => s.classList.toggle('activa', s.id === 'v-' + v));
   if (v === 'grab') cargarVideos();
+  if (v === 'stats') cargarStats();
 }
 function seccion(s) {
   $$('.lateral button').forEach(b => b.classList.toggle('activa', b.dataset.s === s));
@@ -1479,6 +1521,35 @@ function progresoRecorte(d) {
     if (d.ok) cerrarEditor();
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
+}
+
+// ---------- estadísticas ----------
+function horas(s) {
+  s = Math.round(s || 0);
+  const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60;
+  return h ? `${h} h ${m} min` : `${m} min`;
+}
+async function cargarStats() {
+  const e = await api('estadisticas');
+  const T = e.totales;
+  const cifra = (n, txt, acento) => `<div class="st-cifra ${acento ? 'acento' : ''}"><b>${n}</b><span>${txt}</span></div>`;
+  $('#st-cifras').innerHTML = cifra(T.clips, T.clips === 1 ? 'clip' : 'clips', true) + cifra(T.grabaciones, 'grabaciones') +
+    cifra(T.capturas, 'capturas') + cifra(horas(T.segundos), 'de video') + cifra(GB(T.bytes), 'en disco') +
+    cifra(e.racha + (e.racha === 1 ? ' día' : ' días'), 'de racha clipeando');
+  const max = Math.max(1, ...e.semanas.map(s => s.clips));
+  $('#st-semanas').innerHTML = e.semanas.map((s, i) => `<div class="st-barra ${i === e.semanas.length - 1 ? 'actual' : ''}" title="Semana del ${s.desde}: ${s.clips} clips">
+      <b>${s.clips || ''}</b><i style="height:${s.clips / max * 100}%"></i><span>${s.desde}</span></div>`).join('');
+  $('#st-mejor').textContent = e.mejor_semana ? `Tu mejor semana: la del ${e.mejor_semana.desde}, con ${e.mejor_semana.clips} clips.` : 'Todavía no hay clips.';
+  const maxJ = Math.max(1, ...e.juegos.map(j => j.clips + j.grabaciones));
+  const cj = $('#st-juegos'); cj.innerHTML = '';
+  for (const j of e.juegos.slice(0, 10)) {
+    const d = document.createElement('div');
+    d.className = 'st-juego';
+    d.innerHTML = `<div class="cab"><b></b><span>${j.clips} clips · ${j.grabaciones} grab. · ${horas(j.segundos)}</span></div><div class="linea-b"><i style="width:${(j.clips + j.grabaciones) / maxJ * 100}%"></i></div>`;
+    d.querySelector('b').textContent = j.juego;
+    cj.append(d);
+  }
+  if (!e.juegos.length) cj.innerHTML = '<p class="nota">Cuando guardes clips, aquí verás tus juegos más clipeados.</p>';
 }
 
 // ---------- espacio en disco ----------

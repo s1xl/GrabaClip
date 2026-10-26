@@ -20,6 +20,8 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Audio a tu gusto:** todo junto en una sola pista (lo más simple) o **pistas separadas**: una mezcla con todo, micrófono aparte y una pista por cada app que elijas (Discord, Spotify, el juego…), en el orden que quieras, para silenciarlas al editar. Las apps cerradas aparecen como inactivas y no ocupan lugar en el orden. Las pistas que quedan sin sonido (por ejemplo, si Discord estaba cerrado) se quitan al guardar.
 - **Comandos de voz:** "Jarvis, sácale clip" y las frases que tú quieras para guardar clips, grabar o activar los clips. Usa el reconocimiento de voz de Windows, sin internet.
 - **Overlay en el juego:** indicador de clips activos / REC y aviso al guardar un clip, con sonidos suaves. No recibe clics y no aparece en las grabaciones (se puede desactivar).
+- **Clip al cerrar el juego** (opcional): guarda solo los últimos segundos de la partida al salir del juego.
+- **Estadísticas:** clips por semana, juegos más clipeados, horas de video y tu racha de días clipeando.
 - **Organización por juego:** cada clip se guarda en una carpeta con el nombre del juego o la app que estaba en primer plano.
 - **Carpeta a elegir:** por defecto en `Videos\GrabaClip`, o en la carpeta o disco que quieras (*Ajustes → General → Carpeta de videos*).
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, ordenar por fecha, tamaño o duración, **favoritos** ⭐ (el límite de espacio nunca los borra), renombrar con un clic y seleccionar varios para mandarlos a la Papelera.
