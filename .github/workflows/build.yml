@@ -1,8 +1,11 @@
 name: Compilar y publicar
 
-# Se ejecuta al subir una etiqueta de version (por ejemplo v0.8.0) o a mano desde la pestana Actions.
+# Se ejecuta cuando cambia el archivo VERSION en main (publica esa version),
+# al subir una etiqueta vX.Y.Z, o a mano desde la pestana Actions.
 on:
   push:
+    branches: [main]
+    paths: [VERSION]
     tags: ["v*"]
   workflow_dispatch:
 
@@ -15,9 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Leer la version
+        id: version
+        run: echo "v=$(tr -d ' \r\n' < VERSION)" >> "$GITHUB_OUTPUT"
+
       - name: Comprobar que la etiqueta coincide con VERSION
         if: startsWith(github.ref, 'refs/tags/v')
-        run: test "v$(tr -d ' \r\n' < VERSION)" = "$GITHUB_REF_NAME"
+        run: test "v${{ steps.version.outputs.v }}" = "$GITHUB_REF_NAME"
 
       - name: Cache de descargas (compilador, Python, FFmpeg)
         uses: actions/cache@v4
@@ -69,9 +76,15 @@ jobs:
           name: GrabaClip-portable
           path: dist/*.zip
 
-      - name: Crear la Release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Crear la Release (y su etiqueta vX.Y.Z)
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.v }}
+          target_commitish: ${{ github.sha }}
+          name: GrabaClip ${{ steps.version.outputs.v }}
           files: dist/*.zip
           generate_release_notes: true
+          body: |
+            ## Descarga
+            Descarga **GrabaClip-v${{ steps.version.outputs.v }}-portable.zip**, haz clic derecho > Propiedades > **Desbloquear**, descomprimelo y abre **GrabaClip.exe**. No necesita instalacion.
