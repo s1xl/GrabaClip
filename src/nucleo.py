@@ -96,7 +96,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "voz": False, "voz_clip": ["jarvis sácale clip", "jarvis clipea eso"], "voz_grabar": [],
                   "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6, "carpeta": "", "avisar_updates": False,
                   "bandeja": True, "bandeja_aviso_visto": False,
-                  "modo_audio": "una", "discord": False, "discord_juego": True}
+                  "modo_audio": "una", "discord": False, "discord_juego": True,
+                  "limite_gb": 0, "limite_grabaciones": False}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario

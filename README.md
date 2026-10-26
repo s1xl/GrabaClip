@@ -22,6 +22,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Carpeta a elegir:** por defecto en `Videos\GrabaClip`, o en la carpeta o disco que quieras (*Ajustes → General → Carpeta de videos*).
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
 - **Discord Rich Presence** (opcional): "Clipeando con GrabaClip" en tu perfil, con el juego y un botón para descargarlo.
+- **Espacio en disco:** muestra cuánto ocupan tus videos y, si pones un límite (20–500 GB), manda los clips más viejos a la Papelera automáticamente.
 - **Compartir:** copia el clip para pegarlo con Ctrl+V en Discord o WhatsApp, o crea una **versión para Discord** de menos de 10 MB que se copia sola.
 - **Recortar clips:** editor dentro de la app con vista previa; elige inicio y fin con la barra o con las teclas I y O. Guarda una copia (o reemplaza el original) conservando todas las pistas de audio.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.

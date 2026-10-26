@@ -30,8 +30,8 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## 5. Control del espacio en disco
 
-- [ ] Mostrar cuánto ocupan todos los clips.
-- [ ] Opción de enviar a la Papelera lo más viejo al pasar de un tamaño máximo.
+- [x] Mostrar cuánto ocupan todos los clips. (0.18.0)
+- [x] Opción de enviar a la Papelera lo más viejo al pasar de un tamaño máximo. (0.18.0)
 
 ## 6. Avisos de Windows (cuando haya más usuarios)
 

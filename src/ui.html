@@ -203,6 +203,9 @@
   .oculto { display: none !important; }
   body.rendimiento *, body.rendimiento *::before, body.rendimiento *::after { animation: none !important; transition: none !important; }
   body.rendimiento .mini { background-image: none !important; }
+  .esp-barra { height: 8px; border-radius: 4px; background: var(--campo); overflow: hidden; }
+  .esp-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .3s; }
+  .esp-barra i.lleno { background: var(--rojo); }
   .mas-videos { grid-column: 1 / -1; justify-self: center; margin: 8px 0 4px; }
   .mini-boton.primario { background: var(--acento); color: var(--acento-fg); border-color: transparent; }
   .upd-barra { height: 6px; margin: 0 18px 14px; border-radius: 3px; background: var(--borde); overflow: hidden; }
@@ -559,6 +562,19 @@
         </div>
         <p class="nota">Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.</p>
         <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Espacio en disco</h3><b id="esp-total">…</b></div>
+            <div class="esp-barra"><i id="esp-uso"></i></div>
+            <p class="nota" id="esp-txt">Calculando…</p></div>
+          <div class="fila columna"><div class="cab"><h3>Límite de espacio</h3></div>
+            <div class="chips" id="chips-limite">
+              <button data-l="0">Sin límite</button><button data-l="20">20 GB</button><button data-l="50">50 GB</button>
+              <button data-l="100">100 GB</button><button data-l="200">200 GB</button><button data-l="500">500 GB</button>
+            </div>
+            <p class="nota" id="nota-limite"></p></div>
+          <div class="fila sub-limite"><div class="texto"><h3>Incluir las grabaciones largas</h3><p>Si está apagado, solo se mandan a la Papelera los clips; tus grabaciones (F10) nunca se tocan.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="limite_grabaciones"><span></span></label></div>
+        </div>
+        <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Actualizaciones</h3><p id="upd-txt">Tienes la versión …</p></div>
             <button class="mini-boton" id="b-upd-buscar">Buscar actualizaciones</button>
             <button class="mini-boton primario oculto" id="b-upd-instalar">Actualizar ahora</button></div>
@@ -687,6 +703,7 @@ function seccion(s) {
   if (s === 'audio') cargarApps();
   if (s === 'video') cargarVentanas();
   if (s === 'voz') cargarIdiomasVoz();
+  if (s === 'general') cargarEspacio();
 }
 $$('#nav button').forEach(b => b.onclick = () => irA(b.dataset.v));
 $$('.lateral button').forEach(b => b.onclick = () => seccion(b.dataset.s));
@@ -868,6 +885,11 @@ function pintarCfg() {
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
   $$('.sub-discord').forEach(f => f.classList.toggle('oculto', !cfg.discord));
+  $$('.sub-limite').forEach(f => f.classList.toggle('oculto', !Number(cfg.limite_gb)));
+  $$('#chips-limite button').forEach(b => b.classList.toggle('sel', String(cfg.limite_gb || 0) === b.dataset.l));
+  $('#nota-limite').textContent = Number(cfg.limite_gb)
+    ? `Al pasar de ${cfg.limite_gb} GB, los ${cfg.limite_grabaciones ? 'videos' : 'clips'} más viejos se mandan solos a la Papelera (puedes recuperarlos de ahí). Ojo: la Papelera también ocupa espacio hasta que la vacías.`
+    : 'Los videos se acumulan sin límite.';
   if (D) $('#tarjeta-discord').classList.toggle('oculto', !D.discord_listo);
   $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
@@ -1112,6 +1134,32 @@ function progresoRecorte(d) {
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
 }
+
+// ---------- espacio en disco ----------
+const GB = b => (b / 1e9).toFixed(b >= 1e11 ? 0 : 1).replace('.', ',') + ' GB';
+function pintarEspacio(e) {
+  if (!e) return;
+  const lim = Number(e.limite_gb) * 1e9;
+  $('#esp-total').textContent = GB(e.total);
+  const base = lim || (e.libre != null ? e.total + e.libre : e.total || 1);
+  const uso = $('#esp-uso');
+  uso.style.width = Math.min(100, e.total / base * 100) + '%';
+  uso.classList.toggle('lleno', lim ? e.total > lim * 0.95 : (e.libre != null && e.libre < 10e9));
+  $('#esp-txt').textContent = `${e.n} ${e.n === 1 ? 'video' : 'videos'} (${e.n_clips} clips: ${GB(e.clips)})` +
+    (lim ? ` · ${Math.round(e.total / lim * 100)} % de tu límite` : '') +
+    (e.libre != null ? ` · Libre en el disco: ${GB(e.libre)}` : '');
+}
+async function cargarEspacio() { pintarEspacio(await api('espacio')); }
+$$('#chips-limite button').forEach(b => b.onclick = async () => {
+  const l = Number(b.dataset.l);
+  if (l) {
+    const e = await api('espacio');
+    if (e.total > l * 1e9 && !await confirmar(`¿Poner el límite en ${l} GB?`,
+        `Ahora tus videos ocupan ${GB(e.total)}. Los ${cfg.limite_grabaciones ? 'videos' : 'clips'} más viejos se mandarán a la Papelera hasta bajar de ${l} GB.`, 'Aplicar')) return;
+  }
+  guardar({limite_gb: l});
+  setTimeout(cargarEspacio, 1500);
+});
 
 // ---------- compartir ----------
 const CP = {v: null, ocupado: false, ruta: null};
@@ -1455,6 +1503,7 @@ window.recibir = m => {
   else if (m.tipo === 'update') pintarUpdate(m.datos);
   else if (m.tipo === 'recorte') progresoRecorte(m.datos);
   else if (m.tipo === 'compartir') progresoCompartir(m.datos);
+  else if (m.tipo === 'espacio') pintarEspacio(m.datos);
   else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
 };

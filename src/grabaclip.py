@@ -71,7 +71,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego"}
+                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones"}
 
 
 def sonido_ok():
@@ -246,6 +246,8 @@ class Api:
                 self._sincronizar_inicio()
             if any(k.startswith("voz") or k == "rendimiento" for k in (cambios or {})):
                 self._voz.configurar(self._cfg_efectiva())
+            if "limite_gb" in (cambios or {}) or "limite_grabaciones" in (cambios or {}):
+                threading.Thread(target=self._aplicar_limite, daemon=True).start()
             if "discord" in (cambios or {}) or "discord_juego" in (cambios or {}):
                 self._avisar_estado()
             if "rendimiento" in (cambios or {}):
@@ -344,6 +346,7 @@ class Api:
         self._inicio_bufer = time.time()
         if conservar:
             return
+        self._avisar_poco_espacio()
         que = fuente["nombre"] if fuente["tipo"] == "ventana" else "la pantalla"
         msg = f"Clips activos en {que}: {N.tecla_bonita(self._cfg['tecla_clip'])} guarda los últimos {self._cfg['duracion']} s"
         self._aviso(msg + self._bufer.aviso, "error" if self._bufer.aviso else "ok")
@@ -418,6 +421,7 @@ class Api:
                     if quitadas:
                         extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
                 self._aviso(f"Clip guardado en {juego or 'GrabaClip'}{extra}", "ok")
+                threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
                 self._overlay.clip_guardado("Clip guardado",
                                             f"{juego or 'Escritorio'} · {self._cfg['duracion']} s")
                 self._emitir("biblioteca")
@@ -453,6 +457,7 @@ class Api:
                                                     "nombre": "Pantalla"}
                 self._parte_grab = 1
                 juego = self._empezar_grabacion(fuente)
+                self._avisar_poco_espacio()
                 if self._grab.aviso:
                     self._aviso("Grabando" + self._grab.aviso, "error")
                 elif juego:
@@ -549,6 +554,7 @@ class Api:
     def _al_abrir_updates(self):
         time.sleep(15)
         ACT.limpiar_restos()  # restos de una actualizacion anterior
+        self._aplicar_limite()
         if self._cfg.get("avisar_updates"):
             r = self.buscar_actualizacion(silencioso=True)
             if r.get("hay"):
@@ -753,6 +759,80 @@ class Api:
             self._aviso(str(ex), "error")
         finally:
             self._recortando = False
+
+    # ---------- espacio en disco ----------
+    def _avisar_poco_espacio(self):
+        try:
+            libre = shutil.disk_usage(N.CARPETA_SALIDA).free
+        except OSError:
+            return
+        if libre < 3e9:
+            gb = f"{libre / 1e9:.1f}".replace(".", ",")
+            self._aviso(f"Queda poco espacio en el disco ({gb} GB). Borra videos o pon un límite en Ajustes → General", "error")
+
+    def _videos_en_disco(self):
+        try:
+            rutas = glob.glob(os.path.join(glob.escape(N.CARPETA_SALIDA), "**", "*.mp4"), recursive=True)
+        except Exception:
+            rutas = []
+        lista = []
+        for r in rutas:
+            try:
+                st = os.stat(r)
+            except OSError:
+                continue
+            lista.append((r, st.st_size, st.st_mtime, os.path.basename(r).lower().startswith("clip_")))
+        return lista
+
+    def espacio(self):
+        lista = self._videos_en_disco()
+        try:
+            libre = shutil.disk_usage(N.CARPETA_SALIDA).free
+        except OSError:
+            libre = None
+        return {"total": sum(t for _, t, _, _ in lista), "n": len(lista),
+                "clips": sum(t for _, t, _, c in lista if c), "n_clips": sum(1 for x in lista if x[3]),
+                "libre": libre, "limite_gb": self._cfg.get("limite_gb", 0)}
+
+    def _aplicar_limite(self, proteger=None):
+        """Si los videos pasan del límite elegido, los más viejos van a la Papelera
+        (solo clips, salvo que se incluyan las grabaciones). Nunca el clip recién guardado
+        ni la grabación en curso."""
+        limite = float(self._cfg.get("limite_gb") or 0) * 1e9
+        if limite <= 0:
+            return
+        if not hasattr(self, "_candado_limite"):
+            self._candado_limite = threading.Lock()
+        if not self._candado_limite.acquire(blocking=False):
+            return
+        try:
+            lista = self._videos_en_disco()
+            total = sum(t for _, t, _, _ in lista)
+            if total <= limite:
+                return
+            intocables = {os.path.normcase(p) for p in (proteger, self._archivo_grab if self._grab else None) if p}
+            candidatos = sorted((x for x in lista
+                                 if (x[3] or self._cfg.get("limite_grabaciones"))
+                                 and os.path.normcase(x[0]) not in intocables), key=lambda x: x[2])
+            meta = limite * 0.95  # un poco de margen para no borrar con cada clip nuevo
+            enviados, liberado = 0, 0
+            for ruta, tam, _, _ in candidatos[:300]:
+                if total - liberado <= meta:
+                    break
+                if mandar_a_papelera(ruta):
+                    enviados += 1
+                    liberado += tam
+            if enviados:
+                gb = f"{liberado / 1e9:.1f}".replace(".", ",")
+                self._aviso(f"Se enviaron {enviados} {'video viejo' if enviados == 1 else 'videos viejos'} a la Papelera "
+                            f"({gb} GB) para no pasar de {self._cfg['limite_gb']} GB", "ok")
+                self._emitir("biblioteca")
+                self._emitir("espacio", self.espacio())
+            elif total > limite:
+                self._aviso("Tus videos pasan del límite de espacio, pero no queda nada que se pueda mandar a la Papelera"
+                            + ("" if self._cfg.get("limite_grabaciones") else " (las grabaciones no se tocan)"), "error")
+        finally:
+            self._candado_limite.release()
 
     # ---------- compartir ----------
     def _al_portapapeles(self, ruta):
@@ -1209,7 +1289,9 @@ def mandar_a_papelera(ruta):
         op = SHFILEOPSTRUCTW()
         op.wFunc = 3  # FO_DELETE
         op.pFrom = os.path.abspath(ruta) + "\0"
-        op.fFlags = 0x40 | 0x10 | 0x04 | 0x400  # ALLOWUNDO | NOCONFIRMATION | SILENT | NOERRORUI
+        # ALLOWUNDO | NOCONFIRMATION | SILENT | NOERRORUI | WANTNUKEWARNING (si no cabe en la
+        # Papelera, Windows pregunta en vez de borrarlo para siempre sin avisar)
+        op.fFlags = 0x40 | 0x10 | 0x04 | 0x400 | 0x4000
         return ctypes.windll.shell32.SHFileOperationW(ctypes.byref(op)) == 0 and not op.fAnyOperationsAborted
     except Exception:
         return False
