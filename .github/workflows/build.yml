@@ -32,6 +32,9 @@ jobs:
           path: .cache
           key: descargas-${{ hashFiles('build/build.sh') }}
 
+      - name: Instalar NSIS (para el instalador)
+        run: sudo apt-get update -q && sudo apt-get install -y -q nsis
+
       - name: Compilar y armar el paquete
         run: ./build/build.sh
 
@@ -68,13 +71,16 @@ jobs:
           cp firmado/GrabaClip.exe firmado/audiocap.exe dist/GrabaClip/
           V="$(tr -d ' \r\n' < VERSION)"
           cd dist && rm -f "GrabaClip-v$V-portable.zip" && zip -qr -9 "GrabaClip-v$V-portable.zip" GrabaClip
+          makensis -V2 -DVERSION="$V" -DORIGEN="$PWD/GrabaClip" -DSALIDA="$PWD/GrabaClip-v$V-instalador.exe" ../build/instalador.nsi
 
       # ---------- publicar ----------
       - name: Guardar el paquete
         uses: actions/upload-artifact@v4
         with:
           name: GrabaClip-portable
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.exe
 
       - name: Crear la Release (y su etiqueta vX.Y.Z)
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -83,11 +89,14 @@ jobs:
           tag_name: v${{ steps.version.outputs.v }}
           target_commitish: ${{ github.sha }}
           name: GrabaClip ${{ steps.version.outputs.v }}
-          files: dist/*.zip
+          files: |
+            dist/*.zip
+            dist/*.exe
           generate_release_notes: true
           body: |
             ## Descarga
-            Descarga **GrabaClip-v${{ steps.version.outputs.v }}-portable.zip**, haz clic derecho > Propiedades > **Desbloquear**, descomprimelo y abre **GrabaClip.exe**. No necesita instalacion.
+            - **Instalador:** **GrabaClip-v${{ steps.version.outputs.v }}-instalador.exe**. Se instala sin permisos de administrador, con acceso directo en el menu Inicio y desinstalador en *Configuracion > Aplicaciones*.
+            - **Portable:** **GrabaClip-v${{ steps.version.outputs.v }}-portable.zip**. Haz clic derecho > Propiedades > **Desbloquear**, descomprimelo y abre **GrabaClip.exe**. No necesita instalacion.
             Si ya tienes GrabaClip 0.11 o mas nuevo, actualiza desde *Ajustes > General > Buscar actualizaciones*.
 
             [Code signing policy / Politica de firma de codigo](https://github.com/s1xl/GrabaClip#code-signing-policy) · [Privacidad](https://github.com/s1xl/GrabaClip/blob/main/PRIVACIDAD.md)

@@ -106,3 +106,12 @@ ZIP="$DIST/GrabaClip-v$VERSION-portable.zip"
 rm -f "$ZIP"
 (cd "$DIST" && zip -qr -9 "$(basename "$ZIP")" GrabaClip)
 echo "==> Listo: $ZIP ($(du -h "$ZIP" | cut -f1))"
+
+# ---------- instalador (opcional: solo si hay NSIS) ----------
+if command -v makensis >/dev/null 2>&1; then
+  SETUP="$DIST/GrabaClip-v$VERSION-instalador.exe"
+  makensis -V2 -DVERSION="$VERSION" -DORIGEN="$APP" -DSALIDA="$SETUP" "$RAIZ/build/instalador.nsi"
+  echo "==> Listo: $SETUP ($(du -h "$SETUP" | cut -f1))"
+else
+  echo "==> (sin NSIS: no se arma el instalador)"
+fi

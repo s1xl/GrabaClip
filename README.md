@@ -39,7 +39,12 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 
 ## Descarga
 
-Descarga `GrabaClip-vX.Y.Z-portable.zip` desde [Releases](https://github.com/s1xl/GrabaClip/releases/latest), descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`. No necesita instalación: Python, FFmpeg y todo lo demás vienen incluidos.
+En [Releases](https://github.com/s1xl/GrabaClip/releases/latest) hay dos opciones (Python, FFmpeg y todo lo demás vienen incluidos):
+
+- **Instalador** (`GrabaClip-vX.Y.Z-instalador.exe`): se instala sin permisos de administrador, con acceso directo en el menú Inicio y desinstalador en *Configuración → Aplicaciones*.
+- **Portable** (`GrabaClip-vX.Y.Z-portable.zip`): descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`.
+
+Las dos se actualizan solas desde *Ajustes → General → Buscar actualizaciones*.
 
 Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtime WebView2 (incluido en Windows 11 y en Windows 10 actualizado).
 
@@ -50,6 +55,8 @@ Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtim
 - **Si la ventana deja de responder:** cierra GrabaClip desde el Administrador de tareas y manda la carpeta `logs` al crear un *issue*.
 
 ## Desinstalar
+
+Si usaste el instalador: *Configuración → Aplicaciones → GrabaClip → Desinstalar* (tus videos no se borran). Con la versión portable:
 
 1. Si activaste **Iniciar con Windows**, desactívalo en *Ajustes → General* (o borra el valor `GrabaClip` en `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
 2. Cierra GrabaClip (clic derecho en su ícono junto al reloj → *Salir*) y borra su carpeta.

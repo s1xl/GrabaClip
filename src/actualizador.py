@@ -162,6 +162,19 @@ def _copiar(origen, destino, log):
     return fallidos
 
 
+def _actualizar_registro(destino, version):
+    """Si GrabaClip se instaló con el instalador, que Configuración > Aplicaciones muestre la versión nueva."""
+    try:
+        import winreg
+        ruta = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\GrabaClip"
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, ruta, 0, winreg.KEY_READ | winreg.KEY_SET_VALUE) as k:
+            lugar = winreg.QueryValueEx(k, "InstallLocation")[0]
+            if os.path.normcase(os.path.abspath(lugar)) == os.path.normcase(os.path.abspath(destino)):
+                winreg.SetValueEx(k, "DisplayVersion", 0, winreg.REG_SZ, version)
+    except Exception:
+        pass
+
+
 def _instalar_ahora(nueva, destino, pid):
     os.makedirs(os.path.join(destino, "logs"), exist_ok=True)
     with open(os.path.join(destino, "logs", "actualizacion.txt"), "w", encoding="utf-8") as log:
@@ -179,6 +192,7 @@ def _instalar_ahora(nueva, destino, pid):
         fallidos = _copiar(nueva, destino, log)
         log.write("listo\n" if not fallidos else f"{len(fallidos)} archivos no se copiaron\n")
         log.flush()
+    _actualizar_registro(destino, version_local(destino))
     exe = os.path.join(destino, "GrabaClip.exe")
     if os.path.isfile(exe):
         subprocess.Popen([exe], cwd=destino, creationflags=DESLIGADO, close_fds=True)
