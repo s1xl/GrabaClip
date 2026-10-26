@@ -411,6 +411,20 @@
           <div class="fila"><div class="texto"><h3>Sonidos de aviso</h3><p>Al guardar un clip y al activar o desactivar los clips con la tecla.</p></div>
             <label class="switch"><input type="checkbox" data-sw="sonido_clip"><span></span></label></div>
         </div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Overlay en el juego</h3><p>Avisos pequeños encima del juego. No reciben clics y no salen en tus clips.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="overlay"><span></span></label></div>
+          <div class="fila sub-overlay"><div class="texto"><h3>Indicador de clips activos</h3><p>Una pastilla en la esquina: "Clips" mientras se guarda el búfer, o "REC" con el tiempo al grabar.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="overlay_indicador"><span></span></label></div>
+          <div class="fila sub-overlay"><div class="texto"><h3>Aviso al guardar un clip</h3><p>Aparece unos segundos con el juego y la duración.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="overlay_aviso"><span></span></label></div>
+          <div class="fila columna sub-overlay"><div class="cab"><h3>Esquina</h3></div>
+            <div class="en-linea">
+              <div class="chips" id="chips-pos"><button data-p="izq">Arriba a la izquierda</button><button data-p="der">Arriba a la derecha</button></div>
+              <button class="mini-boton" id="b-probar-overlay" style="margin-left:auto">Probar</button>
+            </div>
+            <p class="nota">Se ve en juegos en modo ventana o "pantalla completa sin bordes". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).</p></div>
+        </div>
         <p class="nota" id="carpeta-txt"></p>
       </div>
 
@@ -656,6 +670,8 @@ function pintarCfg() {
   $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
   $('#sw-mic').checked = !!cfg.mic;
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
+  $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
+  $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
   $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
@@ -853,6 +869,8 @@ async function cargarVentanas() {
   sel.value = cfg.ventana_exe || '';
 }
 $$('#chips-captura button').forEach(b => b.onclick = () => guardar({captura: b.dataset.c}));
+$$('#chips-pos button').forEach(b => b.onclick = () => guardar({overlay_pos: b.dataset.p}));
+$('#b-probar-overlay').onclick = () => api('probar_overlay');
 $('#sel-ventana').onchange = e => { guardar({ventana_exe: e.target.value}); aviso(e.target.value ? 'Se grabará solo esa ventana' : 'Modo automático: se graba el juego que uses', 'ok'); };
 $('#b-ventanas').onclick = async () => { await cargarVentanas(); aviso('Lista de ventanas actualizada'); };
 function pintarEncoders() {

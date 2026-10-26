@@ -18,6 +18,8 @@ import traceback
 
 import nucleo as N
 import ventana_activa as VA
+import overlay as OV
+import sonidos as SND
 
 try:
     import keyboard  # teclas rapidas globales
@@ -61,7 +63,8 @@ def poner_icono(hwnd):
 CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "ajuste_ms",
                     "tema", "iniciar_con_windows", "clips_al_abrir", "sonido_clip",
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
-                    "quitar_mudas", "orden_pistas"}
+                    "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
+                    "overlay_pos"}
 
 
 def sonido_ok():
@@ -112,6 +115,9 @@ class Api:
         self._fallos = []
         self._monitores = []
         self._rastreador = VA.Rastreador()
+        self._sonidos = SND.Sonidos(os.path.join(N.CARPETA_APP, "sonidos"))
+        self._overlay = OV.Overlay(lambda: self._cfg,
+                                   lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
         threading.Thread(target=self._seguir_juego, daemon=True).start()
@@ -154,7 +160,9 @@ class Api:
         }
 
     def _avisar_estado(self):
-        self._emitir("estado", self._estado())
+        estado = self._estado()
+        self._overlay.actualizar(estado)
+        self._emitir("estado", estado)
 
     # ---------- llamadas desde la interfaz ----------
     def inicio(self):
@@ -325,7 +333,7 @@ class Api:
             if r.returncode == 0:
                 self._ultimo = destino
                 if self._cfg.get("sonido_clip", True):
-                    sonido_ok()
+                    self._sonidos.tocar("clip")
                 extra = ""
                 if self._cfg.get("quitar_mudas", True) and len(self._bufer.pistas) > 1:
                     quedan = N.quitar_pistas_mudas(destino, self._bufer.pistas)
@@ -333,6 +341,8 @@ class Api:
                     if quitadas:
                         extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
                 self._aviso(f"Clip guardado en {juego or 'GrabaClip'}{extra}", "ok")
+                self._overlay.clip_guardado("Clip guardado",
+                                            f"{juego or 'Escritorio'} · {self._cfg['duracion']} s")
                 self._emitir("biblioteca")
             else:
                 os.makedirs(N.CARPETA_LOGS, exist_ok=True)
@@ -351,6 +361,9 @@ class Api:
                 self._inicio_grab = None
                 self._ultimo = archivo
                 self._aviso("Grabación guardada: " + os.path.basename(archivo), "ok")
+                self._overlay.clip_guardado("Grabación guardada", os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
+                if self._cfg.get("sonido_clip", True):
+                    self._sonidos.tocar("clip")
                 self._terminar_grabacion(archivo, pistas)
             else:
                 if self._fatal:
@@ -408,6 +421,14 @@ class Api:
                     f.write(f"{e}: {'funciona' if ok else 'no funciona - ' + motivo}\n")
         except Exception:
             pass
+
+    def probar_overlay(self):
+        """Muestra el aviso de ejemplo y toca el sonido, para ver como queda."""
+        self._overlay.clip_guardado("Clip guardado", f"Así se verá · {self._cfg['duracion']} s")
+        if self._cfg.get("sonido_clip", True):
+            self._sonidos.tocar("clip")
+        if not self._cfg.get("overlay", True) or not self._cfg.get("overlay_aviso", True):
+            self._aviso("El overlay está desactivado, solo sonó el aviso", "info")
 
     def abrir_carpeta(self):
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
@@ -615,7 +636,7 @@ class Api:
         antes = self._clips_on
         self.alternar_clips()
         if self._cfg.get("sonido_clip", True) and self._clips_on != antes:
-            sonido_encendido(self._clips_on)
+            self._sonidos.tocar("activar" if self._clips_on else "desactivar")
 
     def _preparar(self):
         ok, motivo = N.estado_ffmpeg()

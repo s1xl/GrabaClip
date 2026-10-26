@@ -71,7 +71,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
-                  "quitar_mudas": True, "orden_pistas": []}
+                  "quitar_mudas": True, "orden_pistas": [],
+                  "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der"}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario

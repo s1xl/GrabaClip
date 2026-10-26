@@ -10,6 +10,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Codificación por GPU:** usa NVIDIA NVENC, AMD AMF o Intel QuickSync. Si la tarjeta lo permite, la captura va directo de la pantalla a la GPU, casi sin usar el procesador.
 - **Graba solo el juego:** captura únicamente la ventana del juego (aunque haya otras ventanas encima), sigue automáticamente al juego que uses y, si quieres, graba la pantalla cuando no hay ningún juego abierto. También se puede grabar una pantalla completa a elegir.
 - **Pistas de audio separadas:** una mezcla con todo, micrófono aparte y una pista por cada app que elijas (Discord, Spotify, el juego…), en el orden que quieras, para silenciarlas al editar. Las pistas que quedan sin sonido (por ejemplo, si Discord estaba cerrado) se quitan al guardar.
+- **Overlay en el juego:** indicador de clips activos / REC y aviso al guardar un clip, con sonidos suaves. No recibe clics y no aparece en las grabaciones (se puede desactivar).
 - **Organización por juego:** cada clip se guarda en una carpeta con el nombre del juego o la app que estaba en primer plano.
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
