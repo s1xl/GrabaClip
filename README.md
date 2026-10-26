@@ -88,4 +88,4 @@ Consulta [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Licencia
 
-[MIT](LICENSE). Componentes de terceros en [docs/TERCEROS.txt](docs/TERCEROS.txt).
+© 2026 s1xl. [Licencia MIT](LICENSE). Componentes de terceros en [docs/TERCEROS.txt](docs/TERCEROS.txt).

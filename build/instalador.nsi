@@ -25,7 +25,7 @@ VIAddVersionKey /LANG=1034 "ProductVersion" "${VERSION}"
 VIAddVersionKey /LANG=1034 "FileVersion" "${VERSION}"
 VIAddVersionKey /LANG=1034 "FileDescription" "Instalador de ${APP}"
 VIAddVersionKey /LANG=1034 "CompanyName" "s1xl"
-VIAddVersionKey /LANG=1034 "LegalCopyright" "MIT License"
+VIAddVersionKey /LANG=1034 "LegalCopyright" "Copyright (c) 2026 s1xl - MIT License"
 
 !include "MUI2.nsh"
 !define MUI_ICON "${ORIGEN}\grabaclip.ico"

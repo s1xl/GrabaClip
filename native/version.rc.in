@@ -17,7 +17,7 @@ BEGIN
       VALUE "FileDescription",  GC_DESC
       VALUE "FileVersion",      GC_VSTR
       VALUE "InternalName",     GC_NAME
-      VALUE "LegalCopyright",   "MIT License - s1xl"
+      VALUE "LegalCopyright",   "Copyright (c) 2026 s1xl - MIT License"
       VALUE "OriginalFilename", GC_FILE
       VALUE "ProductName",      "GrabaClip"
       VALUE "ProductVersion",   GC_VSTR
