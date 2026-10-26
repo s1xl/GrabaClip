@@ -94,7 +94,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "quitar_mudas": True, "orden_pistas": [],
                   "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der",
                   "voz": False, "voz_clip": ["jarvis sácale clip", "jarvis clipea eso"], "voz_grabar": [],
-                  "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6, "carpeta": "", "avisar_updates": False}
+                  "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6, "carpeta": "", "avisar_updates": False,
+                  "bandeja": True, "bandeja_aviso_visto": False}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario

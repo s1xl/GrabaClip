@@ -22,6 +22,7 @@ import overlay as OV
 import sonidos as SND
 import voz as VZ
 import actualizador as ACT
+import bandeja as BJ
 
 try:
     import keyboard  # teclas rapidas globales
@@ -67,7 +68,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza", "avisar_updates"}
+                    "voz_confianza", "avisar_updates", "bandeja"}
 
 
 def sonido_ok():
@@ -116,6 +117,8 @@ class Api:
         self._clave_bufer = None    # que se esta grabando en el bufer ahora
         self._cambio_pendiente = 0
         self._fallos = []
+        self._bandeja = None
+        self._saliendo = False
         self._update = None         # info de una version nueva encontrada en GitHub
         self._actualizando = False
         self._perdidas = []         # reinicios por "se perdio la pantalla" en el ultimo minuto
@@ -173,6 +176,10 @@ class Api:
     def _avisar_estado(self):
         estado = self._estado()
         self._overlay.actualizar(estado)
+        if self._bandeja:
+            self._bandeja.texto("GrabaClip · " + ("Grabando" if self._grab else
+                                                   "Clips activos" if self._bufer else
+                                                   "Esperando un juego" if self._clips_on else "Clips apagados"))
         self._emitir("estado", estado)
 
     # ---------- llamadas desde la interfaz ----------
@@ -556,6 +563,7 @@ class Api:
         time.sleep(0.5)
         threading.Timer(8, lambda: os._exit(0)).start()  # por si algo deja abierto el proceso
         try:
+            self._saliendo = True
             self._ventana.destroy()  # el instalador espera a que GrabaClip se cierre
         except Exception:
             os._exit(0)
@@ -891,7 +899,76 @@ class Api:
             N.colorear_barra_titulo(None, t, hwnd)
             poner_icono(hwnd)
 
+    # ---------- bandeja (junto al reloj) ----------
+    def _crear_bandeja(self):
+        if self._bandeja or not self._ventana:
+            return
+        try:
+            b = BJ.Bandeja(self._ventana.native, ARCHIVO_ICONO, {
+                "abrir": self._mostrar_ventana,
+                "clip": self.guardar_clip,
+                "clips": self.alternar_clips,
+                "grabar": self.alternar_grabacion,
+                "salir": self.salir,
+                "apagando": lambda: setattr(self, "_saliendo", True),
+            }, lambda: {"clips": self._clips_on, "grabando": bool(self._grab)})
+            b.crear()
+            self._bandeja = b
+        except Exception:
+            with open(os.path.join(N.CARPETA_LOGS, "bandeja.txt"), "w", encoding="utf-8") as f:
+                f.write(traceback.format_exc())
+            return
+        self._avisar_estado()
+        if self._minimizado and self._cfg.get("bandeja", True):
+            self._ventana.hide()  # al iniciar con Windows: directo junto al reloj
+
+    def _al_cerrar_ventana(self):
+        """Botón X: si la bandeja está activa, se esconde la ventana y GrabaClip sigue funcionando."""
+        if self._saliendo or not self._bandeja or not self._cfg.get("bandeja", True):
+            return True
+        try:
+            import ctypes
+            if ctypes.windll.user32.GetSystemMetrics(0x2000):  # SM_SHUTTINGDOWN: Windows se apaga
+                self._saliendo = True
+                return True
+        except Exception:
+            pass
+        threading.Thread(target=self._esconder, daemon=True).start()
+        return False
+
+    def _esconder(self):
+        try:
+            self._ventana.hide()
+        except Exception:
+            return
+        if not self._cfg.get("bandeja_aviso_visto"):
+            self._cfg["bandeja_aviso_visto"] = True
+            N.guardar_config(self._cfg)
+            self._bandeja.globo("GrabaClip sigue funcionando",
+                                "Está junto al reloj (en los íconos ocultos). Clic derecho para salir.")
+
+    def _mostrar_ventana(self):
+        try:
+            self._ventana.show()
+            import System.Windows.Forms as WF
+            if self._ventana.native.WindowState == WF.FormWindowState.Minimized:
+                self._ventana.restore()
+        except Exception:
+            pass
+
+    def salir(self):
+        self._saliendo = True
+        if self._bandeja:
+            self._bandeja.quitar()
+        try:
+            self._ventana.destroy()
+        except Exception:
+            os._exit(0)
+
     def _cerrar(self):
+        if self._bandeja:
+            self._bandeja.quitar()
+            self._bandeja = None
         try:
             self._voz.apagar()
         except Exception:
@@ -968,6 +1045,8 @@ def main():
         background_color=t["bg"], minimized=minimizado)
     api._ventana = ventana
     ventana.events.shown += api._pintar_barra
+    ventana.events.shown += api._crear_bandeja
+    ventana.events.closing += api._al_cerrar_ventana
     ventana.events.closed += api._cerrar
     try:
         webview.start(debug=False)

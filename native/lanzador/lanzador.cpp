@@ -78,6 +78,14 @@ static bool ya_abierto() {
 }
 
 static void traer_al_frente() {
+    // GrabaClip puede estar escondido junto al reloj: se le pide que muestre su ventana
+    HANDLE ev = OpenEventW(EVENT_MODIFY_STATE, FALSE, L"Local\\GrabaClip_mostrar");
+    if (ev) {
+        AllowSetForegroundWindow(ASFW_ANY);
+        SetEvent(ev);
+        CloseHandle(ev);
+        return;
+    }
     HWND w = nullptr;
     while ((w = FindWindowExW(nullptr, w, nullptr, L"GrabaClip")) != nullptr) {
         wchar_t clase[128];

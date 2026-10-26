@@ -12,9 +12,9 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## 2. Ícono junto al reloj (bandeja del sistema)
 
-- [ ] Al cerrar la ventana, que GrabaClip siga funcionando junto al reloj en lugar de cerrarse.
-- [ ] Menú con clic derecho: Abrir, Guardar clip, Activar/desactivar clips, Grabar, Salir.
-- [ ] Con "Iniciar con Windows", arrancar directo en la bandeja.
+- [x] Al cerrar la ventana, que GrabaClip siga funcionando junto al reloj en lugar de cerrarse.
+- [x] Menú con clic derecho: Abrir, Guardar clip, Activar/desactivar clips, Grabar, Salir.
+- [x] Con "Iniciar con Windows", arrancar directo en la bandeja.
 
 ## 3. Recortar y compartir clips
 

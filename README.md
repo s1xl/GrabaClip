@@ -23,6 +23,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
+- **Junto al reloj:** al cerrar la ventana, GrabaClip sigue funcionando en los íconos ocultos de la barra de tareas, con un menú para guardar clips, grabar o salir.
 - **Actualizaciones con un botón:** *Ajustes → General → Buscar actualizaciones* descarga la última versión de GitHub y la instala sola, sin perder ajustes ni clips.
 
 ## Descarga
@@ -34,7 +35,7 @@ Requisitos: Windows 10 (versión 2004 o más nueva) u 11 de 64 bits, y el runtim
 ## Desinstalar
 
 1. Si activaste **Iniciar con Windows**, desactívalo en *Ajustes → General* (o borra el valor `GrabaClip` en `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
-2. Cierra GrabaClip y borra su carpeta.
+2. Cierra GrabaClip (clic derecho en su ícono junto al reloj → *Salir*) y borra su carpeta.
 3. Tus videos están en `Videos\GrabaClip` (o en la carpeta que elegiste); bórralos solo si ya no los quieres.
 
 GrabaClip no instala servicios, controladores ni nada fuera de su carpeta, salvo esa entrada opcional de inicio.
