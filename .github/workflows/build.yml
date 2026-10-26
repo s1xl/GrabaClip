@@ -88,3 +88,6 @@ jobs:
           body: |
             ## Descarga
             Descarga **GrabaClip-v${{ steps.version.outputs.v }}-portable.zip**, haz clic derecho > Propiedades > **Desbloquear**, descomprimelo y abre **GrabaClip.exe**. No necesita instalacion.
+            Si ya tienes GrabaClip 0.11 o mas nuevo, actualiza desde *Ajustes > General > Buscar actualizaciones*.
+
+            [Code signing policy / Politica de firma de codigo](https://github.com/s1xl/GrabaClip#code-signing-policy) · [Privacidad](https://github.com/s1xl/GrabaClip/blob/main/PRIVACIDAD.md)
