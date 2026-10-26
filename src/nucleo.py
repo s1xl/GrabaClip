@@ -95,7 +95,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der",
                   "voz": False, "voz_clip": ["jarvis sácale clip", "jarvis clipea eso"], "voz_grabar": [],
                   "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6, "carpeta": "", "avisar_updates": False,
-                  "bandeja": True, "bandeja_aviso_visto": False}
+                  "bandeja": True, "bandeja_aviso_visto": False,
+                  "modo_audio": "una"}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario
@@ -386,6 +387,10 @@ def cargar_config():
         cfg["calidad"] = "Máxima"
     if cfg.get("tema") not in TEMAS:
         cfg["tema"] = "Carmesí"
+    if "modo_audio" not in guardado and guardado.get("apps"):
+        cfg["modo_audio"] = "separadas"  # quien ya tenia apps en pista propia las conserva
+    if cfg.get("modo_audio") not in ("una", "separadas"):
+        cfg["modo_audio"] = "una"
     if cfg.get("carpeta") and os.path.isdir(cfg["carpeta"]):
         usar_carpeta(cfg["carpeta"])
     else:
@@ -453,7 +458,8 @@ class Sesion:
         if cfg["mic"]:
             especies.append("mic")
             nombres_entrada.append("Microfono")
-        for exe in cfg["apps"]:
+        separadas = cfg.get("modo_audio", "una") == "separadas"
+        for exe in (cfg["apps"] if separadas else []):
             especies.append("app:" + exe)
             nombres_entrada.append(nombre_bonito(exe))
 
@@ -490,6 +496,8 @@ class Sesion:
             disponibles = {"mezcla": ("[mezcla]" if cfg["mic"] else "0:a", "Mezcla")}
             for i in range(1, len(especies)):  # micro y apps (el "Sistema" ya esta en la mezcla)
                 disponibles[clave_pista(especies[i])] = (f"{i}:a", nombres_entrada[i])
+            if not separadas:  # todo el audio (juego, apps y micro) en una sola pista
+                disponibles = {"mezcla": disponibles["mezcla"]}
             for clave in orden_pistas(cfg):
                 if clave in disponibles:
                     mapa, nombre = disponibles[clave]

@@ -218,6 +218,11 @@
   .pista .flecha:disabled { opacity: .25; }
   .pista .flecha svg { width: 15px; height: 15px; }
   .ocupado .pista { cursor: default; }
+  .grupo-pistas { margin: 14px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tenue); }
+  .grupo-pistas span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .pista.inactiva { opacity: .55; cursor: default; border-style: dashed; }
+  .pista.inactiva .num { color: var(--tenue); }
+  .modo-una .solo-separadas { display: none !important; }
   .frases { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
   .frase { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 12px; border-radius: 6px;
            background: var(--campo); border: 1px solid var(--borde); font-weight: 600; font-size: 13px; }
@@ -381,10 +386,18 @@
         <h2>Audio</h2>
         <div class="bloqueo mezcla-acento">Desactiva los clips y detén la grabación para cambiar estos ajustes.</div>
         <div class="tarjeta">
-          <div class="fila"><div class="texto"><h3>Micrófono</h3><p>Se graba en su propia pista y también en la mezcla.</p></div>
-            <label class="switch"><input type="checkbox" id="sw-mic"><span></span></label></div>
+          <div class="fila columna"><div class="cab"><h3>Cómo guardar el audio</h3></div>
+            <div class="chips" id="chips-audio">
+              <button data-m="una">Todo en una pista</button>
+              <button data-m="separadas">Pistas separadas</button>
+            </div>
+            <p class="nota" id="nota-audio"></p></div>
         </div>
         <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Micrófono</h3><p id="mic-desc">Se graba en su propia pista y también en la mezcla.</p></div>
+            <label class="switch"><input type="checkbox" id="sw-mic"><span></span></label></div>
+        </div>
+        <div class="tarjeta solo-separadas">
           <div class="fila"><div class="texto"><h3>Apps en pista propia</h3><p>Para poder quitarlas al editar (Discord, Spotify…).</p></div>
             <button class="mini-boton" id="b-apps"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>Actualizar</button></div>
           <div id="apps"></div>
@@ -392,17 +405,22 @@
             <p>Si una app estaba cerrada o callada, su pista no aparece en el clip. La pista Mezcla siempre se queda.</p></div>
             <label class="switch"><input type="checkbox" data-sw="quitar_mudas"><span></span></label></div>
         </div>
-        <div class="tarjeta">
-          <div class="fila columna"><div class="cab"><h3>Orden de las pistas</h3></div>
+        <div class="tarjeta solo-separadas">
+          <div class="fila columna"><div class="cab"><h3>Orden de las pistas</h3><b id="orden-cuenta"></b></div>
             <p class="nota">Así aparecen en DaVinci y en tu editor. Arrastra una pista o usa las flechas.</p>
-            <div id="orden"></div></div>
+            <div class="grupo-pistas">Activas</div>
+            <div id="orden"></div>
+            <div id="inactivas-caja" class="oculto">
+              <div class="grupo-pistas">Inactivas <span>· la app está cerrada; no ocupa lugar en el orden y se agrega al final cuando la abras</span></div>
+              <div id="inactivas"></div>
+            </div></div>
         </div>
         <div class="tarjeta">
           <div class="fila columna"><div class="cab"><h3>Sincronía del audio</h3><b id="aj-v">0 ms</b></div>
             <input type="range" id="r-aj" min="-1000" max="1000" step="20">
             <p class="nota">Úsalo solo si el sonido va adelantado o atrasado respecto a la imagen.</p></div>
         </div>
-        <p class="nota">La pista "Mezcla" lleva todo el sonido junto y nunca se quita.</p>
+        <p class="nota solo-separadas">La pista "Mezcla" lleva todo el sonido junto y nunca se quita.</p>
       </div>
 
       <div class="seccion" id="s-teclas">
@@ -730,6 +748,7 @@ function pintarCfg() {
   $('#r-dur').value = cfg.duracion; $('#dur-v').textContent = cfg.duracion + ' s';
   $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
   $('#sw-mic').checked = !!cfg.mic;
+  pintarModoAudio();
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
   $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
@@ -881,11 +900,15 @@ $('#b-upd-instalar').onclick = async () => {
 };
 
 let nombresApps = {};
+let appsAbiertas = null;  // null = todavía no se sabe (se muestran todas como activas)
 function clavesPistas() {
   const base = ['mezcla'].concat(cfg.mic ? ['mic'] : [], (cfg.apps || []).map(e => 'app:' + e.toLowerCase()));
   const elegido = (cfg.orden_pistas || []).filter(c => base.includes(c));
   return elegido.concat(base.filter(c => !elegido.includes(c)));
 }
+const pistaActiva = c => !c.startsWith('app:') || appsAbiertas === null || appsAbiertas.has(c.slice(4));
+const pistasActivas = () => clavesPistas().filter(pistaActiva);
+const pistasInactivas = () => clavesPistas().filter(c => !pistaActiva(c));
 function nombrePista(c) {
   if (c === 'mezcla') return ['Mezcla', 'Todo el sonido junto'];
   if (c === 'mic') return ['Micrófono', 'Tu voz'];
@@ -894,11 +917,11 @@ function nombrePista(c) {
   return [n.charAt(0).toUpperCase() + n.slice(1), 'App'];
 }
 function moverPista(desde, hasta) {
-  const orden = clavesPistas();
+  const orden = pistasActivas();
   if (hasta < 0 || hasta >= orden.length || desde === hasta) return;
   const [c] = orden.splice(desde, 1);
   orden.splice(hasta, 0, c);
-  guardar({orden_pistas: orden});
+  guardar({orden_pistas: orden.concat(pistasInactivas())});  // las cerradas quedan al final
 }
 const FLECHA_ARRIBA = '<svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>';
 const FLECHA_ABAJO = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
@@ -906,8 +929,21 @@ let arrastrada = null;
 function pintarOrden() {
   const c = $('#orden');
   if (!c) return;
-  const orden = clavesPistas();
+  const orden = pistasActivas();
   c.innerHTML = '';
+  const inact = pistasInactivas();
+  $('#orden-cuenta').textContent = orden.length + (orden.length === 1 ? ' pista' : ' pistas');
+  $('#inactivas-caja').classList.toggle('oculto', !inact.length);
+  const ci = $('#inactivas');
+  ci.innerHTML = '';
+  for (const clave of inact) {
+    const [nom] = nombrePista(clave);
+    const f = document.createElement('div');
+    f.className = 'pista inactiva';
+    f.innerHTML = '<span class="num">—</span><span class="nom"></span><span class="tipo">Cerrada</span>';
+    f.querySelector('.nom').textContent = nom;
+    ci.append(f);
+  }
   orden.forEach((clave, i) => {
     const [nom, tipo] = nombrePista(clave);
     const f = document.createElement('div');
@@ -934,6 +970,7 @@ function pintarOrden() {
 async function cargarApps() {
   const lista = await api('apps');
   for (const a of lista) nombresApps[a.exe.toLowerCase()] = a.nombre;
+  appsAbiertas = new Set(lista.filter(a => a.abierta).map(a => a.exe.toLowerCase()));
   pintarOrden();
   const c = $('#apps');
   c.innerHTML = '';
@@ -951,6 +988,21 @@ async function cargarApps() {
   }
 }
 $('#b-apps').onclick = async () => { await cargarApps(); aviso('Lista de apps actualizada'); };
+// mientras se ve Ajustes > Audio, la lista se refresca sola (para saber qué apps se abren o cierran)
+setInterval(() => {
+  if (!document.hidden && $('#s-audio').classList.contains('activa') && $('#v-ajustes').classList.contains('activa')
+      && cfg.modo_audio === 'separadas' && !arrastrada && !$('#orden .pista.arrastrando')) cargarApps();
+}, 4000);
+function pintarModoAudio() {
+  const m = cfg.modo_audio || 'una';
+  $$('#chips-audio button').forEach(b => { b.classList.toggle('sel', b.dataset.m === m); b.disabled = !!ocupado(); });
+  $('#s-audio').classList.toggle('modo-una', m === 'una');
+  $('#nota-audio').textContent = m === 'una'
+    ? 'Juego, Discord, música y micrófono juntos en una sola pista. Lo más simple para subir o compartir.'
+    : 'Una pista "Mezcla" con todo y otra por cada app que marques, para silenciarlas al editar.';
+  $('#mic-desc').textContent = m === 'una' ? 'Se mezcla con el resto del sonido.' : 'Se graba en su propia pista y también en la mezcla.';
+}
+$$('#chips-audio button').forEach(b => b.onclick = () => { guardar({modo_audio: b.dataset.m}); if (b.dataset.m === 'separadas') cargarApps(); });
 
 /* ---------- teclas ---------- */
 let capturando = null;
