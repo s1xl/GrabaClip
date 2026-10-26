@@ -21,6 +21,7 @@ import ventana_activa as VA
 import overlay as OV
 import sonidos as SND
 import voz as VZ
+import actualizador as ACT
 
 try:
     import keyboard  # teclas rapidas globales
@@ -66,7 +67,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza"}
+                    "voz_confianza", "avisar_updates"}
 
 
 def sonido_ok():
@@ -115,6 +116,8 @@ class Api:
         self._clave_bufer = None    # que se esta grabando en el bufer ahora
         self._cambio_pendiente = 0
         self._fallos = []
+        self._update = None         # info de una version nueva encontrada en GitHub
+        self._actualizando = False
         self._perdidas = []         # reinicios por "se perdio la pantalla" en el ultimo minuto
         self._gen_bufer = 0
         self._parte_grab = 1
@@ -126,6 +129,7 @@ class Api:
         self._overlay = OV.Overlay(lambda: self._cfg,
                                    lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
         threading.Thread(target=self._preparar, daemon=True).start()
+        threading.Thread(target=self._al_abrir_updates, daemon=True).start()
         threading.Thread(target=self._vigilar, daemon=True).start()
         threading.Thread(target=self._seguir_juego, daemon=True).start()
         self._registrar_teclas()
@@ -186,6 +190,8 @@ class Api:
             "resoluciones": list(N.RESOLUCIONES),
             "carpeta": N.CARPETA_SALIDA,
             "voz": self._voz.estado,
+            "version": ACT.version_local(),
+            "update": self._update,
         }
 
     def guardar(self, cambios):
@@ -494,6 +500,65 @@ class Api:
         N.guardar_config(self._cfg)
         self._emitir("biblioteca")
         return {"ok": True, "carpeta": N.CARPETA_SALIDA, "msg": "Se usará otra vez Videos\\GrabaClip"}
+
+    # ---------- actualizaciones ----------
+    def _al_abrir_updates(self):
+        time.sleep(15)
+        ACT.limpiar_restos()  # restos de una actualizacion anterior
+        if self._cfg.get("avisar_updates"):
+            r = self.buscar_actualizacion(silencioso=True)
+            if r.get("hay"):
+                self._aviso(f"Hay una versión nueva de GrabaClip ({r['version']}). Actualízala en Ajustes → General", "ok")
+
+    def buscar_actualizacion(self, silencioso=False):
+        try:
+            info = ACT.ultima()
+        except Exception as ex:
+            return {"ok": False, "msg": "No pude revisar GitHub. ¿Tienes internet?" if not silencioso else "",
+                    "detalle": str(ex)}
+        local = ACT.version_local()
+        hay = ACT.es_mas_nueva(info["version"], local)
+        self._update = info if hay else None
+        self._emitir("update", self._update)
+        return {"ok": True, "hay": hay, "version": info["version"], "local": local,
+                "tam": info["tam"], "notas": info["notas"],
+                "msg": "" if hay else f"Ya tienes la versión más reciente ({local})"}
+
+    def actualizar(self):
+        with self._lock:
+            if self._actualizando:
+                return {"ok": False, "msg": "La actualización ya está en marcha"}
+            if self._grab:
+                return {"ok": False, "msg": "Termina la grabación antes de actualizar"}
+            if not self._update:
+                return {"ok": False, "msg": "Primero busca actualizaciones"}
+            self._actualizando = True
+        threading.Thread(target=self._hacer_actualizacion, args=(dict(self._update),), daemon=True).start()
+        return {"ok": True}
+
+    def _hacer_actualizacion(self, info):
+        def progreso(hecho, total):
+            self._emitir("update_progreso", {"hecho": hecho, "total": total})
+        try:
+            nueva = ACT.descargar(info, progreso)
+            self._emitir("update_progreso", {"fase": "instalando"})
+            with self._lock:
+                if self._grab:
+                    raise RuntimeError("Empezó una grabación; termínala y vuelve a pulsar Actualizar")
+                self._clips_on = False
+                self._parar_bufer()
+            ACT.instalar(nueva)
+        except Exception as ex:
+            self._actualizando = False
+            self._emitir("update_progreso", {"error": str(ex)})
+            self._aviso("No se pudo actualizar: " + str(ex), "error")
+            return
+        time.sleep(0.5)
+        threading.Timer(8, lambda: os._exit(0)).start()  # por si algo deja abierto el proceso
+        try:
+            self._ventana.destroy()  # el instalador espera a que GrabaClip se cierre
+        except Exception:
+            os._exit(0)
 
     def voz_idiomas(self):
         return VZ.Voz.idiomas()

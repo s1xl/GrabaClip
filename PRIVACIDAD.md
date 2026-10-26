@@ -14,4 +14,8 @@ Este programa no transfiere ninguna información a otros sistemas de la red, a m
 
 ## Conexiones a internet
 
-La versión publicada ya trae todos sus componentes y no se conecta a internet. Solo si faltan los componentes de la interfaz (por ejemplo, en una copia incompleta), el lanzador los descarga una vez desde el índice oficial de paquetes de Python (pypi.org), avisando con una ventana visible. No se envía ningún dato personal.
+La versión publicada ya trae todos sus componentes y no se conecta a internet por su cuenta.
+
+- **Actualizaciones:** solo cuando pulsas *Buscar actualizaciones* (o si activas *Avisar al abrir si hay versión nueva*, apagado por defecto), GrabaClip consulta la última versión publicada en GitHub (`api.github.com/repos/s1xl/GrabaClip`) y, si pulsas *Actualizar ahora*, descarga el `.zip` de esa versión desde GitHub y comprueba su huella SHA-256. No se envía ningún dato personal; GitHub solo recibe la petición normal de cualquier navegador (dirección IP y el nombre "GrabaClip-actualizador").
+
+ Solo si faltan los componentes de la interfaz (por ejemplo, en una copia incompleta), el lanzador los descarga una vez desde el índice oficial de paquetes de Python (pypi.org), avisando con una ventana visible. No se envía ningún dato personal.

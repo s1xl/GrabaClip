@@ -23,6 +23,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Biblioteca:** miniaturas, duración, filtros por tipo y juego, buscador, reproducir, mostrar en carpeta y enviar a la Papelera.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
+- **Actualizaciones con un botón:** *Ajustes → General → Buscar actualizaciones* descarga la última versión de GitHub y la instala sola, sin perder ajustes ni clips.
 
 ## Descarga
 

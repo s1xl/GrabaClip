@@ -24,8 +24,9 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## 4. Aviso de actualizaciones
 
-- [ ] Revisar GitHub Releases al abrir y avisar si hay versión nueva.
-- [ ] Interruptor para desactivarlo (sería la única conexión a internet; actualizar PRIVACIDAD.md).
+- [x] Botón "Buscar actualizaciones" que descarga e instala la versión nueva (0.11.0).
+- [x] Interruptor "Avisar al abrir" (apagado por defecto) y PRIVACIDAD.md actualizado.
+- [ ] Probar en Windows la primera actualización real (0.11.0 -> la siguiente).
 
 ## 5. Control del espacio en disco
 

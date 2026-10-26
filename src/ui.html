@@ -201,6 +201,9 @@
   .campo-sel option { background: var(--panel); color: var(--fg); }
   .en-linea { display: flex; gap: 8px; align-items: center; }
   .oculto { display: none !important; }
+  .mini-boton.primario { background: var(--acento); color: var(--acento-fg); border-color: transparent; }
+  .upd-barra { height: 6px; margin: 0 18px 14px; border-radius: 3px; background: var(--borde); overflow: hidden; }
+  .upd-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .25s; }
   .estado-app { font-size: 12px; color: var(--tenue); }
   .estado-app.abierta { color: #22c55e; }
   .pista { display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-top: 6px; border-radius: 6px;
@@ -472,6 +475,15 @@
             <button class="mini-boton" id="b-carpeta">Cambiar…</button></div>
         </div>
         <p class="nota">Los videos que ya tenías se quedan donde estaban; puedes moverlos a la carpeta nueva con el Explorador.</p>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Actualizaciones</h3><p id="upd-txt">Tienes la versión …</p></div>
+            <button class="mini-boton" id="b-upd-buscar">Buscar actualizaciones</button>
+            <button class="mini-boton primario oculto" id="b-upd-instalar">Actualizar ahora</button></div>
+          <div class="upd-barra oculto" id="upd-barra"><i></i></div>
+          <div class="fila"><div class="texto"><h3>Avisar al abrir si hay versión nueva</h3><p>Revisa GitHub una vez al abrir GrabaClip. Es la única conexión a internet que hace.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="avisar_updates"><span></span></label></div>
+        </div>
+        <p class="nota">Al actualizar, GrabaClip se cierra unos segundos y se vuelve a abrir solo. Tus ajustes, clips y miniaturas se mantienen.</p>
       </div>
 
       <div class="seccion" id="s-apariencia">
@@ -833,6 +845,39 @@ $('#b-carpeta-def').onclick = async () => {
   cfg.carpeta = ''; pintarCarpeta(r.carpeta); aviso(r.msg, 'ok');
 };
 
+// ---------- actualizaciones ----------
+const MB = b => (b / 1048576).toFixed(0) + ' MB';
+function pintarUpdate(u) {
+  const txt = $('#upd-txt');
+  if (u) txt.textContent = `Hay una versión nueva: ${u.version} (tienes la ${D.version}). Descarga de ${MB(u.tam)}.`;
+  else txt.textContent = `Tienes la versión ${D.version}.`;
+  $('#b-upd-instalar').classList.toggle('oculto', !u);
+}
+function progresoUpdate(p) {
+  const barra = $('#upd-barra'), txt = $('#upd-txt');
+  if (p.error) { barra.classList.add('oculto'); $('#b-upd-instalar').disabled = false; $('#b-upd-buscar').disabled = false;
+                 txt.textContent = 'No se pudo actualizar: ' + p.error; return; }
+  barra.classList.remove('oculto');
+  if (p.fase === 'instalando') { barra.firstElementChild.style.width = '100%';
+                                 txt.textContent = 'Instalando… GrabaClip se cerrará y se abrirá solo en unos segundos.'; return; }
+  const pct = p.total ? Math.round(p.hecho * 100 / p.total) : 0;
+  barra.firstElementChild.style.width = pct + '%';
+  txt.textContent = `Descargando… ${MB(p.hecho)}${p.total ? ' de ' + MB(p.total) : ''} (${pct}%)`;
+}
+$('#b-upd-buscar').onclick = async () => {
+  const b = $('#b-upd-buscar'); b.disabled = true; b.textContent = 'Buscando…';
+  const r = await api('buscar_actualizacion');
+  b.disabled = false; b.textContent = 'Buscar actualizaciones';
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  if (r.msg) aviso(r.msg, 'ok');
+};
+$('#b-upd-instalar').onclick = async () => {
+  const r = await api('actualizar');
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  $('#b-upd-instalar').disabled = true; $('#b-upd-buscar').disabled = true;
+  progresoUpdate({hecho: 0, total: 0});
+};
+
 let nombresApps = {};
 function clavesPistas() {
   const base = ['mezcla'].concat(cfg.mic ? ['mic'] : [], (cfg.apps || []).map(e => 'app:' + e.toLowerCase()));
@@ -1047,6 +1092,8 @@ window.recibir = m => {
   else if (m.tipo === 'biblioteca') cargarVideos();
   else if (m.tipo === 'mini') miniLista(m.datos);
   else if (m.tipo === 'voz') { voz = m.datos; pintarVoz(); }
+  else if (m.tipo === 'update') pintarUpdate(m.datos);
+  else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
 };
 
@@ -1055,6 +1102,7 @@ async function iniciar() {
   cfg = D.cfg; est = D.estado; voz = D.voz || {};
   pintarTemas(); pintarChips(); aplicarTema(cfg.tema);
   pintarCarpeta(D.carpeta);
+  pintarUpdate(D.update);
   pintarEstado();
   cargarVideos();
   cargarVentanas();
