@@ -35,8 +35,11 @@ Lista de trabajo acordada el 26 de octubre de 2026, en orden de prioridad.
 
 ## 6. Avisos de Windows (cuando haya más usuarios)
 
-- [ ] Solicitar la firma gratuita en signpath.org/apply (el flujo de GitHub Actions ya está listo).
-- [ ] Compatibilidad con Control inteligente de aplicaciones (FFmpeg sin firma): evaluar usar Media Foundation de Windows.
+- [x] Repositorio listo para SignPath: sección "Code signing policy" en el README y en cada release, privacidad, desinstalación, código de conducta, roles.
+- [ ] **(s1xl)** Activar la verificación en dos pasos (2FA) en GitHub: SignPath la exige a todo el equipo.
+- [ ] **(s1xl)** Enviar el formulario en signpath.org/apply con los textos preparados.
+- [ ] Riesgo a revisar con SignPath: `runtime\python\...\webview\lib` trae DLL de Microsoft (WebView2 SDK), que no son open source; preguntar si cuentan como bibliotecas del sistema.
+- [x] Evaluado Control inteligente de aplicaciones: bloquea cualquier DLL/EXE sin firma ni reputación (FFmpeg, Python). La firma de SignPath solo cubre GrabaClip.exe y audiocap.exe; SignPath no permite firmar FFmpeg. La única solución completa es reemplazar FFmpeg por un capturador propio con Media Foundation (firmado por Microsoft) y Windows.Graphics.Capture: captura, H.264 por GPU y MP4 con varias pistas en C++. Es un trabajo grande; queda para cuando haya más usuarios. Mientras tanto, a quien le pase: no conviene desactivar el Control inteligente (en Windows no se puede volver a activar sin reinstalar), mejor avisar en el README.
 
 ## Extras
 
