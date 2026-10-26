@@ -72,7 +72,9 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
                   "quitar_mudas": True, "orden_pistas": [],
-                  "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der"}
+                  "overlay": True, "overlay_indicador": True, "overlay_aviso": True, "overlay_pos": "der",
+                  "voz": False, "voz_clip": ["jarvis sácale clip", "jarvis clipea eso"], "voz_grabar": [],
+                  "voz_clips": [], "voz_idioma": "", "voz_confianza": 0.6}
 
 # ---------- temas ----------
 # bg: fondo, panel: botones, campo: cajas de texto, tenue: texto secundario

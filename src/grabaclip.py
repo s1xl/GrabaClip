@@ -20,6 +20,7 @@ import nucleo as N
 import ventana_activa as VA
 import overlay as OV
 import sonidos as SND
+import voz as VZ
 
 try:
     import keyboard  # teclas rapidas globales
@@ -64,7 +65,8 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "tema", "iniciar_con_windows", "clips_al_abrir", "sonido_clip",
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
-                    "overlay_pos"}
+                    "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
+                    "voz_confianza"}
 
 
 def sonido_ok():
@@ -116,6 +118,8 @@ class Api:
         self._monitores = []
         self._rastreador = VA.Rastreador()
         self._sonidos = SND.Sonidos(os.path.join(N.CARPETA_APP, "sonidos"))
+        self._voz = VZ.Voz(self._por_voz, lambda e: self._emitir("voz", e))
+        self._voz_iniciada = False
         self._overlay = OV.Overlay(lambda: self._cfg,
                                    lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
         threading.Thread(target=self._preparar, daemon=True).start()
@@ -167,6 +171,9 @@ class Api:
     # ---------- llamadas desde la interfaz ----------
     def inicio(self):
         self._lista = True
+        if not self._voz_iniciada:  # System.Speech necesita que pywebview ya haya cargado .NET
+            self._voz_iniciada = True
+            self._voz.configurar(self._cfg)
         return {
             "cfg": self._cfg,
             "estado": self._estado(),
@@ -175,6 +182,7 @@ class Api:
             "fps": N.FPS_OPCIONES,
             "resoluciones": list(N.RESOLUCIONES),
             "carpeta": N.CARPETA_SALIDA,
+            "voz": self._voz.estado,
         }
 
     def guardar(self, cambios):
@@ -188,6 +196,8 @@ class Api:
                 self._pintar_barra()
             if self._cfg.get("iniciar_con_windows") != antes:
                 self._sincronizar_inicio()
+            if any(k.startswith("voz") for k in (cambios or {})):
+                self._voz.configurar(self._cfg)
         return self._cfg
 
     def apps(self):
@@ -421,6 +431,16 @@ class Api:
                     f.write(f"{e}: {'funciona' if ok else 'no funciona - ' + motivo}\n")
         except Exception:
             pass
+
+    def voz_idiomas(self):
+        return VZ.Voz.idiomas()
+
+    def _por_voz(self, accion, frase, confianza):
+        """Una frase de voz reconocida: hace lo mismo que la tecla correspondiente."""
+        funcion = {"clip": self.guardar_clip, "grabar": self.alternar_grabacion,
+                   "clips": self._alternar_clips_con_tecla}.get(accion)
+        if funcion:
+            threading.Thread(target=funcion, daemon=True).start()
 
     def probar_overlay(self):
         """Muestra el aviso de ejemplo y toca el sonido, para ver como queda."""
@@ -722,6 +742,10 @@ class Api:
             poner_icono(hwnd)
 
     def _cerrar(self):
+        try:
+            self._voz.apagar()
+        except Exception:
+            pass
         for s in (self._grab, self._bufer):
             if s:
                 s.detener()

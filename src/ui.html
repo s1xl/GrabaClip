@@ -215,6 +215,21 @@
   .pista .flecha:disabled { opacity: .25; }
   .pista .flecha svg { width: 15px; height: 15px; }
   .ocupado .pista { cursor: default; }
+  .frases { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .frase { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 12px; border-radius: 6px;
+           background: var(--campo); border: 1px solid var(--borde); font-weight: 600; font-size: 13px; }
+  .frase button { width: 20px; height: 20px; border-radius: 4px; color: var(--tenue); display: grid; place-items: center; }
+  .frase button:hover { background: var(--panel); color: var(--rojo); }
+  .frase button svg { width: 12px; height: 12px; }
+  .nueva-frase { flex: 1; min-width: 180px; padding: 7px 10px; border-radius: 6px; background: transparent;
+                 border: 1px dashed var(--borde); outline: none; font-size: 13px; }
+  .nueva-frase:focus { border-color: var(--acento); border-style: solid; }
+  .nueva-frase::placeholder { color: var(--tenue); }
+  .voz-estado { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .voz-estado i { width: 8px; height: 8px; border-radius: 50%; background: var(--tenue); }
+  .voz-estado.activo i { background: #22c55e; animation: late 1.8s infinite; }
+  .voz-estado.error { color: var(--rojo); }
+  .voz-estado.error i { background: var(--rojo); }
   #banner { display: none; margin: 14px 26px 0; padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
             border: 1px solid color-mix(in srgb, var(--rojo) 55%, transparent);
             background: color-mix(in srgb, var(--rojo) 14%, transparent); }
@@ -319,6 +334,7 @@
       <button data-s="video" class="activa"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>Video</button>
       <button data-s="audio"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Audio</button>
       <button data-s="teclas"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>Teclas</button>
+      <button data-s="voz"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voz</button>
       <button data-s="general"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>General</button>
       <button data-s="apariencia"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.8.3-1.7 1.2-1.7H17a4 4 0 0 0 4-4c0-5-4-10.5-9-10.5z"/></svg>Apariencia</button>
     </div>
@@ -397,6 +413,31 @@
             <button class="tecla" data-tecla="tecla_grab">F10</button></div>
         </div>
         <p class="nota">Haz clic en una tecla y presiona la nueva tecla o combinación (por ejemplo Ctrl + Shift + F9). Esc cancela.</p>
+      </div>
+
+      <div class="seccion" id="s-voz">
+        <h2>Comandos de voz</h2>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Escuchar comandos de voz</h3>
+            <p>Di una de tus frases y GrabaClip lo hace, como "Jarvis, sácale clip". Todo se procesa en tu PC con el reconocimiento de voz de Windows, sin internet.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="voz"><span></span></label></div>
+          <div class="fila"><div class="voz-estado" id="voz-estado"><i></i><span>Apagado</span></div></div>
+        </div>
+        <div class="tarjeta" id="voz-frases">
+          <div class="fila columna" data-accion="clip"><div class="cab"><h3>Guardar clip</h3></div><div class="frases"></div></div>
+          <div class="fila columna" data-accion="grabar"><div class="cab"><h3>Empezar / detener grabación</h3></div><div class="frases"></div></div>
+          <div class="fila columna" data-accion="clips"><div class="cab"><h3>Activar / desactivar clips</h3></div><div class="frases"></div></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Idioma</h3></div>
+            <select class="campo-sel" id="sel-voz-idioma"></select>
+            <p class="nota" id="voz-ayuda-idioma"></p></div>
+          <div class="fila columna"><div class="cab"><h3>Exigencia</h3><b id="conf-v">60 %</b></div>
+            <input type="range" id="r-conf" min="30" max="95" step="5">
+            <p class="nota">Más alto = solo reacciona si está muy seguro de lo que dijiste. Si no te entiende, bájalo; si se activa solo, súbelo.</p></div>
+          <div class="fila"><div class="texto"><h3>Lo último que entendí</h3><p id="voz-ultimo">Todavía nada. Prueba diciendo una de tus frases.</p></div></div>
+        </div>
+        <p class="nota">Consejo: usa frases de 2 a 4 palabras que empiecen con una palabra poco común, como "Jarvis", para que no se active mientras hablas con tus amigos.</p>
       </div>
 
       <div class="seccion" id="s-general">
@@ -508,6 +549,7 @@ function seccion(s) {
   $$('#v-ajustes .seccion').forEach(x => x.classList.toggle('activa', x.id === 's-' + s));
   if (s === 'audio') cargarApps();
   if (s === 'video') cargarVentanas();
+  if (s === 'voz') cargarIdiomasVoz();
 }
 $$('#nav button').forEach(b => b.onclick = () => irA(b.dataset.v));
 $$('.lateral button').forEach(b => b.onclick = () => seccion(b.dataset.s));
@@ -681,6 +723,8 @@ function pintarCfg() {
     : `${est.fuente_tipo === 'ventana' ? est.fuente : 'Pantalla'} · ${bonita(cfg.tecla_clip)} guarda ${cfg.duracion} s`;
   pintarCaptura();
   pintarOrden();
+  pintarFrases();
+  pintarVoz();
 }
 $('#r-dur').oninput = e => $('#dur-v').textContent = e.target.value + ' s';
 $('#r-dur').onchange = e => guardar({duracion: +e.target.value});
@@ -692,6 +736,77 @@ $$('[data-sw]').forEach(i => i.onchange = () => {
   if (i.dataset.sw === 'iniciar_con_windows')
     aviso(i.checked ? 'GrabaClip se abrirá al iniciar Windows' : 'Inicio con Windows desactivado', 'ok');
 });
+
+/* ---------- voz ---------- */
+let voz = {};
+const ICON_X = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+let firmaFrases = '';
+function pintarFrases() {
+  const firma = JSON.stringify([cfg.voz_clip, cfg.voz_grabar, cfg.voz_clips]);
+  if (firma === firmaFrases) return;  // no rehacer (borraria lo que estas escribiendo)
+  firmaFrases = firma;
+  $$('#voz-frases [data-accion]').forEach(fila => {
+    const accion = fila.dataset.accion;
+    const lista = cfg['voz_' + accion] || [];
+    const c = fila.querySelector('.frases');
+    c.innerHTML = '';
+    lista.forEach((f, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'frase';
+      chip.innerHTML = `<span></span><button title="Quitar">${ICON_X}</button>`;
+      chip.querySelector('span').textContent = '“' + f + '”';
+      chip.querySelector('button').onclick = () => {
+        const nueva = lista.slice(); nueva.splice(i, 1);
+        guardar({['voz_' + accion]: nueva});
+      };
+      c.append(chip);
+    });
+    const entrada = document.createElement('input');
+    entrada.className = 'nueva-frase';
+    const ejemplo = {clip: 'Jarvis, sácale clip', grabar: 'Jarvis, graba esto', clips: 'Jarvis, activa los clips'}[accion];
+    entrada.placeholder = lista.length ? 'Agregar otra frase y pulsar Enter' : `Escribe una frase y pulsa Enter (ej. "${ejemplo}")`;
+    entrada.onkeydown = e => {
+      if (e.key !== 'Enter') return;
+      const t = entrada.value.trim().replace(/\s+/g, ' ');
+      if (!t) return;
+      if (t.split(' ').length < 2) { aviso('Usa al menos 2 palabras para que no se active por error', 'error'); return; }
+      guardar({['voz_' + accion]: lista.concat([t])});
+      aviso('Frase agregada', 'ok');
+    };
+    c.append(entrada);
+  });
+}
+function pintarVoz() {
+  const e = $('#voz-estado');
+  if (!e) return;
+  e.classList.toggle('activo', !!voz.activo);
+  e.classList.toggle('error', !!voz.error && !!cfg.voz);
+  e.querySelector('span').textContent = !cfg.voz ? 'Apagado'
+    : voz.error ? voz.error
+    : voz.activo ? `Escuchando${voz.idioma ? ' en ' + voz.idioma : ''}` : 'Preparando…';
+  const u = voz.ultimo;
+  $('#voz-ultimo').textContent = !u ? 'Todavía nada. Prueba diciendo una de tus frases.'
+    : `“${u.frase}” · ${u.confianza} % de seguridad · ${u.aceptado ? '✓ hecho' : 'no alcanzó la exigencia (o fue muy seguido)'}`;
+  $('#r-conf').value = Math.round((cfg.voz_confianza ?? 0.6) * 100);
+  $('#conf-v').textContent = $('#r-conf').value + ' %';
+}
+async function cargarIdiomasVoz() {
+  const lista = await api('voz_idiomas');
+  const sel = $('#sel-voz-idioma');
+  sel.innerHTML = '<option value="">Automático (español si está instalado)</option>';
+  for (const i of lista) {
+    const o = document.createElement('option');
+    o.value = i.id; o.textContent = `${i.nombre} (${i.id})`;
+    sel.append(o);
+  }
+  sel.value = cfg.voz_idioma || '';
+  const hayEs = lista.some(i => i.id.toLowerCase().startsWith('es'));
+  $('#voz-ayuda-idioma').textContent = hayEs ? ''
+    : 'No tienes el reconocimiento de voz en español. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma > Español, y marca "Reconocimiento de voz". Mientras tanto se usa ' + (lista[0] ? lista[0].nombre : 'el idioma de Windows') + '.';
+}
+$('#sel-voz-idioma').onchange = e => guardar({voz_idioma: e.target.value});
+$('#r-conf').oninput = e => $('#conf-v').textContent = e.target.value + ' %';
+$('#r-conf').onchange = e => guardar({voz_confianza: +e.target.value / 100});
 
 let nombresApps = {};
 function clavesPistas() {
@@ -906,12 +1021,13 @@ window.recibir = m => {
   else if (m.tipo === 'aviso') aviso(m.datos.texto, m.datos.clase);
   else if (m.tipo === 'biblioteca') cargarVideos();
   else if (m.tipo === 'mini') miniLista(m.datos);
+  else if (m.tipo === 'voz') { voz = m.datos; pintarVoz(); }
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
 };
 
 async function iniciar() {
   D = await api('inicio');
-  cfg = D.cfg; est = D.estado;
+  cfg = D.cfg; est = D.estado; voz = D.voz || {};
   pintarTemas(); pintarChips(); aplicarTema(cfg.tema);
   $('#carpeta-txt').textContent = 'Los videos se guardan en ' + D.carpeta;
   pintarEstado();
