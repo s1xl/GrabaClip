@@ -17,9 +17,10 @@ import nucleo as N
 
 
 class ServidorVideo:
-    def __init__(self):
+    def __init__(self, carpeta_mini=None):
         self._clave = secrets.token_urlsafe(16)
         self._permitidos = {}  # id -> ruta
+        self._mini = carpeta_mini  # miniaturas de la biblioteca (en vez de mandarlas en base64)
         self._srv = None
 
     def _arrancar(self):
@@ -31,8 +32,31 @@ class ServidorVideo:
             def log_message(self, *a):
                 pass
 
+            def _miniatura(self, nombre):
+                if os.path.basename(nombre) != nombre or not nombre.lower().endswith(".jpg"):
+                    self.send_error(404)
+                    return
+                try:
+                    with open(os.path.join(dueno._mini, nombre), "rb") as f:
+                        datos = f.read()
+                except OSError:
+                    self.send_error(404)
+                    return
+                self.send_response(200)
+                self.send_header("Content-Type", "image/jpeg")
+                self.send_header("Content-Length", str(len(datos)))
+                self.send_header("Cache-Control", "max-age=31536000, immutable")
+                self.end_headers()
+                try:
+                    self.wfile.write(datos)
+                except OSError:
+                    pass
+
             def do_GET(self):
                 partes = urllib.parse.urlparse(self.path).path.strip("/").split("/")
+                if len(partes) == 3 and partes[0] == dueno._clave and partes[1] == "m" and dueno._mini:
+                    self._miniatura(urllib.parse.unquote(partes[2]))
+                    return
                 if len(partes) != 2 or partes[0] != dueno._clave or partes[1] not in dueno._permitidos:
                     self.send_error(404)
                     return
@@ -85,6 +109,10 @@ class ServidorVideo:
         ident = secrets.token_urlsafe(8)
         self._permitidos = {ident: ruta}  # solo el video que se está editando
         return f"http://127.0.0.1:{self._srv.server_address[1]}/{self._clave}/{ident}"
+
+    def url_mini(self, nombre):
+        self._arrancar()
+        return f"http://127.0.0.1:{self._srv.server_address[1]}/{self._clave}/m/{urllib.parse.quote(nombre)}"
 
     def olvidar(self):
         self._permitidos = {}

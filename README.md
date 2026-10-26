@@ -24,6 +24,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Recortar clips:** editor dentro de la app con vista previa; elige inicio y fin con la barra o con las teclas I y O. Guarda una copia (o reemplaza el original) conservando todas las pistas de audio.
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
+- **Ligero:** al quedar junto al reloj, la interfaz se descarga y libera su memoria. El **modo rendimiento** deja solo lo necesario (clips, grabación y teclas).
 - **Junto al reloj:** al cerrar la ventana, GrabaClip sigue funcionando en los íconos ocultos de la barra de tareas, con un menú para guardar clips, grabar o salir.
 - **Actualizaciones con un botón:** *Ajustes → General → Buscar actualizaciones* descarga la última versión de GitHub y la instala sola, sin perder ajustes ni clips.
 

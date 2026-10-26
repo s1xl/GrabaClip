@@ -69,7 +69,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "por_juego", "captura", "ventana_exe", "escritorio_sin_juego", "monitor",
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
-                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio"}
+                    "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento"}
 
 
 def sonido_ok():
@@ -120,7 +120,8 @@ class Api:
         self._fallos = []
         self._bandeja = None
         self._saliendo = False
-        self._servidor_video = RC.ServidorVideo()
+        self._servidor_video = RC.ServidorVideo(CARPETA_MINI)
+        self._url_ui = None          # para volver a cargar la interfaz al mostrar la ventana
         self._recortando = False
         self._update = None         # info de una version nueva encontrada en GitHub
         self._actualizando = False
@@ -132,7 +133,7 @@ class Api:
         self._sonidos = SND.Sonidos(os.path.join(N.CARPETA_APP, "sonidos"))
         self._voz = VZ.Voz(self._por_voz, lambda e: self._emitir("voz", e))
         self._voz_iniciada = False
-        self._overlay = OV.Overlay(lambda: self._cfg,
+        self._overlay = OV.Overlay(self._cfg_efectiva,
                                    lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._al_abrir_updates, daemon=True).start()
@@ -190,7 +191,7 @@ class Api:
         self._lista = True
         if not self._voz_iniciada:  # System.Speech necesita que pywebview ya haya cargado .NET
             self._voz_iniciada = True
-            self._voz.configurar(self._cfg)
+            self._voz.configurar(self._cfg_efectiva())
         return {
             "cfg": self._cfg,
             "estado": self._estado(),
@@ -215,8 +216,11 @@ class Api:
                 self._pintar_barra()
             if self._cfg.get("iniciar_con_windows") != antes:
                 self._sincronizar_inicio()
-            if any(k.startswith("voz") for k in (cambios or {})):
-                self._voz.configurar(self._cfg)
+            if any(k.startswith("voz") or k == "rendimiento" for k in (cambios or {})):
+                self._voz.configurar(self._cfg_efectiva())
+            if "rendimiento" in (cambios or {}):
+                self._overlay.refrescar()
+                self._avisar_estado()
         return self._cfg
 
     def apps(self):
@@ -774,8 +778,7 @@ class Api:
         archivo = os.path.join(CARPETA_MINI, info.get("mini", ""))
         if not info.get("mini") or not os.path.exists(archivo):
             return None
-        with open(archivo, "rb") as f:
-            return "data:image/jpeg;base64," + base64.b64encode(f.read()).decode()
+        return self._servidor_video.url_mini(info["mini"])
 
     def _crear_miniaturas(self):
         os.makedirs(CARPETA_MINI, exist_ok=True)
@@ -941,6 +944,46 @@ class Api:
             N.colorear_barra_titulo(None, t, hwnd)
             poner_icono(hwnd)
 
+    def _cfg_efectiva(self):
+        """Modo rendimiento: apaga el overlay y la voz sin olvidar lo que el usuario eligió."""
+        if not self._cfg.get("rendimiento"):
+            return self._cfg
+        return dict(self._cfg, overlay=False, voz=False)
+
+    # ---------- liberar la interfaz cuando no se ve ----------
+    def _liberar_interfaz(self):
+        """Con la ventana escondida se descarga la página: WebView2 libera casi toda su memoria."""
+        try:
+            self._url_ui = self._url_ui or self._ventana.get_current_url() or ARCHIVO_UI
+            self._lista = False
+            fondo = N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"])["bg"]
+            self._ventana.load_html(f"<html><body style='background:{fondo}'></body></html>")
+            self._nivel_memoria(bajo=True)
+        except Exception:
+            pass
+
+    def _recuperar_interfaz(self):
+        if self._lista or not self._url_ui:
+            return
+        try:
+            self._nivel_memoria(bajo=False)
+            self._ventana.load_url(self._url_ui)
+        except Exception:
+            pass
+
+    def _nivel_memoria(self, bajo):
+        try:
+            from System import Action
+            from Microsoft.Web.WebView2.Core import CoreWebView2MemoryUsageTargetLevel as Nivel
+            form = self._ventana.native
+            core = form.browser.webview.CoreWebView2
+
+            def hacer():
+                core.MemoryUsageTargetLevel = Nivel.Low if bajo else Nivel.Normal
+            form.Invoke(Action(hacer))
+        except Exception:
+            pass
+
     # ---------- bandeja (junto al reloj) ----------
     def _crear_bandeja(self):
         if self._bandeja or not self._ventana:
@@ -963,6 +1006,8 @@ class Api:
         self._avisar_estado()
         if self._minimizado and self._cfg.get("bandeja", True):
             self._ventana.hide()  # al iniciar con Windows: directo junto al reloj
+            time.sleep(1.5)
+            self._liberar_interfaz()
 
     def _al_cerrar_ventana(self):
         """Botón X: si la bandeja está activa, se esconde la ventana y GrabaClip sigue funcionando."""
@@ -983,6 +1028,7 @@ class Api:
             self._ventana.hide()
         except Exception:
             return
+        self._liberar_interfaz()
         if not self._cfg.get("bandeja_aviso_visto"):
             self._cfg["bandeja_aviso_visto"] = True
             N.guardar_config(self._cfg)
@@ -990,6 +1036,7 @@ class Api:
                                 "Está junto al reloj (en los íconos ocultos). Clic derecho para salir.")
 
     def _mostrar_ventana(self):
+        self._recuperar_interfaz()
         try:
             self._ventana.show()
             import System.Windows.Forms as WF

@@ -201,6 +201,9 @@
   .campo-sel option { background: var(--panel); color: var(--fg); }
   .en-linea { display: flex; gap: 8px; align-items: center; }
   .oculto { display: none !important; }
+  body.rendimiento *, body.rendimiento *::before, body.rendimiento *::after { animation: none !important; transition: none !important; }
+  body.rendimiento .mini { background-image: none !important; }
+  .mas-videos { grid-column: 1 / -1; justify-self: center; margin: 8px 0 4px; }
   .mini-boton.primario { background: var(--acento); color: var(--acento-fg); border-color: transparent; }
   .upd-barra { height: 6px; margin: 0 18px 14px; border-radius: 3px; background: var(--borde); overflow: hidden; }
   .upd-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .25s; }
@@ -496,6 +499,11 @@
       <div class="seccion" id="s-general">
         <h2>General</h2>
         <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Modo rendimiento</h3><p>Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="rendimiento"><span></span></label></div>
+        </div>
+        <p class="nota" id="nota-rendimiento">Sin importar este ajuste, cuando cierras la ventana y GrabaClip queda junto al reloj, la interfaz se descarga y libera casi toda su memoria.</p>
+        <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Iniciar con Windows</h3><p>GrabaClip se abre junto al reloj al encender la PC.</p></div>
             <label class="switch"><input type="checkbox" data-sw="iniciar_con_windows"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Al cerrar, seguir junto al reloj</h3><p>La X esconde la ventana y GrabaClip sigue funcionando en los íconos ocultos. Para salir: clic derecho en su ícono → Salir.</p></div>
@@ -679,6 +687,7 @@ async function cargarVideos() {
   videos = await api('biblioteca');
   pintarVideos();
 }
+let limiteVideos = 48;
 function pintarVideos() {
   const q = $('#buscar').value.trim().toLowerCase();
   pintarJuegos();
@@ -696,7 +705,16 @@ function pintarVideos() {
          <p>Activa los clips instantáneos abajo y pulsa <kbd>${bonita(cfg.tecla_clip)}</kbd>, o pulsa REC para grabar.</p></div>`;
     return;
   }
-  for (const v of lista) {
+  // se pintan de a poco: con cientos de clips la ventana usaría mucha memoria
+  const visibles = lista.slice(0, limiteVideos);
+  if (lista.length > limiteVideos) {
+    const b = document.createElement('button');
+    b.className = 'mini-boton mas-videos';
+    b.textContent = `Mostrar más (${lista.length - limiteVideos} restantes)`;
+    b.onclick = () => { limiteVideos += 48; pintarVideos(); };
+    setTimeout(() => r.append(b));
+  }
+  for (const v of visibles) {
     const t = document.createElement('div');
     t.className = 'tarjeta-video'; t.dataset.clave = v.clave;
     t.innerHTML = `
@@ -719,7 +737,7 @@ function pintarVideos() {
     t.querySelector('.nombre').textContent = v.nombre;
     t.querySelector('.nombre').title = v.nombre;
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
-    if (v.mini) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
+    if (v.mini && !cfg.rendimiento) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
     t.querySelectorAll('.accion')[0].onclick = () => abrirEditor(v);
     t.querySelectorAll('.accion')[1].onclick = () => api('mostrar_en_carpeta', v.ruta);
@@ -756,7 +774,8 @@ function miniLista(m) {
   const v = videos.find(x => x.clave === m.clave);
   if (!v) return;
   Object.assign(v, {mini: m.mini, duracion: m.duracion, pistas: m.pistas});
-  pintarVideos();
+  clearTimeout(miniLista.t);  // se juntan varias miniaturas en un solo repintado
+  miniLista.t = setTimeout(pintarVideos, 400);
 }
 $$('.filtro').forEach(b => b.onclick = () => {
   filtro = b.dataset.f;
@@ -806,6 +825,7 @@ function pintarCfg() {
   $('#r-aj').value = cfg.ajuste_ms; $('#aj-v').textContent = (cfg.ajuste_ms > 0 ? '+' : '') + cfg.ajuste_ms + ' ms';
   $('#sw-mic').checked = !!cfg.mic;
   pintarModoAudio();
+  document.body.classList.toggle('rendimiento', !!cfg.rendimiento);
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
   $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
@@ -1186,7 +1206,7 @@ $('#b-apps').onclick = async () => { await cargarApps(); aviso('Lista de apps ac
 // mientras se ve Ajustes > Audio, la lista se refresca sola (para saber qué apps se abren o cierran)
 setInterval(() => {
   if (!document.hidden && $('#s-audio').classList.contains('activa') && $('#v-ajustes').classList.contains('activa')
-      && cfg.modo_audio === 'separadas' && !arrastrada && !$('#orden .pista.arrastrando')) cargarApps();
+      && cfg.modo_audio === 'separadas' && !cfg.rendimiento && !arrastrada && !$('#orden .pista.arrastrando')) cargarApps();
 }, 4000);
 function pintarModoAudio() {
   const m = cfg.modo_audio || 'una';
