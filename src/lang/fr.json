@@ -500,7 +500,22 @@
 "No se pudo quitar el acceso directo": "Impossible de retirer le raccourci",
 "No encontré esa carpeta de Windows": "Je n'ai pas trouvé ce dossier Windows",
 "Falta GrabaClip.exe en la carpeta de la app": "GrabaClip.exe manque dans le dossier de l'appli",
-"Crear acceso directo": "Créer un raccourci"
+"Crear acceso directo": "Créer un raccourci",
+"Avisos de cada acción": "Notifications pour chaque action",
+"Elige qué hace cada una: mostrar el overlay, tocar su sonido, las dos cosas o nada.": "Choisis ce que fait chacune : afficher l'overlay, jouer son son, les deux ou rien.",
+"También los clips largos y el del final de la partida": "Aussi les clips longs et celui de fin de partie",
+"Terminar una grabación": "Terminer un enregistrement",
+"Al detenerla y guardarla": "Quand tu l'arrêtes et l'enregistres",
+"Al tomarla": "Quand tu la prends",
+"Mientras grabas": "Pendant l'enregistrement",
+"Activar o desactivar los clips": "Activer ou désactiver les clips",
+"Con la tecla o con la voz": "Avec la touche ou à la voix",
+"Overlay": "Overlay",
+"Sonido": "Son",
+"El overlay está apagado arriba": "L'overlay est désactivé plus haut",
+"Los sonidos de aviso están apagados": "Les sons de notification sont désactivés",
+"Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.": "Interrupteur général. Plus bas, dans « Notifications pour chaque action », tu choisis lesquelles sonnent.",
+"Clips activados": "Clips activés"
 },
 "patrones": [
 [

@@ -500,7 +500,22 @@
 "No se pudo quitar el acceso directo": "تعذّرت إزالة الاختصار",
 "No encontré esa carpeta de Windows": "لم أجد مجلد Windows هذا",
 "Falta GrabaClip.exe en la carpeta de la app": "ملف GrabaClip.exe مفقود من مجلد التطبيق",
-"Crear acceso directo": "إنشاء اختصار"
+"Crear acceso directo": "إنشاء اختصار",
+"Avisos de cada acción": "تنبيهات كل إجراء",
+"Elige qué hace cada una: mostrar el overlay, tocar su sonido, las dos cosas o nada.": "اختر ما يفعله كل إجراء: عرض الطبقة، تشغيل الصوت، كلاهما أو لا شيء.",
+"También los clips largos y el del final de la partida": "وأيضًا المقاطع الطويلة ومقطع نهاية المباراة",
+"Terminar una grabación": "إنهاء تسجيل",
+"Al detenerla y guardarla": "عند إيقافه وحفظه",
+"Al tomarla": "عند التقاطها",
+"Mientras grabas": "أثناء التسجيل",
+"Activar o desactivar los clips": "تشغيل المقاطع أو إيقافها",
+"Con la tecla o con la voz": "بالمفتاح أو بالصوت",
+"Overlay": "الطبقة",
+"Sonido": "الصوت",
+"El overlay está apagado arriba": "الطبقة مُطفأة في الأعلى",
+"Los sonidos de aviso están apagados": "أصوات التنبيه مُطفأة",
+"Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.": "مفتاح عام. في الأسفل، ضمن \"تنبيهات كل إجراء\"، تختار أيها يُصدر صوتًا.",
+"Clips activados": "تم تشغيل المقاطع"
 },
 "patrones": [
 [

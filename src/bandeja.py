@@ -74,6 +74,7 @@ class Bandeja:
                 if e.Button == WF.MouseButtons.Left:
                     threading.Thread(target=self._acc["abrir"], daemon=True).start()
             ni.MouseClick += al_clic
+            ni.MouseDoubleClick += al_clic  # GrabaClip ignora la llamada repetida
             ni.ContextMenuStrip = menu
             ni.Visible = True
             self._ni = ni

@@ -837,6 +837,22 @@ T("No se pudo crear el acceso directo", "Couldn't create the shortcut", "Não fo
 T("No se pudo quitar el acceso directo", "Couldn't remove the shortcut", "Não foi possível remover o atalho")
 T("No encontré esa carpeta de Windows", "I couldn't find that Windows folder", "Não encontrei essa pasta do Windows")
 T("Falta GrabaClip.exe en la carpeta de la app", "GrabaClip.exe is missing from the app folder", "Falta o GrabaClip.exe na pasta do app")
+# ---------- avisos de cada acción ----------
+T("Avisos de cada acción", "Notifications for each action", "Avisos de cada ação")
+T("Elige qué hace cada una: mostrar el overlay, tocar su sonido, las dos cosas o nada.", "Choose what each one does: show the overlay, play its sound, both, or nothing.", "Escolha o que cada uma faz: mostrar o overlay, tocar o som, as duas coisas ou nada.")
+T("También los clips largos y el del final de la partida", "Also long clips and the end-of-match clip", "Também os clipes longos e o do fim da partida")
+T("Terminar una grabación", "Finish a recording", "Terminar uma gravação")
+T("Al detenerla y guardarla", "When you stop and save it", "Ao parar e salvar")
+T("Al tomarla", "When you take it", "Ao tirar")
+T("Mientras grabas", "While recording", "Enquanto grava")
+T("Activar o desactivar los clips", "Turn clips on or off", "Ativar ou desativar os clipes")
+T("Con la tecla o con la voz", "With the key or by voice", "Com a tecla ou com a voz")
+T("Overlay", "Overlay", "Overlay")
+T("Sonido", "Sound", "Som")
+T("El overlay está apagado arriba", "The overlay is turned off above", "O overlay está desligado acima")
+T("Los sonidos de aviso están apagados", "Notification sounds are turned off", "Os sons de aviso estão desligados")
+T("Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.", "Master switch. Below, in \"Notifications for each action\", you choose which ones play.", "Interruptor geral. Abaixo, em \"Avisos de cada ação\", você escolhe quais tocam.")
+T("Clips activados", "Clips on", "Clipes ativados")
 
 def _por_especificidad(patrones):
     # los patrones con más texto fijo van primero ("Grabando: {0}" antes que "Grabando {0}")

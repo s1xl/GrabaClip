@@ -337,6 +337,13 @@
   .esp-barra i.lleno { background: var(--rojo); }
   .mas-videos { grid-column: 1 / -1; justify-self: center; margin: 8px 0 4px; }
   #tut-acceso { white-space: nowrap; }
+  .aviso-fila { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--borde); }
+  .aviso-fila:first-child { border-top: none; }
+  .aviso-fila .nombre { flex: 1; min-width: 0; }
+  .aviso-fila .nombre b { display: block; font-weight: 600; }
+  .aviso-fila .nombre small { color: var(--fg2); }
+  .aviso-fila .chips button { padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .aviso-fila .chips button svg { width: 14px; height: 14px; }
   .mini-boton.primario { background: var(--acento); color: var(--acento-fg); border-color: transparent; }
   .upd-barra { height: 6px; margin: 0 18px 14px; border-radius: 3px; background: var(--borde); overflow: hidden; }
   .upd-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .25s; }
@@ -756,7 +763,7 @@
             <label class="switch"><input type="checkbox" data-sw="clips_al_abrir"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Organizar por juego</h3><p>Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.</p></div>
             <label class="switch"><input type="checkbox" data-sw="por_juego"><span></span></label></div>
-          <div class="fila"><div class="texto"><h3>Sonidos de aviso</h3><p>Al guardar un clip y al activar o desactivar los clips con la tecla.</p></div>
+          <div class="fila"><div class="texto"><h3>Sonidos de aviso</h3><p>Interruptor general. Abajo, en "Avisos de cada acción", eliges cuáles suenan.</p></div>
             <label class="switch"><input type="checkbox" data-sw="sonido_clip"><span></span></label></div>
         </div>
         <div class="tarjeta" data-func="overlay">
@@ -772,6 +779,11 @@
               <button class="mini-boton" id="b-probar-overlay" style="margin-left:auto">Probar</button>
             </div>
             <p class="nota">Se ve en juegos en modo ventana o "pantalla completa sin bordes". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).</p></div>
+        </div>
+        <div class="tarjeta" id="tarjeta-avisos">
+          <div class="fila columna"><div class="cab"><h3>Avisos de cada acción</h3></div>
+            <p class="nota" style="margin-top:0">Elige qué hace cada una: mostrar el overlay, tocar su sonido, las dos cosas o nada.</p>
+            <div id="avisos-lista"></div></div>
         </div>
         <div class="tarjeta" id="tarjeta-discord" data-func="discord">
           <div class="fila"><div class="texto"><h3>Mostrar en Discord</h3><p>Tus amigos ven "Clipeando con GrabaClip" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.</p></div>
@@ -1514,6 +1526,7 @@ function pintarCfg() {
     : 'Los videos se acumulan sin límite.';
   if (D) $('#tarjeta-discord').classList.toggle('oculto', !D.discord_listo);
   $$('#chips-pos button').forEach(b => b.classList.toggle('sel', (cfg.overlay_pos || 'der') === b.dataset.p));
+  pintarAvisos();
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
   $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
@@ -1856,6 +1869,52 @@ function progresoRecorte(d) {
     if (d.ok) cerrarEditor();
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
+}
+
+// ---------- avisos de cada acción (overlay / sonido) ----------
+const EVENTOS_AVISO = [
+  {id: 'clip', nombre: 'Guardar clip', det: 'También los clips largos y el del final de la partida', func: 'clips'},
+  {id: 'grabacion', nombre: 'Terminar una grabación', det: 'Al detenerla y guardarla', func: 'grabar'},
+  {id: 'captura', nombre: 'Captura de pantalla', det: 'Al tomarla', func: 'capturas'},
+  {id: 'marca', nombre: 'Poner una marca', det: 'Mientras grabas', func: 'grabar'},
+  {id: 'clips', nombre: 'Activar o desactivar los clips', det: 'Con la tecla o con la voz', func: 'clips'},
+];
+const AVISO_DEF = {clips: {overlay: false, sonido: true}};
+function avisoDe(id) {
+  const base = Object.assign({overlay: true, sonido: true}, AVISO_DEF[id] || {});
+  return Object.assign(base, (cfg.avisos || {})[id] || {});
+}
+const ICO_OVERLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="7" width="6" height="4" rx="1"/></svg>';
+const ICO_SONIDO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';
+function pintarAvisos() {
+  const caja = $('#avisos-lista');
+  if (!caja) return;
+  if (!caja.childElementCount) {
+    for (const e of EVENTOS_AVISO) {
+      const f = document.createElement('div');
+      f.className = 'aviso-fila';
+      f.dataset.func = e.func;
+      f.innerHTML = `<div class="nombre"><b>${e.nombre}</b><small>${e.det}</small></div>
+        <div class="chips"><button data-func="overlay" data-ev="${e.id}" data-k="overlay">${ICO_OVERLAY}<span>Overlay</span></button><button data-ev="${e.id}" data-k="sonido">${ICO_SONIDO}<span>Sonido</span></button></div>`;
+      caja.appendChild(f);
+    }
+    caja.onclick = ev => {
+      const b = ev.target.closest('button[data-ev]');
+      if (!b || b.disabled) return;
+      const avisos = JSON.parse(JSON.stringify(cfg.avisos || {}));
+      const actual = avisoDe(b.dataset.ev);
+      actual[b.dataset.k] = !actual[b.dataset.k];
+      avisos[b.dataset.ev] = actual;
+      guardar({avisos});
+    };
+  }
+  $$('#avisos-lista button[data-ev]').forEach(b => {
+    const a = avisoDe(b.dataset.ev);
+    b.classList.toggle('sel', !!a[b.dataset.k]);
+    const apagado = b.dataset.k === 'overlay' ? !cfg.overlay : !cfg.sonido_clip;
+    b.disabled = apagado;
+    b.title = apagado ? (b.dataset.k === 'overlay' ? 'El overlay está apagado arriba' : 'Los sonidos de aviso están apagados') : '';
+  });
 }
 
 // ---------- accesos directos ----------

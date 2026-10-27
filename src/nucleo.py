@@ -93,7 +93,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
                   "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
                   "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",
-                  "funciones": {"clips": True, "grabar": True, "capturas": True, "voz": True,
+                  "avisos": {}, "funciones": {"clips": True, "grabar": True, "capturas": True, "voz": True,
                                 "overlay": True, "discord": True, "estadisticas": True}, "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
@@ -293,6 +293,21 @@ def filtro_video(encoder, fps, alto_deseado, fuente=None):
 
 
 # Perfiles: qué partes de GrabaClip se usan. Lo apagado no se carga ni registra teclas.
+# Avisos por acción: si cada una muestra el overlay y/o toca su sonido (Ajustes → General)
+EVENTOS_AVISO = ["clip", "grabacion", "captura", "marca", "clips"]
+_AVISO_DEF = {"clips": {"overlay": False, "sonido": True}}  # la pastilla del indicador ya lo muestra
+
+
+def aviso_evento(cfg, evento):
+    base = dict(_AVISO_DEF.get(evento, {"overlay": True, "sonido": True}))
+    guardado = (cfg.get("avisos") or {}).get(evento)
+    if isinstance(guardado, dict):
+        for k in ("overlay", "sonido"):
+            if isinstance(guardado.get(k), bool):
+                base[k] = guardado[k]
+    return base
+
+
 FUNCIONES = ["clips", "grabar", "capturas", "voz", "overlay", "discord", "estadisticas"]
 PERFILES = {
     "completo": {"funciones": dict.fromkeys(FUNCIONES, True), "ajustes": {}},

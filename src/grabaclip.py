@@ -77,7 +77,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos"}
 
 
 def sonido_ok():
@@ -139,6 +139,8 @@ class Api:
         self._emisor_ocupado = 0
         self._emisor_actual = None
         self._candado_mostrar = threading.Lock()
+        self._candado_recuperar = threading.Lock()
+        self._ultimo_mostrar = 0.0
         self._servidor_video = RC.ServidorVideo(CARPETA_MINI)
         self._url_ui = None          # para volver a cargar la interfaz al mostrar la ventana
         self._recortando = False
@@ -187,6 +189,14 @@ class Api:
                 pass
             if self._emisor_actual is mio:
                 self._emisor_ocupado = 0
+
+    def _avisar(self, evento, sonido=None, titulo=None, detalle=""):
+        """Sonido y/o overlay de una acción, según lo elegido para esa acción en Ajustes."""
+        quiere = N.aviso_evento(self._cfg, evento)
+        if sonido and quiere["sonido"] and self._cfg.get("sonido_clip", True):
+            self._sonidos.tocar(sonido)
+        if titulo is not None and quiere["overlay"]:
+            self._overlay.clip_guardado(titulo, detalle)
 
     def _aviso(self, texto, clase="info"):
         self._emitir("aviso", {"texto": texto, "clase": clase})
@@ -461,8 +471,7 @@ class Api:
                 self._aviso("No se pudo guardar el clip", "error")
                 return None
             self._ultimo = destino
-            if self._cfg.get("sonido_clip", True):
-                self._sonidos.tocar("clip")
+            self._avisar("clip", "clip")
             extra = ""
             if self._cfg.get("quitar_mudas", True) and len(pistas or []) > 1:
                 quedan = N.quitar_pistas_mudas(destino, pistas)
@@ -472,8 +481,8 @@ class Api:
             self._aviso(f"{titulo} en {juego or 'GrabaClip'}{extra}", "ok")
             threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
             real = len(trozos) * N.SEG
-            self._overlay.clip_guardado(I18N.t_overlay(titulo), f"{juego or I18N.t_overlay('Escritorio')} · "
-                                        + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
+            self._avisar("clip", titulo=I18N.t_overlay(titulo), detalle=f"{juego or I18N.t_overlay('Escritorio')} · "
+                         + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
             self._emitir("biblioteca")
             return destino
 
@@ -501,9 +510,8 @@ class Api:
                 self._inicio_grab = None
                 self._ultimo = archivo
                 self._aviso("Grabación guardada: " + os.path.basename(archivo), "ok")
-                self._overlay.clip_guardado(I18N.t_overlay("Grabación guardada"), os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
-                if self._cfg.get("sonido_clip", True):
-                    self._sonidos.tocar("clip")
+                self._avisar("grabacion", "clip", I18N.t_overlay("Grabación guardada"),
+                             os.path.basename(os.path.dirname(archivo)) or "GrabaClip")
                 self._terminar_grabacion(archivo, pistas)
             else:
                 if self._fatal:
@@ -1227,17 +1235,14 @@ class Api:
             self._aviso("No se pudo tomar la captura (revisa logs\\captura.log)", "error")
             return
         self._ultimo = destino
-        if self._cfg.get("sonido_clip", True):
-            self._sonidos.tocar("clip")
-        self._overlay.clip_guardado(I18N.t_overlay("Captura guardada"), juego or I18N.t_overlay("Escritorio"))
+        self._avisar("captura", "clip", I18N.t_overlay("Captura guardada"), juego or I18N.t_overlay("Escritorio"))
         self._aviso(f"Captura guardada en {juego or 'GrabaClip'}", "ok")
         self._emitir("biblioteca")
 
     def poner_marca(self):
         if not self._grab or not self._inicio_parte:
             self._aviso(f"Las marcas son para grabaciones: pulsa {N.tecla_bonita(self._cfg['tecla_grab'])} para grabar", "error")
-            if self._cfg.get("sonido_clip", True):
-                self._sonidos.tocar("desactivar")
+            self._avisar("marca", "desactivar")
             return
         seg = max(0.0, time.time() - self._inicio_parte - 0.5)
         clave = self._clave_fav(self._archivo_grab)
@@ -1247,9 +1252,7 @@ class Api:
         m, s = divmod(int(seg), 60)
         h, m = divmod(m, 60)
         tiempo = f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
-        if self._cfg.get("sonido_clip", True):
-            self._sonidos.tocar("activar")
-        self._overlay.clip_guardado(I18N.t_overlay(f"Marca {len(lista)}"), tiempo)
+        self._avisar("marca", "activar", I18N.t_overlay(f"Marca {len(lista)}"), tiempo)
         self._aviso(f"Marca {len(lista)} en {tiempo}", "ok")
 
     def _leer_favoritos(self):
@@ -1423,8 +1426,10 @@ class Api:
     def _alternar_clips_con_tecla(self):
         antes = self._clips_on
         self.alternar_clips()
-        if self._cfg.get("sonido_clip", True) and self._clips_on != antes:
-            self._sonidos.tocar("activar" if self._clips_on else "desactivar")
+        if self._clips_on != antes:
+            self._avisar("clips", "activar" if self._clips_on else "desactivar",
+                         I18N.t_overlay("Clips activados" if self._clips_on else "Clips desactivados"),
+                         f"{N.tecla_bonita(self._cfg['tecla_clip'])} · {self._cfg['duracion']} s" if self._clips_on else "GrabaClip")
 
     def _preparar(self):
         ok, motivo = N.estado_ffmpeg()
@@ -1613,6 +1618,8 @@ class Api:
     # ---------- liberar la interfaz cuando no se ve ----------
     def _liberar_interfaz(self):
         """Con la ventana escondida se descarga la página: WebView2 libera casi toda su memoria."""
+        if self._ventana_visible():
+            return  # la volvieron a abrir justo ahora
         try:
             self._url_ui = self._url_ui or self._ventana.get_current_url() or ARCHIVO_UI
             self._lista = False
@@ -1628,11 +1635,38 @@ class Api:
             pass
 
     def _recuperar_interfaz(self):
+        """Vuelve a cargar la página (en un hilo aparte: nunca se espera desde un clic)."""
         if self._lista or not self._url_ui:
             return
+        if not self._candado_recuperar.acquire(blocking=False):
+            return  # ya se está cargando
         try:
-            self._nivel_memoria(bajo=False)
-            self._ventana.load_url(self._url_ui)
+            for intento in range(2):
+                if intento and not self._ventana_visible():
+                    return  # la escondieron otra vez mientras cargaba
+                self._nivel_memoria(bajo=False)
+                self._ventana.load_url(self._url_ui)
+                for _ in range(100):  # hasta 10 s a que la página avise que está lista
+                    if self._lista or self._saliendo:
+                        return
+                    time.sleep(0.1)
+                self._log_bandeja(f"la interfaz no cargó (intento {intento + 1})")
+        except Exception:
+            self._log_bandeja(traceback.format_exc())
+        finally:
+            self._candado_recuperar.release()
+
+    def _ventana_visible(self):
+        try:
+            return bool(self._ventana.native.Visible)
+        except Exception:
+            return False
+
+    def _log_bandeja(self, texto):
+        try:
+            os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+            with open(os.path.join(N.CARPETA_LOGS, "bandeja.txt"), "a", encoding="utf-8") as f:
+                f.write(time.ctime() + "  " + texto.rstrip() + "\n")
         except Exception:
             pass
 
@@ -1724,19 +1758,45 @@ class Api:
                                 I18N.t("Está junto al reloj (en los íconos ocultos). Clic derecho para salir."))
 
     def _mostrar_ventana(self):
-        # doble clic en el ícono = dos llamadas seguidas; la segunda no hace nada
-        if not self._candado_mostrar.acquire(blocking=False):
-            return
+        """Clic, doble clic o "Abrir" en el ícono de la bandeja (o abrir GrabaClip.exe otra vez).
+        La ventana se muestra directo en su hilo con BeginInvoke (sin esperar a nadie: así un
+        doble clic nunca deja la bandeja trabada) y la página se recarga después, en otro hilo."""
+        with self._candado_mostrar:
+            ahora = time.monotonic()
+            if ahora - self._ultimo_mostrar < 1.0:
+                return  # doble clic = varias llamadas seguidas; basta con la primera
+            self._ultimo_mostrar = ahora
         try:
-            self._recuperar_interfaz()
-            self._ventana.show()
+            from System import Action
             import System.Windows.Forms as WF
-            if self._ventana.native.WindowState == WF.FormWindowState.Minimized:
-                self._ventana.restore()
+            form = self._ventana.native
+
+            def hacer():
+                try:
+                    if not form.Visible:
+                        form.Show()
+                    if form.WindowState == WF.FormWindowState.Minimized:
+                        form.WindowState = WF.FormWindowState.Normal
+                    form.Activate()
+                    form.BringToFront()
+                    try:
+                        import ctypes
+                        u32 = ctypes.windll.user32
+                        hwnd = ctypes.c_void_p(form.Handle.ToInt64())
+                        u32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                        u32.SetForegroundWindow(hwnd)
+                    except Exception:
+                        pass
+                except Exception:
+                    self._log_bandeja(traceback.format_exc())
+            form.BeginInvoke(Action(hacer))
         except Exception:
-            pass
-        finally:
-            threading.Timer(0.8, self._candado_mostrar.release).start()
+            self._log_bandeja(traceback.format_exc())
+            try:
+                self._ventana.show()
+            except Exception:
+                pass
+        threading.Thread(target=self._recuperar_interfaz, daemon=True).start()
 
     def salir(self):
         self._saliendo = True

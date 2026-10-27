@@ -500,7 +500,22 @@
 "No se pudo quitar el acceso directo": "Не удалось убрать ярлык",
 "No encontré esa carpeta de Windows": "Не удалось найти эту папку Windows",
 "Falta GrabaClip.exe en la carpeta de la app": "В папке приложения нет GrabaClip.exe",
-"Crear acceso directo": "Создать ярлык"
+"Crear acceso directo": "Создать ярлык",
+"Avisos de cada acción": "Уведомления для каждого действия",
+"Elige qué hace cada una: mostrar el overlay, tocar su sonido, las dos cosas o nada.": "Выбери, что делает каждое: показывает оверлей, играет звук, и то и другое или ничего.",
+"También los clips largos y el del final de la partida": "А также длинные клипы и клип в конце матча",
+"Terminar una grabación": "Завершение записи",
+"Al detenerla y guardarla": "Когда её останавливаешь и сохраняешь",
+"Al tomarla": "Когда делаешь снимок",
+"Mientras grabas": "Во время записи",
+"Activar o desactivar los clips": "Включение и выключение клипов",
+"Con la tecla o con la voz": "Клавишей или голосом",
+"Overlay": "Оверлей",
+"Sonido": "Звук",
+"El overlay está apagado arriba": "Оверлей выключен выше",
+"Los sonidos de aviso están apagados": "Звуки уведомлений выключены",
+"Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.": "Главный выключатель. Ниже, в «Уведомления для каждого действия», выбираешь, какие звучат.",
+"Clips activados": "Клипы включены"
 },
 "patrones": [
 [
