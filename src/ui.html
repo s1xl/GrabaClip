@@ -271,6 +271,23 @@
   .campo-sel option { background: var(--panel); color: var(--fg); }
   .en-linea { display: flex; gap: 8px; align-items: center; }
   .oculto { display: none !important; }
+  body.sin-clips [data-func~="clips"], body.sin-grabar [data-func~="grabar"], body.sin-capturas [data-func~="capturas"],
+  body.sin-voz [data-func~="voz"], body.sin-overlay [data-func~="overlay"], body.sin-discord [data-func~="discord"],
+  body.sin-estadisticas [data-func~="estadisticas"] { display: none !important; }
+  .perfiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .perfiles button { text-align: left; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--borde); background: var(--campo);
+                     display: flex; flex-direction: column; gap: 3px; }
+  .perfiles button b { font-size: 14px; }
+  .perfiles button span { font-size: 12px; color: var(--tenue); line-height: 1.35; }
+  .perfiles button:hover { border-color: color-mix(in srgb, var(--acento) 50%, var(--borde)); }
+  .perfiles button.sel { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); background: color-mix(in srgb, var(--acento) 8%, var(--campo)); }
+  .funciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 18px; }
+  .funciones .fila { padding: 10px 0; }
+  #dlg-perfil { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 9; }
+  #dlg-perfil.abierto { display: grid; }
+  #dlg-perfil .caja { width: 620px; }
+  #dlg-perfil .perfiles { margin-top: 14px; }
+  [dir=rtl] .perfiles button { text-align: right; }
   body.rendimiento *, body.rendimiento *::before, body.rendimiento *::after { animation: none !important; transition: none !important; }
   body.rendimiento .mini { background-image: none !important; }
   .esp-barra { height: 8px; border-radius: 4px; background: var(--campo); overflow: hidden; }
@@ -470,7 +487,7 @@
   </div>
   <nav id="nav">
     <button data-v="grab" class="activa">Grabaciones<span class="cuenta" id="cuenta"></span></button>
-    <button data-v="stats">Estadísticas</button>
+    <button data-v="stats" data-func="estadisticas">Estadísticas</button>
     <button data-v="ajustes">Ajustes</button>
     <button data-v="ayuda">Ayuda</button>
   </nav>
@@ -484,7 +501,7 @@
       <button class="filtro sel" data-f="todos">Todos</button>
       <button class="filtro" data-f="clip">Clips</button>
       <button class="filtro" data-f="grabacion">Grabaciones</button>
-      <button class="filtro" data-f="captura">Capturas</button>
+      <button class="filtro" data-f="captura" data-func="capturas">Capturas</button>
       <button class="filtro" data-f="fav" title="Favoritos"><svg class="estrella-ic" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favoritos</button>
       <div class="selector" title="Filtrar por juego o app">
         <svg class="ic-izq" viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6L2 15a3 3 0 0 0 5.3 2l1.6-2h6.2l1.6 2A3 3 0 0 0 22 15l-.7-6.4A4 4 0 0 0 17.3 5z"/></svg>
@@ -521,7 +538,7 @@
       <button data-s="video" class="activa"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>Video</button>
       <button data-s="audio"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Audio</button>
       <button data-s="teclas"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>Teclas</button>
-      <button data-s="voz"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voz</button>
+      <button data-s="voz" data-func="voz"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voz</button>
       <button data-s="general"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>General</button>
       <button data-s="apariencia"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.8.3-1.7 1.2-1.7H17a4 4 0 0 0 4-4c0-5-4-10.5-9-10.5z"/></svg>Apariencia</button>
     </div>
@@ -555,9 +572,9 @@
           <div class="fila columna"><div class="cab"><h3>Cuadros por segundo</h3></div><div class="chips" data-clave="fps"></div></div>
           <div class="fila columna"><div class="cab"><h3>Calidad</h3></div><div class="chips" data-clave="calidad"></div></div>
           <div class="fila columna"><div class="cab"><h3>Resolución</h3></div><div class="chips" data-clave="resolucion"></div></div>
-          <div class="fila columna"><div class="cab"><h3>Duración de cada clip</h3><b id="dur-v">30 s</b></div>
+          <div class="fila columna" data-func="clips"><div class="cab"><h3>Duración de cada clip</h3><b id="dur-v">30 s</b></div>
             <input type="range" id="r-dur" min="10" max="300" step="10"></div>
-          <div class="fila columna"><div class="cab"><h3>Duración del clip largo <kbd class="k-largo">Shift + F9</kbd></h3><b id="durl-v">2:00 min</b></div>
+          <div class="fila columna" data-func="clips"><div class="cab"><h3>Duración del clip largo <kbd class="k-largo">Shift + F9</kbd></h3><b id="durl-v">2:00 min</b></div>
             <input type="range" id="r-durl" min="30" max="600" step="30">
             <p class="nota">Para cuando la jugada viene de lejos. El búfer guarda el más largo de los dos, así que más tiempo ocupa más espacio temporal en el disco.</p></div>
         </div>
@@ -649,7 +666,7 @@
         </div>
         <div class="tarjeta" id="voz-frases">
           <div class="fila columna" data-accion="clip"><div class="cab"><h3>Guardar clip</h3></div><div class="frases" translate="no"></div></div>
-          <div class="fila columna" data-accion="grabar"><div class="cab"><h3>Empezar / detener grabación</h3></div><div class="frases" translate="no"></div></div>
+          <div class="fila columna" data-accion="grabar" data-func="grabar"><div class="cab"><h3>Empezar / detener grabación</h3></div><div class="frases" translate="no"></div></div>
           <div class="fila columna" data-accion="clips"><div class="cab"><h3>Activar / desactivar clips</h3></div><div class="frases" translate="no"></div></div>
         </div>
         <div class="tarjeta">
@@ -667,6 +684,18 @@
       <div class="seccion" id="s-general">
         <h2>General</h2>
         <div class="tarjeta">
+          <div class="fila columna"><div class="cab"><h3>Perfil</h3><b id="perfil-actual"></b></div>
+            <p class="nota">Elige qué partes de GrabaClip quieres usar. Lo que apagues no se carga ni escucha teclas, así gasta menos.</p>
+            <div class="perfiles" id="perfiles">
+              <button data-perfil="completo"><b>Completo</b><span>Todo incluido: clips, grabación, capturas, voz, overlay, Discord y estadísticas.</span></button>
+              <button data-perfil="esencial"><b>Esencial</b><span>Clips, grabación y capturas. Sin voz, overlay, Discord ni estadísticas.</span></button>
+              <button data-perfil="clips"><b>Solo clips</b><span>Solo los clips instantáneos y su aviso en el juego. Lo más ligero.</span></button>
+              <button data-perfil="grabacion"><b>Solo grabación</b><span>Grabaciones largas con marcas, sin el búfer de clips.</span></button>
+            </div>
+            <button class="mini-boton" id="b-personalizar" style="align-self:flex-start">Personalizar…</button>
+            <div class="funciones oculto" id="funciones"></div></div>
+        </div>
+        <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Modo rendimiento</h3><p>Solo lo necesario: clips, grabación y teclas. Apaga el overlay, los comandos de voz, las miniaturas y las animaciones, para que GrabaClip use lo mínimo mientras juegas.</p></div>
             <label class="switch"><input type="checkbox" data-sw="rendimiento"><span></span></label></div>
         </div>
@@ -680,14 +709,14 @@
             <label class="switch"><input type="checkbox" data-sw="iniciar_con_windows"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Al cerrar, seguir junto al reloj</h3><p>La X esconde la ventana y GrabaClip sigue funcionando en los íconos ocultos. Para salir: clic derecho en su ícono → Salir.</p></div>
             <label class="switch"><input type="checkbox" data-sw="bandeja"><span></span></label></div>
-          <div class="fila"><div class="texto"><h3>Activar clips al abrir</h3><p>Empieza a guardar el búfer de clips automáticamente.</p></div>
+          <div class="fila" data-func="clips"><div class="texto"><h3>Activar clips al abrir</h3><p>Empieza a guardar el búfer de clips automáticamente.</p></div>
             <label class="switch"><input type="checkbox" data-sw="clips_al_abrir"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Organizar por juego</h3><p>Guarda cada clip en una carpeta con el nombre del juego o app que tenías abierto.</p></div>
             <label class="switch"><input type="checkbox" data-sw="por_juego"><span></span></label></div>
           <div class="fila"><div class="texto"><h3>Sonidos de aviso</h3><p>Al guardar un clip y al activar o desactivar los clips con la tecla.</p></div>
             <label class="switch"><input type="checkbox" data-sw="sonido_clip"><span></span></label></div>
         </div>
-        <div class="tarjeta">
+        <div class="tarjeta" data-func="overlay">
           <div class="fila"><div class="texto"><h3>Overlay en el juego</h3><p>Avisos pequeños encima del juego. No reciben clics y no salen en tus clips.</p></div>
             <label class="switch"><input type="checkbox" data-sw="overlay"><span></span></label></div>
           <div class="fila sub-overlay"><div class="texto"><h3>Indicador de clips activos</h3><p>Una pastilla en la esquina: "Clips" mientras se guarda el búfer, o "REC" con el tiempo al grabar.</p></div>
@@ -701,7 +730,7 @@
             </div>
             <p class="nota">Se ve en juegos en modo ventana o "pantalla completa sin bordes". En pantalla completa exclusiva, Windows no deja dibujar encima (el sonido sí se escucha).</p></div>
         </div>
-        <div class="tarjeta" id="tarjeta-discord">
+        <div class="tarjeta" id="tarjeta-discord" data-func="discord">
           <div class="fila"><div class="texto"><h3>Mostrar en Discord</h3><p>Tus amigos ven "Clipeando con GrabaClip" en tu perfil, con un botón para descargarlo. Solo mientras los clips o una grabación están activos.</p></div>
             <label class="switch"><input type="checkbox" data-sw="discord"><span></span></label></div>
           <div class="fila sub-discord"><div class="texto"><h3>Mostrar el nombre del juego</h3><p>Por ejemplo "En Overwatch".</p></div>
@@ -787,12 +816,12 @@
 </main>
 
 <footer id="pie">
-  <div class="pie-izq" id="pie-clips">
+  <div class="pie-izq" id="pie-clips" data-func="clips">
     <label class="switch"><input type="checkbox" id="sw-clips"><span></span></label>
     <div class="texto"><b><span class="punto"></span>Clips instantáneos</b><span id="clips-desc">Desactivados</span></div>
     <button class="guardar" id="b-clip">Guardar clip <kbd class="k-clip">F9</kbd></button>
   </div>
-  <div class="pie-centro" id="pie-rec">
+  <div class="pie-centro" id="pie-rec" data-func="grabar">
     <button class="rec" id="b-rec" title="Grabar"><i></i></button>
     <div class="rec-txt" id="rec-txt">REC</div>
   </div>
@@ -805,6 +834,11 @@
 </footer>
 
 <div id="avisos"></div>
+<div id="dlg-perfil"><div class="caja">
+  <h3>¿Cómo vas a usar GrabaClip?</h3>
+  <p>Puedes cambiarlo cuando quieras en Ajustes → General → Perfil.</p>
+  <div class="perfiles" id="perfiles-inicio"></div>
+</div></div>
 <div id="compartir" class="modal"><div class="caja comp-caja">
   <div class="ed-cab"><div><h3>Compartir</h3><p id="comp-nombre" translate="no"></p></div>
     <button class="ed-x" id="comp-cerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
@@ -1266,6 +1300,7 @@ function pintarCfg() {
   $('#sw-mic').checked = !!cfg.mic;
   pintarModoAudio();
   document.body.classList.toggle('rendimiento', !!cfg.rendimiento);
+  aplicarFunciones();
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
   $$('.sub-discord').forEach(f => f.classList.toggle('oculto', !cfg.discord));
@@ -1618,6 +1653,59 @@ function progresoRecorte(d) {
     if (d.ok) cerrarEditor();
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
+}
+
+// ---------- perfiles ----------
+const NOMBRES_FUNC = {clips: ['Clips instantáneos', 'El búfer que guarda los últimos segundos (F8, F9).'],
+  grabar: ['Grabación', 'Grabaciones largas con REC o F10, y marcas.'],
+  capturas: ['Capturas de pantalla', 'Imágenes del juego con F7.'],
+  voz: ['Comandos de voz', '"Jarvis, sácale clip".'],
+  overlay: ['Overlay en el juego', 'Avisos encima del juego.'],
+  discord: ['Estado en Discord', '"Clipeando con GrabaClip" en tu perfil.'],
+  estadisticas: ['Estadísticas', 'La pestaña de estadísticas.']};
+const NOMBRES_PERFIL = {completo: 'Completo', esencial: 'Esencial', clips: 'Solo clips', grabacion: 'Solo grabación', personalizado: 'Personalizado'};
+function aplicarFunciones() {
+  const f = cfg.funciones || {};
+  for (const k of Object.keys(NOMBRES_FUNC)) document.body.classList.toggle('sin-' + k, f[k] === false);
+  $$('#perfiles button').forEach(b => b.classList.toggle('sel', b.dataset.perfil === (cfg.perfil || 'completo')));
+  $('#perfil-actual').textContent = NOMBRES_PERFIL[cfg.perfil || 'completo'] || '';
+  const c = $('#funciones');
+  if (c && !c.classList.contains('oculto')) pintarFunciones();
+  // si la pestaña o sección visible se apagó, se vuelve a una que exista
+  if (f.estadisticas === false && $('#v-stats').classList.contains('activa')) irA('grab');
+  if (f.voz === false && $('#s-voz').classList.contains('activa')) seccion('general');
+}
+function pintarFunciones() {
+  const c = $('#funciones');
+  c.innerHTML = '';
+  for (const [k, [nombre, desc]] of Object.entries(NOMBRES_FUNC)) {
+    const fila = document.createElement('div');
+    fila.className = 'fila';
+    fila.innerHTML = `<div class="texto"><h3></h3><p></p></div><label class="switch"><input type="checkbox"><span></span></label>`;
+    fila.querySelector('h3').textContent = nombre; fila.querySelector('p').textContent = desc;
+    const sw = fila.querySelector('input');
+    sw.checked = (cfg.funciones || {})[k] !== false;
+    sw.onchange = () => elegirPerfil('personalizado', Object.assign({}, cfg.funciones, {[k]: sw.checked}));
+    c.append(fila);
+  }
+}
+async function elegirPerfil(perfil, funciones) {
+  const r = await api('elegir_perfil', perfil, funciones || null);
+  if (!r.ok) { aviso(r.msg, 'error'); pintarCfg(); return; }
+  cfg = r.cfg; pintarCfg();
+  aviso(`Perfil: ${NOMBRES_PERFIL[perfil]}`, 'ok');
+}
+$$('#perfiles button').forEach(b => b.onclick = () => elegirPerfil(b.dataset.perfil));
+$('#b-personalizar').onclick = () => { const c = $('#funciones'); c.classList.toggle('oculto'); if (!c.classList.contains('oculto')) pintarFunciones(); };
+function preguntarPerfil() {
+  if (cfg.perfil_elegido) return;
+  const c = $('#perfiles-inicio');
+  c.innerHTML = $('#perfiles').innerHTML;
+  c.querySelectorAll('button').forEach(b => b.onclick = async () => {
+    $('#dlg-perfil').classList.remove('abierto');
+    await elegirPerfil(b.dataset.perfil);
+  });
+  $('#dlg-perfil').classList.add('abierto');
 }
 
 // ---------- idioma ----------
@@ -2054,6 +2142,7 @@ async function iniciar() {
   pintarEstado();
   cargarVideos();
   cargarVentanas();
+  preguntarPerfil();
 }
 if (window.pywebview && window.pywebview.api) iniciar();
 else window.addEventListener('pywebviewready', iniciar);

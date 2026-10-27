@@ -416,7 +416,35 @@
 "portugués": "португальском",
 "francés": "французском",
 "árabe": "арабском",
-"ruso": "русском"
+"ruso": "русском",
+"Perfil": "Профиль",
+"Elige qué partes de GrabaClip quieres usar. Lo que apagues no se carga ni escucha teclas, así gasta menos.": "Выберите, какими частями GrabaClip вы пользуетесь. Выключенное не загружается и не слушает клавиши, поэтому тратит меньше.",
+"Completo": "Полный",
+"Todo incluido: clips, grabación, capturas, voz, overlay, Discord y estadísticas.": "Всё включено: клипы, запись, скриншоты, голос, оверлей, Discord и статистика.",
+"Esencial": "Базовый",
+"Clips, grabación y capturas. Sin voz, overlay, Discord ni estadísticas.": "Клипы, запись и скриншоты. Без голоса, оверлея, Discord и статистики.",
+"Solo clips": "Только клипы",
+"Solo los clips instantáneos y su aviso en el juego. Lo más ligero.": "Только мгновенные клипы и уведомление в игре. Самый лёгкий вариант.",
+"Solo grabación": "Только запись",
+"Grabaciones largas con marcas, sin el búfer de clips.": "Длинные записи с метками, без буфера клипов.",
+"Personalizar…": "Настроить…",
+"Personalizado": "Свой",
+"¿Cómo vas a usar GrabaClip?": "Как вы будете пользоваться GrabaClip?",
+"Puedes cambiarlo cuando quieras en Ajustes → General → Perfil.": "Это можно изменить в любой момент: Настройки → Общие → Профиль.",
+"El búfer que guarda los últimos segundos (F8, F9).": "Буфер, который хранит последние секунды (F8, F9).",
+"Grabación": "Запись",
+"Grabaciones largas con REC o F10, y marcas.": "Длинные записи кнопкой REC или F10 и метки.",
+"Capturas de pantalla": "Скриншоты",
+"Imágenes del juego con F7.": "Снимки игры по F7.",
+"\"Jarvis, sácale clip\".": "«Джарвис, сделай клип».",
+"Avisos encima del juego.": "Уведомления поверх игры.",
+"Estado en Discord": "Статус в Discord",
+"\"Clipeando con GrabaClip\" en tu perfil.": "«Делает клипы с GrabaClip» в вашем профиле.",
+"La pestaña de estadísticas.": "Вкладка статистики.",
+"Los clips están apagados en tu perfil (Ajustes → General → Perfil)": "Клипы выключены в вашем профиле (Настройки → Общие → Профиль)",
+"La grabación está apagada en tu perfil (Ajustes → General → Perfil)": "Запись выключена в вашем профиле (Настройки → Общие → Профиль)",
+"Termina la grabación antes de cambiar de perfil": "Завершите запись, прежде чем менять профиль",
+"Perfil desconocido": "Неизвестный профиль"
 },
 "patrones": [
 [
@@ -810,6 +838,10 @@
 [
 "No tienes el reconocimiento de voz en {0}. Para agregarlo: Configuración de Windows > Hora e idioma > Idioma y región > Agregar un idioma, y marca \"Reconocimiento de voz\". Mientras tanto se usa {1}.",
 "У вас нет распознавания речи на {0}. Чтобы добавить: Параметры Windows > Время и язык > Язык и регион > Добавить язык, и отметьте «Распознавание речи». Пока используется {1}."
+],
+[
+"Perfil: {0}",
+"Профиль: {0}"
 ]
 ]
 }

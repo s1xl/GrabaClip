@@ -78,17 +78,27 @@ class Overlay:
         self._cola = queue.Queue()
         self._estado = {"clips": False, "grabando": False, "inicio_grab": None, "esperando": False}
         self._listo = False
-        if sys.platform == "win32":
-            threading.Thread(target=self._hilo, daemon=True).start()
+        self._arrancado = False
+        self._asegurar()
+
+    def _asegurar(self):
+        """El hilo de Tk solo se crea si el overlay está activado (no gasta nada si no se usa)."""
+        if self._arrancado or sys.platform != "win32" or not self._cfg().get("overlay"):
+            return
+        self._arrancado = True
+        threading.Thread(target=self._hilo, daemon=True).start()
 
     # ---------- llamadas publicas ----------
     def actualizar(self, estado):
+        self._asegurar()
         self._cola.put(("estado", dict(estado)))
 
     def clip_guardado(self, titulo, detalle):
+        self._asegurar()
         self._cola.put(("aviso", (titulo, detalle)))
 
     def refrescar(self):
+        self._asegurar()
         self._cola.put(("refrescar", None))
 
     # ---------- hilo de Tk ----------

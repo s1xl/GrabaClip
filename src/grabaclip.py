@@ -294,6 +294,9 @@ class Api:
                 for v in VA.ventanas_abiertas() if v["exe"] not in VA.PROPIOS]
 
     def alternar_clips(self):
+        if not self._funcion("clips") and not self._clips_on:
+            self._aviso("Los clips están apagados en tu perfil (Ajustes → General → Perfil)", "error")
+            return self._estado()
         with self._lock:
             if self._clips_on:
                 self._clips_on = False
@@ -485,6 +488,9 @@ class Api:
                             "Clip del final de la partida", "_final", quitar_ultimo=False)
 
     def alternar_grabacion(self):
+        if not self._funcion("grabar") and not self._grab:
+            self._aviso("La grabación está apagada en tu perfil (Ajustes → General → Perfil)", "error")
+            return self._estado()
         with self._lock:
             if self._grab:
                 self._grab.detener()
@@ -1331,7 +1337,11 @@ class Api:
                     ("tecla_activar", self._alternar_clips_con_tecla), ("tecla_captura", self.tomar_captura),
                     ("tecla_marca", self.poner_marca), ("tecla_clip_largo", self.guardar_clip_largo),
                     ("tecla_ventana", self._alternar_ventana))
+        necesita = {"tecla_clip": "clips", "tecla_activar": "clips", "tecla_clip_largo": "clips",
+                    "tecla_grab": "grabar", "tecla_marca": "grabar", "tecla_captura": "capturas"}
         for clave, funcion in acciones:
+            if not self._funcion(necesita.get(clave, "")):
+                continue  # función apagada en el perfil: ni siquiera se escucha la tecla
             def disparar(f=funcion):
                 threading.Thread(target=f, daemon=True).start()
             try:
@@ -1363,9 +1373,8 @@ class Api:
         self._encoders = N.probar_encoders()
         self._aplicar_encoder()
         self._avisar_estado()
-        if self._cfg.get("clips_al_abrir") or self._minimizado:
-            if self._cfg.get("clips_al_abrir"):
-                self.alternar_clips()
+        if self._cfg.get("clips_al_abrir") and self._funcion("clips"):
+            self.alternar_clips()
 
     def _vigilar(self):
         while True:
@@ -1453,11 +1462,47 @@ class Api:
             N.colorear_barra_titulo(None, t, hwnd)
             poner_icono(hwnd)
 
+    def _funcion(self, nombre):
+        return (self._cfg.get("funciones") or {}).get(nombre, True)
+
     def _cfg_efectiva(self):
-        """Modo rendimiento: apaga el overlay y la voz sin olvidar lo que el usuario eligió."""
-        if not self._cfg.get("rendimiento"):
-            return self._cfg
-        return dict(self._cfg, overlay=False, voz=False)
+        """Modo rendimiento y perfil: apagan partes sin olvidar lo que el usuario eligió en cada una."""
+        cambios = {}
+        if self._cfg.get("rendimiento"):
+            cambios.update(overlay=False, voz=False)
+        if not self._funcion("voz"):
+            cambios["voz"] = False
+        if not self._funcion("overlay"):
+            cambios["overlay"] = False
+        if not self._funcion("discord"):
+            cambios["discord"] = False
+        return dict(self._cfg, **cambios) if cambios else self._cfg
+
+    def elegir_perfil(self, perfil, funciones=None):
+        """Aplica un perfil (o 'personalizado' con las funciones elegidas una por una)."""
+        with self._lock:
+            if perfil == "personalizado":
+                f = {k: bool((funciones or {}).get(k, self._funcion(k))) for k in N.FUNCIONES}
+                ajustes = {}
+            elif perfil in N.PERFILES:
+                f, ajustes = dict(N.PERFILES[perfil]["funciones"]), dict(N.PERFILES[perfil]["ajustes"])
+            else:
+                return {"ok": False, "msg": "Perfil desconocido"}
+            if not f["grabar"] and self._grab:
+                return {"ok": False, "msg": "Termina la grabación antes de cambiar de perfil"}
+            if not f["clips"] and self._clips_on:
+                self._clips_on = False
+                self._parar_bufer()
+            self._cfg.update(ajustes)
+            self._cfg["funciones"] = f
+            self._cfg["perfil"] = perfil
+            self._cfg["perfil_elegido"] = True
+            N.guardar_config(self._cfg)
+            self._registrar_teclas()
+            self._voz.configurar(self._cfg_efectiva())
+            self._overlay.refrescar()
+        self._avisar_estado()
+        return {"ok": True, "cfg": self._cfg}
 
     # ---------- liberar la interfaz cuando no se ve ----------
     def _liberar_interfaz(self):

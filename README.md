@@ -34,6 +34,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).
 - **Ctrl+Shift+G** muestra u oculta GrabaClip; en la biblioteca, los clips se reproducen en la miniatura al pasar el mouse.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
+- **Perfiles:** *Completo*, *Esencial*, *Solo clips* o *Solo grabación* (o personalizado): lo que apagas no se carga ni escucha teclas.
 - **Ligero:** al quedar junto al reloj, la interfaz se descarga y libera su memoria. El **modo rendimiento** deja solo lo necesario (clips, grabación y teclas).
 - **Junto al reloj:** al cerrar la ventana, GrabaClip sigue funcionando en los íconos ocultos de la barra de tareas, con un menú para guardar clips, grabar o salir.
 - **Actualizaciones con un botón:** *Ajustes → General → Buscar actualizaciones* descarga la última versión de GitHub y la instala sola, sin perder ajustes ni clips.

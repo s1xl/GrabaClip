@@ -90,7 +90,10 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
                   "tecla_captura": "f7", "tecla_marca": "f6",
                   "tecla_clip_largo": "shift+f9", "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
-                  "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto", "tema": "Carmesí", "ui_version": 6,
+                  "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
+                  "perfil": "completo", "perfil_elegido": False,
+                  "funciones": {"clips": True, "grabar": True, "capturas": True, "voz": True,
+                                "overlay": True, "discord": True, "estadisticas": True}, "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
@@ -286,6 +289,22 @@ def filtro_video(encoder, fps, alto_deseado, fuente=None):
         return base + _sufijo_gpu(encoder)
     escala = f"scale=-2:'min(ih,{alto_deseado})':flags=bicubic," if alto_deseado else ""
     return base + f",hwdownload,format=bgra,{escala}format=yuv420p"
+
+
+# Perfiles: qué partes de GrabaClip se usan. Lo apagado no se carga ni registra teclas.
+FUNCIONES = ["clips", "grabar", "capturas", "voz", "overlay", "discord", "estadisticas"]
+PERFILES = {
+    "completo": {"funciones": dict.fromkeys(FUNCIONES, True), "ajustes": {}},
+    "esencial": {"funciones": {"clips": True, "grabar": True, "capturas": True, "voz": False, "overlay": False,
+                               "discord": False, "estadisticas": False},
+                 "ajustes": {"vista_previa": False}},
+    "clips": {"funciones": {"clips": True, "grabar": False, "capturas": False, "voz": False, "overlay": True,
+                            "discord": False, "estadisticas": False},
+              "ajustes": {"vista_previa": False}},
+    "grabacion": {"funciones": {"clips": False, "grabar": True, "capturas": False, "voz": False, "overlay": True,
+                                "discord": False, "estadisticas": False},
+                  "ajustes": {"vista_previa": False, "clips_al_abrir": False}},
+}
 
 
 def captura_pantalla(fuente, destino):
