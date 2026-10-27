@@ -136,7 +136,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "mic": True, "apps": [], "ajuste_ms": 0,
                   "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
                   "tecla_captura": "f7", "tecla_marca": "f6",
-                  "tecla_clip_largo": "shift+f9", "tecla_mic": "ctrl+alt+m", "codec": "h264", "bufer_ram": False, "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
+                  "tecla_clip_largo": "shift+f9", "tecla_mic": "ctrl+alt+m", "codec": "h264", "bufer_ram": False, "marca_texto": "", "medidor": True, "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
                   "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
                   "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
                   "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",

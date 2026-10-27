@@ -126,6 +126,8 @@ Section "Uninstall"
   Delete "$INSTDIR\discord_rpc.py"
   Delete "$INSTDIR\idiomas.py"
   Delete "$INSTDIR\bufer_ram.py"
+  Delete "$INSTDIR\medidor.py"
+  Delete "$INSTDIR\etiquetas.json"
   Delete "$INSTDIR\Desinstalar GrabaClip.exe"
   RMDir "$INSTDIR"  ; solo si quedó vacía
   Delete "$SMPROGRAMS\${APP}.lnk"

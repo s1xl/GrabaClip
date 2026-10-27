@@ -41,6 +41,10 @@ CARPETA_MINI = os.path.join(N.CARPETA_APP, "miniaturas")
 ARCHIVO_INDICE = os.path.join(CARPETA_MINI, "indice.json")
 ARCHIVO_FAVORITOS = os.path.join(N.CARPETA_APP, "favoritos.json")
 ARCHIVO_MARCAS = os.path.join(N.CARPETA_APP, "marcas.json")
+ARCHIVO_ETIQUETAS = os.path.join(N.CARPETA_APP, "etiquetas.json")
+# en un respaldo de ajustes no van cosas propias de esta PC (carpetas, ventanas, pantallas)
+NO_RESPALDAR = {"carpeta", "ventana_exe", "monitor", "encoder", "mic", "apps", "orden_pistas",
+                "perfil_elegido", "tutorial_visto", "bandeja_aviso_visto", "ui_version", "voz_idioma"}
 NO_VALIDOS = set('<>:"/\\|?*')
 ARCHIVO_ICONO = os.path.join(N.CARPETA_APP, "grabaclip.ico")
 
@@ -78,7 +82,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto", "medidor"}
 
 
 def sonido_ok():
@@ -128,6 +132,8 @@ class Api:
         self._indice = self._leer_indice()
         self._favoritos = self._leer_favoritos()
         self._marcas = self._leer_json(ARCHIVO_MARCAS, {})  # ruta de la grabación -> segundos marcados
+        self._etiquetas = self._leer_json(ARCHIVO_ETIQUETAS, {})  # ruta -> ["jugadas", "para subir"…]
+        self._medidor = None
         self._inicio_parte = None
         self._pendientes = []
         self._hilo_mini = None
@@ -956,6 +962,7 @@ class Api:
                          "captura" if nombre.lower().endswith(".png") else "grabacion"),
                 "marcas": len(self._marcas.get(self._clave_fav(ruta), [])),
                 "fav": self._es_favorito(ruta),
+                "etiquetas": self._etiquetas.get(self._clave_fav(ruta), []),
                 "juego": juego,
                 "duracion": info.get("dur") if info else None,
                 "pistas": info.get("pistas") if info else None,
@@ -1474,9 +1481,140 @@ class Api:
             self._favoritos.discard(self._clave_fav(ruta))
             self._favoritos.add(self._clave_fav(nuevo))
             self._guardar_favoritos()
+        if self._clave_fav(ruta) in self._etiquetas:
+            self._etiquetas[self._clave_fav(nuevo)] = self._etiquetas.pop(self._clave_fav(ruta))
+            self._guardar_json(ARCHIVO_ETIQUETAS, self._etiquetas)
         if self._ultimo and os.path.normcase(self._ultimo) == os.path.normcase(ruta):
             self._ultimo = nuevo
         return {"ok": True, "ruta": nuevo, "nombre": os.path.basename(nuevo)}
+
+    # ---------- etiquetas propias ----------
+    def lista_etiquetas(self):
+        """Todas las etiquetas en uso, con cuántos videos tiene cada una (de las que aún existen)."""
+        cuenta = {}
+        for clave, tags in list(self._etiquetas.items()):
+            if not os.path.exists(clave):
+                continue
+            for t in tags:
+                cuenta[t] = cuenta.get(t, 0) + 1
+        return sorted(({"nombre": t, "n": n} for t, n in cuenta.items()), key=lambda x: x["nombre"].lower())
+
+    def etiquetar(self, rutas, etiqueta, valor=True):
+        """Pone (valor=True) o quita una etiqueta a uno o varios videos."""
+        etiqueta = " ".join(str(etiqueta or "").split())[:24]
+        if not etiqueta:
+            return {"ok": False, "msg": "Escribe un nombre para la etiqueta"}
+        n = 0
+        for r in rutas or []:
+            if not self._ruta_valida(r):
+                continue
+            clave = self._clave_fav(r)
+            tags = [t for t in self._etiquetas.get(clave, []) if t.lower() != etiqueta.lower()]
+            if valor:
+                tags.append(etiqueta)
+            if tags:
+                self._etiquetas[clave] = tags
+            else:
+                self._etiquetas.pop(clave, None)
+            n += 1
+        # se limpian las de videos que ya no existen
+        self._etiquetas = {k: v for k, v in self._etiquetas.items() if os.path.exists(k)}
+        self._guardar_json(ARCHIVO_ETIQUETAS, self._etiquetas)
+        return {"ok": True, "n": n, "etiquetas": self.lista_etiquetas()}
+
+    def borrar_etiqueta(self, etiqueta):
+        """Quita una etiqueta de todos los videos (los videos no se tocan)."""
+        for clave in list(self._etiquetas):
+            self._etiquetas[clave] = [t for t in self._etiquetas[clave] if t != etiqueta]
+            if not self._etiquetas[clave]:
+                del self._etiquetas[clave]
+        self._guardar_json(ARCHIVO_ETIQUETAS, self._etiquetas)
+        return self.lista_etiquetas()
+
+    # ---------- respaldo de ajustes ----------
+    def exportar_ajustes(self):
+        """Guarda los ajustes y los temas propios en un archivo .json para otra PC o un amigo."""
+        try:
+            import webview
+            tipo = webview.FileDialog.SAVE if hasattr(webview, "FileDialog") else webview.SAVE_DIALOG
+            destino = self._ventana.create_file_dialog(
+                tipo, directory=os.path.join(os.path.expanduser("~"), "Documents"),
+                save_filename=f"GrabaClip-ajustes-{time.strftime('%Y-%m-%d')}.json",
+                file_types=("Ajustes de GrabaClip (*.json)",))
+        except Exception:
+            return {"ok": False, "msg": "No se pudo abrir la ventana para guardar"}
+        if not destino:
+            return {"ok": False, "cancelado": True}
+        destino = destino[0] if isinstance(destino, (list, tuple)) else destino
+        if not destino.lower().endswith(".json"):
+            destino += ".json"
+        datos = {"grabaclip": ACT.version_local(),
+                 "ajustes": {k: v for k, v in self._cfg.items() if k not in NO_RESPALDAR}}
+        try:
+            with open(destino, "w", encoding="utf-8") as f:
+                json.dump(datos, f, ensure_ascii=False, indent=1)
+        except Exception:
+            return {"ok": False, "msg": "No se pudo guardar el archivo"}
+        return {"ok": True, "msg": "Ajustes guardados en " + os.path.basename(destino)}
+
+    def importar_ajustes(self):
+        if self._clips_on or self._grab:
+            return {"ok": False, "msg": "Desactiva los clips y detén la grabación para cargar ajustes"}
+        try:
+            import webview
+            tipo = webview.FileDialog.OPEN if hasattr(webview, "FileDialog") else webview.OPEN_DIALOG
+            elegido = self._ventana.create_file_dialog(
+                tipo, directory=os.path.join(os.path.expanduser("~"), "Documents"),
+                file_types=("Ajustes de GrabaClip (*.json)",))
+        except Exception:
+            return {"ok": False, "msg": "No se pudo abrir la ventana para elegir el archivo"}
+        if not elegido:
+            return {"ok": False, "cancelado": True}
+        ruta = elegido[0] if isinstance(elegido, (list, tuple)) else elegido
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                datos = json.load(f)
+            nuevos = datos.get("ajustes")
+            assert isinstance(nuevos, dict)
+        except Exception:
+            return {"ok": False, "msg": "Ese archivo no es un respaldo de GrabaClip"}
+        with self._lock:
+            n = 0
+            def numero(x):
+                return isinstance(x, (int, float)) and not isinstance(x, bool)
+            for k, v in nuevos.items():
+                if k not in N.CONFIG_INICIAL or k in NO_RESPALDAR:
+                    continue
+                base = N.CONFIG_INICIAL[k]
+                # solo claves conocidas y con el mismo tipo de dato que el valor de fábrica
+                if type(v) is type(base) or (numero(v) and numero(base)):
+                    self._cfg[k] = v
+                    n += 1
+            N.guardar_config(self._cfg)
+            I18N.elegir(self._cfg.get("idioma", "auto"))
+            self._registrar_teclas()
+            self._voz.configurar(self._cfg_efectiva())
+            self._overlay.refrescar()
+            self._pintar_barra()
+        self._avisar_estado()
+        return {"ok": True, "msg": f"Ajustes cargados ({n})", "cfg": self._cfg,
+                "temas": N.temas_todos(self._cfg)}
+
+    # ---------- medidor de impacto ----------
+    def medir_impacto(self):
+        """CPU, memoria, disco y codificador de video que usan GrabaClip y sus FFmpeg."""
+        if self._medidor is None:
+            try:
+                import medidor as MD
+                self._medidor = MD.Medidor()
+            except Exception:
+                self._medidor = False
+        if not self._medidor:
+            return None
+        try:
+            return self._medidor.medir()
+        except Exception:
+            return None
 
     def eliminar_varios(self, rutas):
         n = 0

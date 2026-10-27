@@ -556,7 +556,33 @@
 "Mi semana en GrabaClip": "Ma semaine avec GrabaClip",
 "Necesitas al menos 2 clips de esta semana para el resumen": "Il te faut au moins 2 clips de cette semaine pour le résumé",
 "El GIF tiene que durar al menos medio segundo": "Le GIF doit durer au moins une demi-seconde",
-"No encontré una fuente de Windows para escribir el texto": "Je n'ai pas trouvé de police Windows pour écrire le texte"
+"No encontré una fuente de Windows para escribir el texto": "Je n'ai pas trouvé de police Windows pour écrire le texte",
+"Filtrar por etiqueta": "Filtrer par étiquette",
+"Todas las etiquetas": "Toutes les étiquettes",
+"Etiquetar": "Étiqueter",
+"Etiquetas": "Étiquettes",
+"Nueva etiqueta…": "Nouvelle étiquette…",
+"Añadir": "Ajouter",
+"Crea etiquetas como \"jugadas\", \"chistosos\" o \"para subir\".": "Crée des étiquettes comme « actions », « drôles » ou « à publier ».",
+"Borrar esta etiqueta de todos los videos": "Retirer cette étiquette de toutes les vidéos",
+"¿Borrar la etiqueta?": "Supprimer l'étiquette ?",
+"Los videos no se borran, solo se les quita la etiqueta.": "Les vidéos ne sont pas supprimées, seule l'étiquette est retirée.",
+"Borrar": "Supprimer",
+"Ver solo esta etiqueta": "Voir seulement cette étiquette",
+"Escribe un nombre para la etiqueta": "Écris un nom pour l'étiquette",
+"Medidor de impacto": "Mesure de l'impact",
+"Arriba, junto a la GPU, muestra cuánto procesador, tarjeta gráfica, memoria y disco usa GrabaClip mientras graba.": "En haut, à côté du GPU, affiche combien de processeur, carte graphique, mémoire et disque GrabaClip utilise pendant l'enregistrement.",
+"Respaldo de ajustes": "Sauvegarde des réglages",
+"Guarda tus ajustes, teclas y temas en un archivo para pasarlos a otra PC o a un amigo. Las carpetas y ventanas de esta PC no se copian.": "Enregistre tes réglages, touches et thèmes dans un fichier pour les passer à un autre PC ou à un ami. Les dossiers et fenêtres de ce PC ne sont pas copiés.",
+"Exportar…": "Exporter…",
+"Importar…": "Importer…",
+"Lo que usan GrabaClip y sus FFmpeg de tu PC ahora mismo (como en el Administrador de tareas)": "Ce que GrabaClip et ses FFmpeg utilisent de ton PC en ce moment (comme dans le Gestionnaire des tâches)",
+"Disco": "Disque",
+"No se pudo abrir la ventana para guardar": "Impossible d'ouvrir la fenêtre d'enregistrement",
+"No se pudo guardar el archivo": "Impossible d'enregistrer le fichier",
+"Desactiva los clips y detén la grabación para cargar ajustes": "Désactive les clips et arrête l'enregistrement pour charger des réglages",
+"No se pudo abrir la ventana para elegir el archivo": "Impossible d'ouvrir la fenêtre pour choisir le fichier",
+"Ese archivo no es un respaldo de GrabaClip": "Ce fichier n'est pas une sauvegarde GrabaClip"
 },
 "patrones": [
 [
@@ -986,6 +1012,14 @@
 [
 "Armando tu resumen con tus {0} clips más nuevos (marca favoritos para elegir tú)…",
 "Préparation de ton résumé avec tes {0} clips les plus récents (mets des favoris pour choisir)…"
+],
+[
+"Ajustes guardados en {0}",
+"Réglages enregistrés dans {0}"
+],
+[
+"Ajustes cargados ({0})",
+"Réglages chargés ({0})"
 ]
 ]
 }

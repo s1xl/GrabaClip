@@ -556,7 +556,33 @@
 "Mi semana en GrabaClip": "أسبوعي مع GrabaClip",
 "Necesitas al menos 2 clips de esta semana para el resumen": "تحتاج مقطعين على الأقل من هذا الأسبوع للملخص",
 "El GIF tiene que durar al menos medio segundo": "يجب أن يدوم GIF نصف ثانية على الأقل",
-"No encontré una fuente de Windows para escribir el texto": "لم أجد خطًا في Windows لكتابة النص"
+"No encontré una fuente de Windows para escribir el texto": "لم أجد خطًا في Windows لكتابة النص",
+"Filtrar por etiqueta": "تصفية حسب الوسم",
+"Todas las etiquetas": "كل الوسوم",
+"Etiquetar": "وسم",
+"Etiquetas": "الوسوم",
+"Nueva etiqueta…": "وسم جديد…",
+"Añadir": "إضافة",
+"Crea etiquetas como \"jugadas\", \"chistosos\" o \"para subir\".": "أنشئ وسومًا مثل \"لقطات\" أو \"مضحك\" أو \"للرفع\".",
+"Borrar esta etiqueta de todos los videos": "إزالة هذا الوسم من كل الفيديوهات",
+"¿Borrar la etiqueta?": "حذف الوسم؟",
+"Los videos no se borran, solo se les quita la etiqueta.": "لا تُحذف الفيديوهات، يُزال الوسم فقط.",
+"Borrar": "حذف",
+"Ver solo esta etiqueta": "عرض هذا الوسم فقط",
+"Escribe un nombre para la etiqueta": "اكتب اسمًا للوسم",
+"Medidor de impacto": "مقياس التأثير",
+"Arriba, junto a la GPU, muestra cuánto procesador, tarjeta gráfica, memoria y disco usa GrabaClip mientras graba.": "في الأعلى بجانب GPU، يعرض كم يستخدم GrabaClip من المعالج وبطاقة الرسوميات والذاكرة والقرص أثناء التسجيل.",
+"Respaldo de ajustes": "نسخة احتياطية للإعدادات",
+"Guarda tus ajustes, teclas y temas en un archivo para pasarlos a otra PC o a un amigo. Las carpetas y ventanas de esta PC no se copian.": "يحفظ إعداداتك ومفاتيحك وسماتك في ملف لنقلها إلى حاسوب آخر أو صديق. لا تُنسخ مجلدات ونوافذ هذا الحاسوب.",
+"Exportar…": "تصدير…",
+"Importar…": "استيراد…",
+"Lo que usan GrabaClip y sus FFmpeg de tu PC ahora mismo (como en el Administrador de tareas)": "ما يستخدمه GrabaClip وFFmpeg من حاسوبك الآن (كما في إدارة المهام)",
+"Disco": "القرص",
+"No se pudo abrir la ventana para guardar": "تعذّر فتح نافذة الحفظ",
+"No se pudo guardar el archivo": "تعذّر حفظ الملف",
+"Desactiva los clips y detén la grabación para cargar ajustes": "أوقف المقاطع والتسجيل لتحميل الإعدادات",
+"No se pudo abrir la ventana para elegir el archivo": "تعذّر فتح نافذة اختيار الملف",
+"Ese archivo no es un respaldo de GrabaClip": "هذا الملف ليس نسخة احتياطية من GrabaClip"
 },
 "patrones": [
 [
@@ -986,6 +1012,14 @@
 [
 "Armando tu resumen con tus {0} clips más nuevos (marca favoritos para elegir tú)…",
 "جارٍ إعداد ملخصك بأحدث {0} مقاطع (ضع مفضلات لتختار بنفسك)…"
+],
+[
+"Ajustes guardados en {0}",
+"حُفظت الإعدادات في {0}"
+],
+[
+"Ajustes cargados ({0})",
+"تم تحميل الإعدادات ({0})"
 ]
 ]
 }

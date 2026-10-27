@@ -34,6 +34,8 @@
   .logo::after { content: ""; position: absolute; width: 9px; height: 9px; border-radius: 50%;
                  background: var(--acento-fg); right: 7px; bottom: 7px; }
   .marca { font-size: 24px; font-weight: 700; letter-spacing: -.4px; }
+  .impacto { font-variant-numeric: tabular-nums; color: var(--tenue); }
+  .impacto b { color: var(--fg); font-weight: 600; }
   .gpu { font-size: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--borde);
          color: var(--tenue); white-space: nowrap; }
   .gpu.ok::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
@@ -103,6 +105,29 @@
   .etiqueta { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 4px;
               color: var(--acento); }
   .tv-info .meta { font-size: 12px; color: var(--tenue); }
+  .tv-info .tags { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 4px; margin-top: 2px; }
+  .tv-info .tags .tag { flex: none; width: auto; }
+  .tv-info .tags:empty { display: none; }
+  .tag { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; color: var(--fg);
+         background: color-mix(in srgb, var(--acento) 18%, var(--campo)); border: 1px solid color-mix(in srgb, var(--acento) 35%, var(--borde)); }
+  .tag:hover { background: color-mix(in srgb, var(--acento) 32%, var(--campo)); }
+  .accion-tag { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 6px; color: var(--tenue); }
+  .accion-tag:hover { color: var(--fg); background: var(--campo); }
+  .accion-tag svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .menu-tags { position: fixed; z-index: 60; width: 260px; background: var(--panel); border: 1px solid var(--borde); border-radius: 10px;
+               padding: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: 8px; }
+  .menu-tags > b { font-size: 13px; }
+  .menu-tags .lista { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow: auto; }
+  .menu-tags .fila-tag { display: flex; align-items: center; gap: 4px; }
+  .menu-tags .poner { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; text-align: left; font-size: 13px; }
+  .menu-tags .poner:hover { background: var(--campo); }
+  .menu-tags .poner i { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--tenue); flex: none; }
+  .menu-tags .poner.on i { background: var(--acento); border-color: var(--acento); box-shadow: inset 0 0 0 2px var(--panel); }
+  .menu-tags .poner.medio i { background: linear-gradient(var(--acento), var(--acento)) center/8px 2px no-repeat; border-color: var(--acento); }
+  .menu-tags .borrar { width: 26px; height: 26px; border-radius: 6px; color: var(--tenue); font-size: 16px; }
+  .menu-tags .borrar:hover { color: var(--fg); background: var(--campo); }
+  .menu-tags .nueva { display: flex; gap: 6px; }
+  .menu-tags .nueva input { flex: 1; min-width: 0; padding: 6px 10px; }
   .tv-abajo { display: flex; align-items: center; gap: 6px; }
   .tv-info .nombre { font-weight: 650; font-size: 13px; line-height: 1.3; word-break: break-all;
                      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -546,6 +571,7 @@
     <div class="logo"></div>
     <div class="marca">GrabaClip</div>
     <div class="gpu" id="gpu">Detectando GPU…</div>
+    <div class="gpu impacto oculto" id="impacto" title="Lo que usan GrabaClip y sus FFmpeg de tu PC ahora mismo (como en el Administrador de tareas)"></div>
     <div class="buscar">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="buscar" placeholder="Buscar grabaciones" spellcheck="false">
@@ -577,6 +603,11 @@
         <select id="sel-juego"><option value="*">Todos los juegos</option></select>
         <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
       </div>
+      <div class="selector oculto" id="selector-tag" title="Filtrar por etiqueta">
+        <svg class="ic-izq" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><path d="M7.5 7.5h.01"/></svg>
+        <select id="sel-etiqueta"><option value="*">Todas las etiquetas</option></select>
+        <svg class="ic-der" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
       <div class="selector" title="Ordenar">
         <svg class="ic-izq" viewBox="0 0 24 24"><path d="M3 6h13M3 12h9M3 18h5M17 10l4-4-4-4M21 6h-4"/></svg>
         <select id="sel-orden">
@@ -594,6 +625,7 @@
       <button class="mini-boton" id="sel-todos">Seleccionar todos</button>
       <span class="ed-espacio"></span>
       <button class="mini-boton" id="sel-unir" title="Une los videos elegidos en uno, en el orden en que se grabaron"><svg viewBox="0 0 24 24"><path d="M4 7h7v10H4zM13 7h7v10h-7z"/></svg>Unir</button>
+      <button class="mini-boton" id="sel-tag"><svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><path d="M7.5 7.5h.01"/></svg>Etiquetar</button>
       <button class="mini-boton" id="sel-fav"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Favorito</button>
       <button class="mini-boton peligro" id="sel-borrar"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Enviar a la Papelera</button>
       <button class="mini-boton" id="sel-cancelar">Cancelar</button>
@@ -818,6 +850,12 @@
             <label class="switch"><input type="checkbox" data-sw="discord"><span></span></label></div>
           <div class="fila sub-discord"><div class="texto"><h3>Mostrar el nombre del juego</h3><p>Por ejemplo "En Overwatch".</p></div>
             <label class="switch"><input type="checkbox" data-sw="discord_juego"><span></span></label></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Medidor de impacto</h3><p>Arriba, junto a la GPU, muestra cuánto procesador, tarjeta gráfica, memoria y disco usa GrabaClip mientras graba.</p></div>
+            <label class="switch"><input type="checkbox" data-sw="medidor"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Respaldo de ajustes</h3><p>Guarda tus ajustes, teclas y temas en un archivo para pasarlos a otra PC o a un amigo. Las carpetas y ventanas de esta PC no se copian.</p></div>
+            <div class="en-linea" style="flex:none"><button class="mini-boton" id="b-exportar-aj">Exportar…</button><button class="mini-boton" id="b-importar-aj">Importar…</button></div></div>
         </div>
         <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Acceso directo en el escritorio</h3><p>Abre GrabaClip con doble clic, sin entrar a su carpeta.</p></div>
@@ -1081,12 +1119,13 @@ function activarTraduccion() {
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 let D = null, cfg = {}, est = {}, reloj = null;
-let videos = [], filtro = 'todos', juegoSel = '*';
+let videos = [], filtro = 'todos', juegoSel = '*', etiquetaSel = '*';
 
 const api = (n, ...a) => window.pywebview.api[n](...a);
 const ICON = {
   compartir: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
   marca: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
+  etiqueta: '<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><path d="M7.5 7.5h.01"/></svg>',
   estrella: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
   tijera: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
   jugar: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
@@ -1178,7 +1217,7 @@ function pintarSel() {
   $('#b-seleccionar').classList.toggle('sel', sel.activo);
   const n = sel.rutas.size;
   $('#sel-cuenta').textContent = n === 1 ? '1 seleccionado' : `${n} seleccionados`;
-  $('#sel-borrar').disabled = $('#sel-fav').disabled = !n;
+  $('#sel-borrar').disabled = $('#sel-fav').disabled = $('#sel-tag').disabled = !n;
   const nVideos = videos.filter(v => sel.rutas.has(v.ruta) && v.tipo !== 'captura').length;
   $('#sel-unir').disabled = nVideos < 2 || uniendo;
 }
@@ -1270,8 +1309,11 @@ function renombrar(v) {
 function pintarVideos() {
   const q = $('#buscar').value.trim().toLowerCase();
   pintarJuegos();
+  pintarEtiquetasFiltro();
   const lista = videos.filter(v => (filtro === 'todos' || (filtro === 'fav' ? v.fav : v.tipo === filtro)) && (juegoSel === '*' || v.juego === juegoSel) &&
-    (!q || v.nombre.toLowerCase().includes(q) || (v.juego || '').toLowerCase().includes(q)));
+    (etiquetaSel === '*' || (v.etiquetas || []).includes(etiquetaSel)) &&
+    (!q || v.nombre.toLowerCase().includes(q) || (v.juego || '').toLowerCase().includes(q) ||
+     (v.etiquetas || []).some(e => e.toLowerCase().includes(q))));
   const orden = $('#sel-orden').value;
   const cmp = {nuevo: (a, b) => b.fecha - a.fecha, viejo: (a, b) => a.fecha - b.fecha, peso: (a, b) => b.tamano - a.tamano,
                largo: (a, b) => (b.duracion || 0) - (a.duracion || 0), nombre: (a, b) => a.nombre.localeCompare(b.nombre, 'es', {numeric: true})}[orden];
@@ -1311,10 +1353,12 @@ function pintarVideos() {
           <span class="nombre" translate="no" title="Clic para renombrar"></span>
           <span class="juego">${ICON.mando}<span></span></span>
           <span class="meta">${fecha(v.fecha)} · ${tamano(v.tamano)}${v.marcas ? ` · <span class="con-marcas">${ICON.marca}${v.marcas}</span>` : ''}</span>
+          <span class="tags" translate="no"></span>
         </div>
       </div>
       <div class="tv-abajo">
         <span class="pistas" title="${v.pistas ? v.pistas + (v.pistas === 1 ? ' pista de audio' : ' pistas de audio') : ''}${v.marcas ? ' · ' + v.marcas + (v.marcas === 1 ? ' marca' : ' marcas') : ''}">${v.pistas ? ICON.audio + v.pistas : ''}</span>
+        <button class="accion-tag" title="Etiquetas">${ICON.etiqueta}</button>
         <button class="accion" title="Compartir">${ICON.compartir}</button>
         <button class="accion" title="Recortar">${ICON.tijera}</button>
         <button class="accion" title="Mostrar en la carpeta">${ICON.carpeta}</button>
@@ -1336,6 +1380,14 @@ function pintarVideos() {
       t.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); alternarSel(v.ruta); }, true);
     }
     t.querySelector('.juego span').textContent = v.juego || 'Sin clasificar';
+    const tags = t.querySelector('.tags');
+    for (const e of v.etiquetas || []) {
+      const c = document.createElement('button'); c.className = 'tag'; c.textContent = e;
+      c.title = tr('Ver solo esta etiqueta');
+      c.onclick = ev => { ev.stopPropagation(); etiquetaSel = e; pintarVideos(); };
+      tags.append(c);
+    }
+    t.querySelector('.accion-tag').onclick = ev => abrirMenuTags([v.ruta], ev.currentTarget);
     if (v.mini && !cfg.rendimiento) t.querySelector('.mini').style.backgroundImage = `url(${v.mini})`;
     t.querySelector('.mini').onclick = t.querySelector('.play').onclick = () => api('reproducir', v.ruta);
     if (v.tipo !== 'captura') prepararVistaPrevia(t.querySelector('.mini'), v);
@@ -1349,6 +1401,83 @@ function pintarVideos() {
     r.append(t);
   }
 }
+// ---------- etiquetas propias ----------
+function todasEtiquetas() {
+  const cuenta = {};
+  for (const v of videos) for (const e of v.etiquetas || []) cuenta[e] = (cuenta[e] || 0) + 1;
+  return Object.keys(cuenta).sort((a, b) => a.localeCompare(b, 'es')).map(e => ({nombre: e, n: cuenta[e]}));
+}
+function pintarEtiquetasFiltro() {
+  const lista = todasEtiquetas();
+  $('#selector-tag').classList.toggle('oculto', !lista.length);
+  if (etiquetaSel !== '*' && !lista.some(e => e.nombre === etiquetaSel)) etiquetaSel = '*';
+  const s = $('#sel-etiqueta');
+  const firma = lista.map(e => e.nombre + e.n).join('|');
+  if (s.dataset.firma !== firma) {
+    s.dataset.firma = firma;
+    s.innerHTML = '';
+    const o0 = document.createElement('option'); o0.value = '*'; o0.textContent = tr('Todas las etiquetas'); s.append(o0);
+    for (const e of lista) { const o = document.createElement('option'); o.value = e.nombre; o.textContent = `${e.nombre} (${e.n})`; o.setAttribute('translate', 'no'); s.append(o); }
+  }
+  s.value = etiquetaSel;
+}
+$('#sel-etiqueta').onchange = e => { etiquetaSel = e.target.value; pintarVideos(); };
+let menuTags = null;
+function cerrarMenuTags() { if (menuTags) { menuTags.remove(); menuTags = null; } }
+function abrirMenuTags(rutas, ancla) {
+  cerrarMenuTags();
+  const m = document.createElement('div');
+  m.className = 'menu-tags';
+  menuTags = m;
+  const elegidos = videos.filter(v => rutas.includes(v.ruta));
+  const pintar = () => {
+    m.innerHTML = `<b>${tr('Etiquetas')}</b><div class="lista"></div>
+      <div class="nueva"><input class="campo-texto" maxlength="24" placeholder="${tr('Nueva etiqueta…')}" spellcheck="false" translate="no"><button class="mini-boton primario">${tr('Añadir')}</button></div>`;
+    const lista = m.querySelector('.lista');
+    const todas = todasEtiquetas();
+    if (!todas.length) lista.innerHTML = `<p class="nota">${tr('Crea etiquetas como "jugadas", "chistosos" o "para subir".')}</p>`;
+    for (const e of todas) {
+      const fila = document.createElement('div'); fila.className = 'fila-tag';
+      const todos = elegidos.length && elegidos.every(v => (v.etiquetas || []).includes(e.nombre));
+      const alguno = elegidos.some(v => (v.etiquetas || []).includes(e.nombre));
+      fila.innerHTML = `<button class="poner ${todos ? 'on' : alguno ? 'medio' : ''}"><i></i><span translate="no"></span></button>
+        <button class="borrar" title="${tr('Borrar esta etiqueta de todos los videos')}">×</button>`;
+      fila.querySelector('span').textContent = e.nombre;
+      fila.querySelector('.poner').onclick = () => cambiar(e.nombre, !todos);
+      fila.querySelector('.borrar').onclick = async () => {
+        if (!await confirmar(tr('¿Borrar la etiqueta?'), e.nombre + ' · ' + tr('Los videos no se borran, solo se les quita la etiqueta.'), tr('Borrar'))) return;
+        await api('borrar_etiqueta', e.nombre);
+        for (const v of videos) v.etiquetas = (v.etiquetas || []).filter(x => x !== e.nombre);
+        pintar(); pintarVideos();
+      };
+      lista.append(fila);
+    }
+    const inp = m.querySelector('input');
+    const nueva = () => { const t = inp.value.trim(); if (t) cambiar(t, true); };
+    m.querySelector('.nueva button').onclick = nueva;
+    inp.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') nueva(); else if (e.key === 'Escape') cerrarMenuTags(); };
+    setTimeout(() => inp.focus());
+  };
+  const cambiar = async (nombre, valor) => {
+    const r = await api('etiquetar', rutas, nombre, valor);
+    if (!r || !r.ok) { aviso((r && r.msg) || 'No se pudo', 'error'); return; }
+    nombre = nombre.split(/\s+/).join(' ').slice(0, 24);
+    for (const v of elegidos) {
+      v.etiquetas = (v.etiquetas || []).filter(x => x.toLowerCase() !== nombre.toLowerCase());
+      if (valor) v.etiquetas.push(nombre);
+    }
+    pintar(); pintarVideos();
+  };
+  pintar();
+  document.body.append(m);
+  const r = ancla.getBoundingClientRect(), z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+  const ancho = m.offsetWidth, alto = m.offsetHeight;
+  m.style.left = Math.max(8, Math.min(window.innerWidth / z - ancho - 8, r.left / z - ancho / 2)) + 'px';
+  m.style.top = (r.bottom / z + alto + 8 > window.innerHeight / z ? r.top / z - alto - 6 : r.bottom / z + 6) + 'px';
+}
+document.addEventListener('mousedown', e => { if (menuTags && !menuTags.contains(e.target) && !e.target.closest('.accion-tag, #sel-tag')) cerrarMenuTags(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenuTags(); });
+$('#sel-tag').onclick = ev => { if (sel.rutas.size) abrirMenuTags([...sel.rutas], ev.currentTarget); };
 function pintarJuegos() {
   const sel = $('#sel-juego');
   const cuenta = {};
@@ -2018,6 +2147,32 @@ function pintarAvisos() {
     b.title = apagado ? (b.dataset.k === 'overlay' ? 'El overlay está apagado arriba' : 'Los sonidos de aviso están apagados') : '';
   });
 }
+
+// ---------- respaldo de ajustes ----------
+$('#b-exportar-aj').onclick = async () => {
+  const r = await api('exportar_ajustes');
+  if (r && !r.cancelado) aviso(r.msg, r.ok ? 'ok' : 'error');
+};
+$('#b-importar-aj').onclick = async () => {
+  const r = await api('importar_ajustes');
+  if (!r || r.cancelado) return;
+  aviso(r.msg, r.ok ? 'ok' : 'error');
+  if (r.ok) setTimeout(() => location.reload(), 900);  // se vuelve a pintar todo con lo cargado
+};
+
+// ---------- medidor de impacto ----------
+const coma = (x, d = 1) => Number(x).toFixed(d).replace('.', LOCALE_DECIMAL());
+function LOCALE_DECIMAL() { return ['en'].includes((D && D.idioma) || 'es') ? '.' : ','; }
+setInterval(async () => {
+  const el = $('#impacto');
+  const activo = cfg.medidor !== false && (est.clips || est.grabando) && !document.hidden;
+  if (!activo) { el.classList.add('oculto'); return; }
+  const m = await api('medir_impacto');
+  if (!m) { el.classList.add('oculto'); return; }
+  el.classList.remove('oculto');
+  el.innerHTML = `CPU <b>${coma(m.cpu)} %</b>` + (m.gpu_enc != null ? ` · GPU <b>${coma(m.gpu_enc, 0)} %</b>` : '') +
+    ` · RAM <b>${m.ram_mb} MB</b> · ${tr('Disco')} <b>${coma(m.disco_mb_s)} MB/s</b>`;
+}, 2000);
 
 // ---------- accesos directos ----------
 let ACC = {};

@@ -556,7 +556,33 @@
 "Mi semana en GrabaClip": "Моя неделя в GrabaClip",
 "Necesitas al menos 2 clips de esta semana para el resumen": "Для итогов нужно хотя бы 2 клипа за эту неделю",
 "El GIF tiene que durar al menos medio segundo": "GIF должен длиться хотя бы полсекунды",
-"No encontré una fuente de Windows para escribir el texto": "Не нашёл шрифт Windows для текста"
+"No encontré una fuente de Windows para escribir el texto": "Не нашёл шрифт Windows для текста",
+"Filtrar por etiqueta": "Фильтр по метке",
+"Todas las etiquetas": "Все метки",
+"Etiquetar": "Пометить",
+"Etiquetas": "Метки",
+"Nueva etiqueta…": "Новая метка…",
+"Añadir": "Добавить",
+"Crea etiquetas como \"jugadas\", \"chistosos\" o \"para subir\".": "Создавай метки вроде «моменты», «смешное» или «загрузить».",
+"Borrar esta etiqueta de todos los videos": "Убрать эту метку со всех видео",
+"¿Borrar la etiqueta?": "Удалить метку?",
+"Los videos no se borran, solo se les quita la etiqueta.": "Видео не удаляются, убирается только метка.",
+"Borrar": "Удалить",
+"Ver solo esta etiqueta": "Показать только эту метку",
+"Escribe un nombre para la etiqueta": "Введи название метки",
+"Medidor de impacto": "Индикатор нагрузки",
+"Arriba, junto a la GPU, muestra cuánto procesador, tarjeta gráfica, memoria y disco usa GrabaClip mientras graba.": "Вверху, рядом с GPU, показывает, сколько процессора, видеокарты, памяти и диска использует GrabaClip во время записи.",
+"Respaldo de ajustes": "Резервная копия настроек",
+"Guarda tus ajustes, teclas y temas en un archivo para pasarlos a otra PC o a un amigo. Las carpetas y ventanas de esta PC no se copian.": "Сохраняет настройки, клавиши и темы в файл, чтобы перенести их на другой ПК или другу. Папки и окна этого ПК не копируются.",
+"Exportar…": "Экспорт…",
+"Importar…": "Импорт…",
+"Lo que usan GrabaClip y sus FFmpeg de tu PC ahora mismo (como en el Administrador de tareas)": "Сколько ресурсов ПК сейчас используют GrabaClip и его FFmpeg (как в Диспетчере задач)",
+"Disco": "Диск",
+"No se pudo abrir la ventana para guardar": "Не удалось открыть окно сохранения",
+"No se pudo guardar el archivo": "Не удалось сохранить файл",
+"Desactiva los clips y detén la grabación para cargar ajustes": "Выключи клипы и останови запись, чтобы загрузить настройки",
+"No se pudo abrir la ventana para elegir el archivo": "Не удалось открыть окно выбора файла",
+"Ese archivo no es un respaldo de GrabaClip": "Этот файл не резервная копия GrabaClip"
 },
 "patrones": [
 [
@@ -986,6 +1012,14 @@
 [
 "Armando tu resumen con tus {0} clips más nuevos (marca favoritos para elegir tú)…",
 "Собираем итоги из {0} новых клипов (отметь избранное, чтобы выбрать самому)…"
+],
+[
+"Ajustes guardados en {0}",
+"Настройки сохранены в {0}"
+],
+[
+"Ajustes cargados ({0})",
+"Настройки загружены ({0})"
 ]
 ]
 }
