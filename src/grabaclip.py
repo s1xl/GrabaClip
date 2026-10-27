@@ -27,6 +27,7 @@ import bandeja as BJ
 import recortes as RC
 import discord_rpc as DR
 import idiomas as I18N
+import bufer_ram as BR
 
 try:
     import keyboard  # teclas rapidas globales
@@ -77,7 +78,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto", "avisos"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram"}
 
 
 def sonido_ok():
@@ -118,6 +119,10 @@ class Api:
         self._inicio_grab = None
         self._ultimo = None
         self._encoder = None
+        self._av1 = (False, "", "")   # (funciona, motivo, contenedor del búfer)
+        self._ram = BR.BuferRAM()
+        self._bufer_en_ram = False
+        self._mic_mudo = False
         self._teclas_pausadas = False
         self._minimizado = minimizado
         self._indice = self._leer_indice()
@@ -223,7 +228,51 @@ class Api:
             "pistas": (self._bufer or self._grab).pistas if (self._bufer or self._grab) else [],
             "teclas": keyboard is not None,
             "audio": os.path.exists(N.AUDIOCAP),
+            "mic_mudo": self._mic_mudo,
+            "av1_ok": self._av1[0],
+            "av1_motivo": self._av1[1],
+            "av1_ram": self._av1[2] == "mpegts",
+            "codec_activo": "av1" if self._encoder_video() != self._encoder else "h264",
+            "en_ram": self._bufer_en_ram and self._bufer is not None,
+            "ram_mb": self._ram.megas() if self._bufer_en_ram else 0,
         }
+
+    def estado(self):
+        return self._estado()
+
+    # ---------- AV1 y búfer en RAM ----------
+    def _encoder_video(self):
+        """El codificador para clips y grabaciones: la variante AV1 si se eligió y funciona."""
+        if self._cfg.get("codec") == "av1" and self._av1[0] and self._encoder in N.AV1:
+            return N.AV1[self._encoder]
+        return self._encoder
+
+    def _usar_ram(self):
+        if not self._cfg.get("bufer_ram"):
+            return False
+        return self._encoder_video() == self._encoder or self._av1[2] == "mpegts"
+
+    def _formato_bufer(self):
+        """("mpegts", "ts") normalmente; ("matroska", "mkv") si es AV1 y este FFmpeg no lo mete en TS."""
+        if self._encoder_video() != self._encoder and self._av1[2] == "matroska":
+            return "matroska", "mkv"
+        return "mpegts", "ts"
+
+    # ---------- silenciar el micrófono ----------
+    def alternar_mic(self):
+        if not self._cfg.get("mic"):
+            self._aviso("El micrófono no se está grabando (Ajustes → Audio)", "error")
+            return self._estado()
+        self._mic_mudo = not self._mic_mudo
+        for ses in (self._bufer, self._grab):
+            if ses:
+                ses.silenciar_mic(self._mic_mudo)
+        self._avisar("mic", "desactivar" if self._mic_mudo else "activar",
+                     I18N.t_overlay("Micrófono apagado" if self._mic_mudo else "Micrófono encendido"),
+                     N.tecla_bonita(self._cfg.get("tecla_mic", "")))
+        self._aviso("Micrófono apagado: no se graba tu voz" if self._mic_mudo else "Micrófono encendido", "info")
+        self._avisar_estado()
+        return self._estado()
 
     def _avisar_estado(self):
         estado = self._estado()
@@ -362,7 +411,7 @@ class Api:
         self._gen_bufer += 1
         gen = self._gen_bufer
         if conservar:
-            for viejo in glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")):
+            for viejo in glob.glob(os.path.join(N.CARPETA_BUFER, "g*_seg*.*")):
                 nombre = os.path.basename(viejo)
                 if not nombre.startswith(f"g{gen - 1}_"):  # solo se queda la tanda anterior
                     try:
@@ -371,15 +420,29 @@ class Api:
                         pass
         else:
             shutil.rmtree(N.CARPETA_BUFER, ignore_errors=True)
+            self._ram.limpiar()
         os.makedirs(N.CARPETA_BUFER, exist_ok=True)
         trozos = self._segundos_bufer() // N.SEG + 3
-        salida = os.path.join(N.CARPETA_BUFER, f"g{gen}_seg%04d.ts")
         cfg_s = self._cfg_sesion(fuente)
-        self._bufer = N.Sesion(int(cfg_s["fps"]), self._encoder, cfg_s,
-                               ["-f", "segment", "-segment_time", str(N.SEG),
-                                "-segment_wrap", str(trozos), "-reset_timestamps", "1",
-                                "-segment_format", "mpegts", salida],
-                               "bufer.log", fuente)
+        if conservar and self._bufer_en_ram != self._usar_ram():
+            conservar = False  # cambió el modo: lo anterior ya no sirve
+        self._bufer_en_ram = self._usar_ram()
+        if self._bufer_en_ram:
+            # todo por stdout; BuferRAM lo corta en trozos de N.SEG segundos en la memoria
+            self._ram.max_trozos = trozos
+            self._bufer = N.Sesion(int(cfg_s["fps"]), self._encoder_video(), cfg_s,
+                                   ["-f", "mpegts", "pipe:1"], "bufer.log", fuente, a_tuberia=True)
+            self._ram.nueva_tanda(self._bufer.ffmpeg.stdout, conservar)
+        else:
+            formato, ext = self._formato_bufer()
+            salida = os.path.join(N.CARPETA_BUFER, f"g{gen}_seg%04d.{ext}")
+            self._bufer = N.Sesion(int(cfg_s["fps"]), self._encoder_video(), cfg_s,
+                                   ["-f", "segment", "-segment_time", str(N.SEG),
+                                    "-segment_wrap", str(trozos), "-reset_timestamps", "1",
+                                    "-segment_format", formato, salida],
+                                   "bufer.log", fuente)
+        if self._mic_mudo:
+            self._bufer.silenciar_mic(True)
         self._clave_bufer = self._clave(fuente)
         self._inicio_bufer = time.time()
         if conservar:
@@ -394,6 +457,7 @@ class Api:
             self._bufer.detener()
         self._bufer = None
         self._clave_bufer = None
+        self._ram.limpiar()  # devuelve la memoria
 
     def _seguir_juego(self):
         """Mientras los clips estan activos, cambia lo que se graba si cambia el juego."""
@@ -444,10 +508,14 @@ class Api:
     def _guardar_tramo(self, segundos, fuente, pistas, titulo="Clip guardado", sufijo="", quitar_ultimo=True):
         """Junta los últimos trozos del búfer en un MP4 (sin recomprimir)."""
         with self._lock:
-            trozos = sorted(glob.glob(os.path.join(N.CARPETA_BUFER, "*.ts")), key=os.path.getmtime)
-            if quitar_ultimo:
-                trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
-            trozos = [t for t in trozos if os.path.getsize(t) > 0][-max(1, segundos // N.SEG):]
+            if self._bufer_en_ram:
+                trozos, n_trozos = self._ram.volcar(os.path.join(N.CARPETA_BUFER, "ram"), max(1, segundos // N.SEG))
+            else:
+                trozos = sorted(glob.glob(os.path.join(N.CARPETA_BUFER, "g*_seg*.*")), key=os.path.getmtime)
+                if quitar_ultimo:
+                    trozos = trozos[:-1]  # el ultimo todavía se esta escribiendo
+                trozos = [t for t in trozos if os.path.getsize(t) > 0][-max(1, segundos // N.SEG):]
+                n_trozos = len(trozos)
             if not trozos:
                 self._aviso("Aún no hay suficiente video, espera unos segundos", "error")
                 return None
@@ -480,7 +548,7 @@ class Api:
                     extra = f" (sin {quitadas} {'pista vacía' if quitadas == 1 else 'pistas vacías'})"
             self._aviso(f"{titulo} en {juego or 'GrabaClip'}{extra}", "ok")
             threading.Thread(target=self._aplicar_limite, args=(destino,), daemon=True).start()
-            real = len(trozos) * N.SEG
+            real = n_trozos * N.SEG
             self._avisar("clip", titulo=I18N.t_overlay(titulo), detalle=f"{juego or I18N.t_overlay('Escritorio')} · "
                          + (f"{real // 60}:{real % 60:02d} min" if real >= 60 else f"{real} s"))
             self._emitir("biblioteca")
@@ -541,8 +609,10 @@ class Api:
         self._archivo_grab = os.path.join(N.CARPETA_SALIDA, juego, nombre)
         os.makedirs(os.path.dirname(self._archivo_grab), exist_ok=True)
         cfg_s = self._cfg_sesion(fuente)
-        self._grab = N.Sesion(int(cfg_s["fps"]), self._encoder, cfg_s,
+        self._grab = N.Sesion(int(cfg_s["fps"]), self._encoder_video(), cfg_s,
                               ["-movflags", "+faststart", self._archivo_grab], "grabacion.log", fuente)
+        if self._mic_mudo:
+            self._grab.silenciar_mic(True)
         if not base:
             self._inicio_grab = time.time() * 1000
         self._inicio_parte = time.time()
@@ -617,6 +687,7 @@ class Api:
     def _aplicar_encoder(self):
         elegido = N.elegir_encoder(self._encoders, self._cfg.get("encoder", "auto"))
         N.probar_gpu(elegido)
+        self._av1 = N.probar_av1(elegido)
         self._encoder = elegido
         try:
             with open(os.path.join(N.CARPETA_LOGS, "gpu.txt"), "w", encoding="utf-8") as f:
@@ -626,6 +697,7 @@ class Api:
                 f.write(f"Pantallas: {self._monitores}\n\n")
                 for e, (ok, motivo) in self._encoders.items():
                     f.write(f"{e}: {'funciona' if ok else 'no funciona - ' + motivo}\n")
+                f.write(f"AV1: {'funciona (' + self._av1[2] + ')' if self._av1[0] else 'no - ' + self._av1[1]}\n")
         except Exception:
             pass
 
@@ -829,7 +901,7 @@ class Api:
 
     def poner_tecla(self, cual, combo):
         teclas = ("tecla_clip", "tecla_grab", "tecla_activar", "tecla_captura", "tecla_marca",
-                  "tecla_clip_largo", "tecla_ventana")
+                  "tecla_clip_largo", "tecla_ventana", "tecla_mic")
         if cual not in teclas:
             return {"ok": False, "msg": "Acción desconocida"}
         otras = [self._cfg.get(t) for t in teclas if t != cual]
@@ -1409,7 +1481,7 @@ class Api:
         acciones = (("tecla_clip", self.guardar_clip), ("tecla_grab", self.alternar_grabacion),
                     ("tecla_activar", self._alternar_clips_con_tecla), ("tecla_captura", self.tomar_captura),
                     ("tecla_marca", self.poner_marca), ("tecla_clip_largo", self.guardar_clip_largo),
-                    ("tecla_ventana", self._alternar_ventana))
+                    ("tecla_ventana", self._alternar_ventana), ("tecla_mic", self.alternar_mic))
         necesita = {"tecla_clip": "clips", "tecla_activar": "clips", "tecla_clip_largo": "clips",
                     "tecla_grab": "grabar", "tecla_marca": "grabar", "tecla_captura": "capturas"}
         for clave, funcion in acciones:

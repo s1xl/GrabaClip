@@ -10,6 +10,8 @@
 //                mic          -> microfono predeterminado
 //                app:<exe>    -> solo el audio de ese programa (y sus subprocesos)
 //       Termina cuando se cierra stdin o cuando ffmpeg deja de leer.
+//       Por stdin acepta lineas "mute 1" / "mute 0": silencia o reactiva el microfono
+//       (la pista sigue sonando continua, solo que con silencio).
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -234,6 +236,7 @@ static Fuente* abrir_proceso(DWORD pid) {
 // ---------- pistas ----------
 static std::atomic<LONGLONG> g_t0{0};
 static std::atomic<int> g_vivas{0};
+static std::atomic<bool> g_mic_mudo{false};
 static LARGE_INTEGER g_freq;
 
 static LONGLONG ahora_ms() {
@@ -296,6 +299,7 @@ static void hilo_pista(std::wstring tipo, HANDLE tubo) {
                 if (f->fifo.size() / CH > FIFO_MAX)  // evitar que se acumule retraso
                     f->fifo.erase(f->fifo.begin(), f->fifo.end() - FIFO_TRIM * CH);
             }
+            if (tipo == L"mic" && g_mic_mudo) std::fill(mezcla.begin(), mezcla.end(), 0);
             salida.resize(n * CH);
             for (size_t i = 0; i < n * CH; i++)
                 salida[i] = (int16_t)std::max(-32768, std::min(32767, mezcla[i]));
@@ -389,8 +393,15 @@ int wmain(int argc, wchar_t** argv) {
     std::thread lector([&] {
         char b[64];
         DWORD n;
+        std::string linea;
         HANDLE in = GetStdHandle(STD_INPUT_HANDLE);
-        while (ReadFile(in, b, sizeof(b), &n, nullptr) && n > 0) {}
+        while (ReadFile(in, b, sizeof(b), &n, nullptr) && n > 0) {
+            for (DWORD i = 0; i < n; i++) {
+                if (b[i] != '\n') { if (linea.size() < 64) linea += b[i]; continue; }
+                if (linea.rfind("mute ", 0) == 0) g_mic_mudo = linea.size() > 5 && linea[5] == '1';
+                linea.clear();
+            }
+        }
         fin = true;
     });
     lector.detach();

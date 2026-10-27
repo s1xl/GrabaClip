@@ -72,6 +72,10 @@ def args_encoder(encoder, calidad):
         preset = "p5" if q <= 19 else "p4"
         return ["-c:v", "h264_nvenc", "-preset", preset, "-rc", "vbr",
                 "-cq", str(q), "-b:v", "0", "-spatial-aq", "1"]
+    if encoder == "av1_nvenc":
+        # AV1: la escala de calidad es otra (0-63); +8 da una imagen parecida con ~35 % menos peso
+        return ["-c:v", "av1_nvenc", "-preset", "p5" if q <= 19 else "p4", "-rc", "vbr",
+                "-cq", str(q + 8), "-b:v", "0", "-spatial-aq", "1"]
     if encoder == "h264_amf":
         return ["-c:v", "h264_amf", "-quality", "quality" if q <= 19 else "balanced",
                 "-rc", "cqp", "-qp_i", str(q - 1), "-qp_p", str(q + 1)]
@@ -84,12 +88,55 @@ NOMBRES = {
     "h264_amf": "GPU AMD (AMF)",
     "h264_qsv": "Intel QuickSync",
     "libx264": "Procesador (CPU, mas lento)",
+    "av1_nvenc": "GPU NVIDIA (NVENC AV1)",
 }
+# variante AV1 de cada codificador (por ahora solo NVIDIA: RTX 40 o más nueva)
+AV1 = {"h264_nvenc": "av1_nvenc"}
+
+
+def _codec_de(ruta):
+    try:
+        r = correr(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=codec_name",
+                    "-of", "csv=p=0", ruta], timeout=15)
+        return r.stdout.decode("utf-8", "replace").strip()
+    except Exception:
+        return ""
+
+
+def probar_av1(encoder):
+    """(funciona, motivo, contenedor). Prueba AV1 como lo usa el búfer. El contenedor es "mpegts"
+    si este FFmpeg sabe meter AV1 en MPEG-TS (y entonces también sirve el búfer en RAM), o
+    "matroska" si no (los trocitos del búfer en disco se guardan como .mkv)."""
+    av1 = AV1.get(encoder)
+    if not av1:
+        return False, "AV1 por ahora solo funciona con tarjetas NVIDIA RTX 40 o más nuevas.", ""
+    sin_tarjeta = "Tu tarjeta no puede comprimir en AV1 (hace falta una NVIDIA RTX 40 o más nueva)."
+    os.makedirs(CARPETA_BUFER, exist_ok=True)
+    for contenedor, ext in (("mpegts", "ts"), ("matroska", "mkv")):
+        ruta = os.path.join(CARPETA_BUFER, f"prueba_av1.{ext}")
+        try:
+            r = correr(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                        "-f", "lavfi", "-i", "color=black:s=1280x720:r=30",
+                        "-frames:v", "10", "-c:v", av1, "-f", contenedor, ruta], timeout=20)
+        except Exception as ex:
+            return False, str(ex)[:140], ""
+        if r.returncode != 0:
+            return False, sin_tarjeta, ""
+        ok = _codec_de(ruta) == "av1"
+        try:
+            os.remove(ruta)
+        except OSError:
+            pass
+        if ok:
+            return True, "", contenedor
+    return False, "Tu FFmpeg no puede guardar AV1 en el búfer.", ""
+
+
 CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": "Original",
                   "mic": True, "apps": [], "ajuste_ms": 0,
                   "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
                   "tecla_captura": "f7", "tecla_marca": "f6",
-                  "tecla_clip_largo": "shift+f9", "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
+                  "tecla_clip_largo": "shift+f9", "tecla_mic": "ctrl+alt+m", "codec": "h264", "bufer_ram": False, "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
                   "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
                   "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
                   "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",
@@ -294,7 +341,7 @@ def filtro_video(encoder, fps, alto_deseado, fuente=None):
 
 # Perfiles: qué partes de GrabaClip se usan. Lo apagado no se carga ni registra teclas.
 # Avisos por acción: si cada una muestra el overlay y/o toca su sonido (Ajustes → General)
-EVENTOS_AVISO = ["clip", "grabacion", "captura", "marca", "clips"]
+EVENTOS_AVISO = ["clip", "grabacion", "captura", "marca", "clips", "mic"]
 _AVISO_DEF = {"clips": {"overlay": False, "sonido": True}}  # la pastilla del indicador ya lo muestra
 
 
@@ -559,7 +606,8 @@ def detener(proc, timeout=8):
 class Sesion:
     """Un ffmpeg (video + pistas de audio) junto con su ayudante de audio."""
 
-    def __init__(self, fps, encoder, cfg, salida_args, nombre_log, fuente=None):
+    def __init__(self, fps, encoder, cfg, salida_args, nombre_log, fuente=None, a_tuberia=False):
+        """a_tuberia=True: el video sale por stdout (búfer en memoria RAM) en vez de a archivos."""
         self.fuente = fuente or {"tipo": "monitor", "idx": int(cfg.get("monitor", 0))}
         self.audio = None
         self.pistas = []  # nombres de las pistas de audio, en orden
@@ -576,6 +624,7 @@ class Sesion:
             especies.append("app:" + exe)
             nombres_entrada.append(nombre_bonito(exe))
 
+        self.especies = especies
         prefijo = f"{APP}_{os.getpid()}_{next(CONTADOR)}"
         entradas = []
         if os.path.exists(AUDIOCAP):
@@ -628,8 +677,8 @@ class Sesion:
         self.log = open(os.path.join(CARPETA_LOGS, nombre_log), "w", encoding="utf-8")
         self.ffmpeg = subprocess.Popen(
             ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y"] + args,
-            stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=self.log,
-            creationflags=BAJA_PRIORIDAD)
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE if a_tuberia else subprocess.DEVNULL, stderr=self.log,
+            creationflags=BAJA_PRIORIDAD, bufsize=0 if a_tuberia else -1)
 
     def viva(self):
         return self.ffmpeg.poll() is None
@@ -645,6 +694,16 @@ class Sesion:
         except Exception:
             return False
         return any(c in texto for c in ("887a0026", "887a0005", "887a0007", "acquirenextframe failed"))
+
+    def silenciar_mic(self, mudo):
+        """Silencia o reactiva el micrófono sin cortar nada (audiocap manda silencio)."""
+        if not self.audio or "mic" not in self.especies or self.audio.poll() is not None:
+            return
+        try:
+            self.audio.stdin.write(b"mute 1\n" if mudo else b"mute 0\n")
+            self.audio.stdin.flush()
+        except Exception:
+            pass
 
     def cerrar_audio(self):
         if self.audio and self.audio.poll() is None:
