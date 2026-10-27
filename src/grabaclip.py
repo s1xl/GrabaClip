@@ -1630,7 +1630,8 @@ class Api:
                     break
             fondo = N.temas_todos(self._cfg).get(self._cfg.get("tema"), N.TEMAS["Carmesí"])["bg"]
             self._ventana.load_html(f"<html><body style='background:{fondo}'></body></html>")
-            self._nivel_memoria(bajo=True)
+            # (ya no se baja MemoryUsageTargetLevel: al volver a "Normal" WebView2 tenía que traer
+            # todo de vuelta del disco y la ventana quedaba gris, "No responde")
         except Exception:
             pass
 
@@ -1644,10 +1645,12 @@ class Api:
             for intento in range(2):
                 if intento and not self._ventana_visible():
                     return  # la escondieron otra vez mientras cargaba
-                self._nivel_memoria(bajo=False)
+                t0 = time.monotonic()
                 self._ventana.load_url(self._url_ui)
-                for _ in range(100):  # hasta 10 s a que la página avise que está lista
+                for _ in range(200):  # hasta 20 s a que la página avise que está lista
                     if self._lista or self._saliendo:
+                        if time.monotonic() - t0 > 4:
+                            self._log_bandeja(f"la interfaz tardó {time.monotonic() - t0:.1f} s en cargar")
                         return
                     time.sleep(0.1)
                 self._log_bandeja(f"la interfaz no cargó (intento {intento + 1})")
@@ -1710,26 +1713,52 @@ class Api:
             self._liberar_interfaz()
 
     def _vigilar_ventana(self):
-        """Diagnóstico: si la ventana deja de responder más de 15 s, se guarda qué estaba
-        haciendo cada hilo en logs\\bloqueo.txt (una vez por sesión)."""
+        """Diagnóstico: si la ventana deja de responder (Windows la marcaría "No responde"),
+        se guarda qué estaba haciendo cada hilo en logs\\bloqueo.txt (una vez por sesión).
+        Pregunta con SendMessageTimeout, que no necesita al hilo de la ventana ni al de Python.
+        Además, faulthandler.dump_traceback_later escribe desde C aunque Python entero esté trabado."""
+        import ctypes
         import faulthandler
-        from System import Action
-        hecho = False
-        while not self._saliendo and not hecho:
-            time.sleep(10)
-            vivo = threading.Event()
-            try:
-                self._ventana.native.BeginInvoke(Action(vivo.set))
-            except Exception:
-                return
-            if not vivo.wait(15):
+        u32 = ctypes.windll.user32
+        u32.SendMessageTimeoutW.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p,
+                                            ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_size_t)]
+        try:
+            hwnd = ctypes.c_void_p(int(self._ventana.native.Handle.ToInt64()))
+        except Exception:
+            return
+        os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+        ruta = os.path.join(N.CARPETA_LOGS, "bloqueo.txt")
+        sin_resp = 0
+        while not self._saliendo:
+            time.sleep(3)
+            r = ctypes.c_size_t()
+            ok = u32.SendMessageTimeoutW(hwnd, 0, None, None, 0x0002, 3000, ctypes.byref(r))  # WM_NULL, SMTO_ABORTIFHUNG
+            if ok:
+                if sin_resp:
+                    self._log_bandeja(f"la ventana volvió a responder tras ~{sin_resp * 6} s")
+                    try:
+                        faulthandler.cancel_dump_traceback_later()
+                    except Exception:
+                        pass
+                sin_resp = 0
+                continue
+            sin_resp += 1
+            if sin_resp == 1:  # red de seguridad: si en 20 s Python tampoco puede escribir, lo hace C
                 try:
-                    with open(os.path.join(N.CARPETA_LOGS, "bloqueo.txt"), "w", encoding="utf-8") as f:
-                        f.write(time.ctime() + "  la ventana no respondió en 15 s\n\n")
+                    self._f_bloqueo = open(ruta, "a", encoding="utf-8")
+                    self._f_bloqueo.write(f"\n{time.ctime()}  la ventana no responde (volcado automático)\n")
+                    self._f_bloqueo.flush()
+                    faulthandler.dump_traceback_later(20, repeat=False, file=self._f_bloqueo)
+                except Exception:
+                    pass
+            if sin_resp == 3:
+                try:
+                    faulthandler.cancel_dump_traceback_later()
+                    with open(ruta, "a", encoding="utf-8") as f:
+                        f.write(f"\n{time.ctime()}  la ventana lleva ~15 s sin responder\n\n")
                         faulthandler.dump_traceback(file=f, all_threads=True)
                 except Exception:
                     pass
-                hecho = True
 
     def _al_cerrar_ventana(self):
         """Botón X: si la bandeja está activa, se esconde la ventana y GrabaClip sigue funcionando."""
