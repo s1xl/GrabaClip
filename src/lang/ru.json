@@ -515,7 +515,10 @@
 "El overlay está apagado arriba": "Оверлей выключен выше",
 "Los sonidos de aviso están apagados": "Звуки уведомлений выключены",
 "Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.": "Главный выключатель. Ниже, в «Уведомления для каждого действия», выбираешь, какие звучат.",
-"Clips activados": "Клипы включены"
+"Clips activados": "Клипы включены",
+"captura directa": "прямой захват",
+"cerrado ahora": "сейчас закрыт",
+"Usando:": "Используется:"
 },
 "patrones": [
 [

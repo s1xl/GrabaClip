@@ -515,7 +515,10 @@
 "El overlay está apagado arriba": "الطبقة مُطفأة في الأعلى",
 "Los sonidos de aviso están apagados": "أصوات التنبيه مُطفأة",
 "Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.": "مفتاح عام. في الأسفل، ضمن \"تنبيهات كل إجراء\"، تختار أيها يُصدر صوتًا.",
-"Clips activados": "تم تشغيل المقاطع"
+"Clips activados": "تم تشغيل المقاطع",
+"captura directa": "التقاط مباشر",
+"cerrado ahora": "مغلق الآن",
+"Usando:": "المستخدم:"
 },
 "patrones": [
 [

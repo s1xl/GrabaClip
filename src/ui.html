@@ -274,8 +274,18 @@
   .tema .m i { width: 20px; height: 12px; border-radius: 4px; }
 
   /* ---------- ayuda ---------- */
-  #v-ayuda .contenido { max-width: 900px; }
-  #v-stats .contenido { max-width: 1000px; }
+  /* ventanas grandes: Estadísticas, Ajustes y Ayuda usan todo el ancho, como Grabaciones */
+  .grupo-aj { display: flex; flex-direction: column; gap: 14px; }
+  body:not(.ocupado) .grupo-aj:has(> .bloqueo:only-child), .grupo-aj:not(:has(> :not(.oculto))) { display: none !important; }
+  .st-barras { height: clamp(170px, 32vh, 420px); }
+  .st-barra i { max-width: 64px; }
+  @media (min-width: 1400px) {
+    .st-dos { grid-template-columns: 1.6fr 1fr; }
+    .st-cifra b { font-size: 30px; }
+    #v-ajustes .seccion.activa { display: block; max-width: none; columns: 2 560px; column-gap: 16px; }
+    #v-ajustes .seccion.activa > h2, #v-ajustes .seccion.activa > .grupo-aj.ancho { column-span: all; margin-bottom: 14px; }
+    #v-ajustes .seccion.activa > .grupo-aj { break-inside: avoid; display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+  }
   .st-cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px; margin-bottom: 14px; }
   .st-cifra { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 14px 16px; }
   .st-cifra b { display: block; font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
@@ -297,7 +307,7 @@
   .st-juego .cab span { color: var(--tenue); font-weight: 500; font-size: 12px; white-space: nowrap; }
   .st-juego .linea-b { height: 6px; border-radius: 3px; background: var(--campo); margin-top: 6px; overflow: hidden; }
   .st-juego .linea-b i { display: block; height: 100%; background: var(--acento); border-radius: 3px; }
-  .pasos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .pasos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
   .paso { background: var(--panel); border: 1px solid var(--borde); border-radius: 8px; padding: 18px; }
   .paso .num { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; font-weight: 700;
                color: var(--acento); margin-bottom: 10px; }
@@ -1871,6 +1881,28 @@ function progresoRecorte(d) {
   }
 }
 
+// ---------- Ajustes en dos columnas cuando la ventana es grande ----------
+// Cada tarjeta se agrupa con las notas que la siguen, para que nunca queden en columnas distintas.
+function agruparAjustes() {
+  $$('#v-ajustes .seccion').forEach(sec => {
+    let grupo = null, todoJunto = false;
+    for (const el of [...sec.children]) {
+      if (el.tagName === 'H2' || el.classList.contains('grupo-aj')) { grupo = null; continue; }
+      // el aviso de "desactiva los clips" va a todo el ancho; "Temas" se queda junto a su lista
+      const ancho = el.classList.contains('bloqueo') || el.classList.contains('cab-temas');
+      if (!grupo || ancho || (el.classList.contains('tarjeta') && !todoJunto)) {
+        todoJunto = el.classList.contains('cab-temas');
+        grupo = document.createElement('div');
+        grupo.className = 'grupo-aj' + (ancho ? ' ancho' : '');
+        if (el.dataset.func) grupo.dataset.func = el.dataset.func;  // si la función está apagada, se esconde el grupo entero
+        sec.insertBefore(grupo, el);
+      }
+      grupo.appendChild(el);
+    }
+  });
+}
+agruparAjustes();
+
 // ---------- avisos de cada acción (overlay / sonido) ----------
 const EVENTOS_AVISO = [
   {id: 'clip', nombre: 'Guardar clip', det: 'También los clips largos y el del final de la partida', func: 'clips'},
@@ -2292,7 +2324,7 @@ document.addEventListener('keydown', async e => {
 /* ---------- estado ---------- */
 const ocupado = () => est.clips || est.grabando;
 function pintarEstado() {
-  $('#gpu').textContent = est.fatal ? 'No se puede grabar' : est.encoder ? est.encoder + (est.directo ? ' · captura directa' : '') : 'Detectando GPU…';
+  $('#gpu').textContent = est.fatal ? 'No se puede grabar' : est.encoder ? est.encoder + (est.directo ? ' · ' + tr('captura directa') : '') : 'Detectando GPU…';
   $('#banner').classList.toggle('visible', !!est.fatal);
   if (est.fatal) $('#banner').innerHTML = '<b>GrabaClip no puede grabar en esta PC</b><span></span>';
   if (est.fatal) $('#banner span').textContent = est.fatal;
@@ -2356,7 +2388,7 @@ async function cargarVentanas() {
   }
   if (!esta) {
     const o = document.createElement('option');
-    o.value = cfg.ventana_exe; o.textContent = cfg.ventana_exe.replace(/\.exe$/i, '') + ' (cerrado ahora)';
+    o.value = cfg.ventana_exe; o.textContent = cfg.ventana_exe.replace(/\.exe$/i, '') + ' (' + tr('cerrado ahora') + ')';
     sel.append(o);
   }
   sel.value = cfg.ventana_exe || '';
@@ -2381,11 +2413,11 @@ function pintarEncoders() {
     b.onclick = async () => { est = await api('elegir_encoder', e.id); pintarEstado(); };
     c.append(b);
   }
-  $('#enc-actual').textContent = est.encoder ? 'Usando: ' + corto(est.encoder) : 'Probando…';
+  $('#enc-actual').textContent = est.encoder ? tr('Usando:') + ' ' + corto(est.encoder) : 'Probando…';
   $('#enc-motivos').innerHTML = '';
   for (const e of lista.filter(x => !x.ok && x.motivo)) {
     const linea = document.createElement('div');
-    linea.textContent = `${corto(e.nombre)}: ${e.motivo}`;
+    linea.textContent = `${corto(e.nombre)}: ${tr(e.motivo)}`;
     $('#enc-motivos').append(linea);
   }
 }

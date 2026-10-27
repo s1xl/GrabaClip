@@ -853,6 +853,9 @@ T("El overlay está apagado arriba", "The overlay is turned off above", "O overl
 T("Los sonidos de aviso están apagados", "Notification sounds are turned off", "Os sons de aviso estão desligados")
 T("Interruptor general. Abajo, en \"Avisos de cada acción\", eliges cuáles suenan.", "Master switch. Below, in \"Notifications for each action\", you choose which ones play.", "Interruptor geral. Abaixo, em \"Avisos de cada ação\", você escolhe quais tocam.")
 T("Clips activados", "Clips on", "Clipes ativados")
+T("captura directa", "direct capture", "captura direta")
+T("cerrado ahora", "closed now", "fechado agora")
+T("Usando:", "Using:", "Usando:")
 
 def _por_especificidad(patrones):
     # los patrones con más texto fijo van primero ("Grabando: {0}" antes que "Grabando {0}")
