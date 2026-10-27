@@ -452,7 +452,7 @@
 "Tamaño del texto": "Taille du texte",
 "Pequeño": "Petit",
 "Normal": "Normale",
-"Grande": "Grand",
+"Grande": "Grande",
 "Temas": "Thèmes",
 "Crear tema": "Créer un thème",
 "Editar tema": "Modifier le thème",
@@ -582,7 +582,21 @@
 "No se pudo guardar el archivo": "Impossible d'enregistrer le fichier",
 "Desactiva los clips y detén la grabación para cargar ajustes": "Désactive les clips et arrête l'enregistrement pour charger des réglages",
 "No se pudo abrir la ventana para elegir el archivo": "Impossible d'ouvrir la fenêtre pour choisir le fichier",
-"Ese archivo no es un respaldo de GrabaClip": "Ce fichier n'est pas une sauvegarde GrabaClip"
+"Ese archivo no es un respaldo de GrabaClip": "Ce fichier n'est pas une sauvegarde GrabaClip",
+"Webcam en el video": "Webcam dans la vidéo",
+"Sin webcam": "Sans webcam",
+"Buscar webcams": "Chercher des webcams",
+"Pone tu cámara en una esquina de los clips y grabaciones, como los streamers. Usa un poco más de procesador, porque el video pasa por la CPU para dibujarla.": "Place ta caméra dans un coin des clips et enregistrements, comme les streamers. Utilise un peu plus de processeur, car la vidéo passe par le CPU pour la dessiner.",
+"Abajo a la izquierda": "En bas à gauche",
+"Abajo a la derecha": "En bas à droite",
+"Tamaño": "Taille",
+"Pequeña": "Petite",
+"Mediana": "Moyenne",
+"No se pudo abrir: ¿la usa otra app?": "Impossible de l'ouvrir : une autre appli l'utilise ?",
+"Webcams encontradas": "Webcams trouvées",
+"No encontré ninguna webcam": "Je n'ai trouvé aucune webcam",
+"No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella": "Impossible d'ouvrir la webcam (une autre appli l'utilise ?) : les clips continuent sans elle",
+"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "Impossible d'ouvrir la webcam (une autre appli l'utilise ?) : l'enregistrement continue sans elle"
 },
 "patrones": [
 [

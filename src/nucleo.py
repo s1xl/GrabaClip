@@ -136,7 +136,7 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "mic": True, "apps": [], "ajuste_ms": 0,
                   "tecla_clip": "f9", "tecla_grab": "f10", "tecla_activar": "f8",
                   "tecla_captura": "f7", "tecla_marca": "f6",
-                  "tecla_clip_largo": "shift+f9", "tecla_mic": "ctrl+alt+m", "codec": "h264", "bufer_ram": False, "marca_texto": "", "medidor": True, "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
+                  "tecla_clip_largo": "shift+f9", "tecla_mic": "ctrl+alt+m", "codec": "h264", "bufer_ram": False, "marca_texto": "", "medidor": True, "webcam": "", "webcam_pos": "abajo-der", "webcam_tam": 25, "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
                   "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
                   "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
                   "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",
@@ -315,8 +315,10 @@ def tamano_ventana(hwnd):
     return 0, 0
 
 
-def filtro_video(encoder, fps, alto_deseado, fuente=None):
-    """fuente: {"tipo": "monitor", "idx": 0} o {"tipo": "ventana", "hwnd": 1234}."""
+def filtro_video(encoder, fps, alto_deseado, fuente=None, cpu=False):
+    """fuente: {"tipo": "monitor", "idx": 0} o {"tipo": "ventana", "hwnd": 1234}.
+    cpu=True: los cuadros terminan en la memoria normal (yuv420p) aunque la GPU pueda ir directo,
+    para poder dibujar encima (la webcam)."""
     fuente = fuente or {"tipo": "monitor", "idx": 0}
     if fuente["tipo"] == "ventana" and MODO_GPU["ventana"]:
         base = (f"gfxcapture=hwnd={int(fuente['hwnd'])}:max_framerate={fps}:capture_cursor=1"
@@ -330,7 +332,7 @@ def filtro_video(encoder, fps, alto_deseado, fuente=None):
         pantallas = monitores()
         ancho_m, alto_m = pantallas[idx] if idx < len(pantallas) else alto_monitor()
     reducir = bool(alto_deseado) and (not alto_m or alto_m > alto_deseado)
-    if MODO_GPU["directo"] and (not reducir or (MODO_GPU["escala"] and alto_m)):
+    if MODO_GPU["directo"] and not cpu and (not reducir or (MODO_GPU["escala"] and alto_m)):
         if reducir:
             ancho = round(ancho_m * alto_deseado / alto_m / 2) * 2
             base += f",scale_d3d11=width={ancho}:height={alto_deseado}"
@@ -388,6 +390,41 @@ def tema_desde_colores(c):
     t["acento_fg"] = "#000000" if _luz(t["acento"]) > 0.45 else "#ffffff"
     t["oscuro"] = _luz(t["bg"]) < 0.3
     return t
+
+
+def alto_salida(fuente, alto_deseado):
+    """Alto en píxeles del video que sale (para calcular el tamaño de la webcam)."""
+    fuente = fuente or {"tipo": "monitor", "idx": 0}
+    if fuente["tipo"] == "ventana" and MODO_GPU["ventana"]:
+        alto = tamano_ventana(fuente["hwnd"])[1]
+    else:
+        idx = int(fuente.get("idx", 0))
+        pantallas = monitores()
+        alto = (pantallas[idx] if idx < len(pantallas) else alto_monitor())[1]
+    alto = alto or 1080
+    return min(alto, alto_deseado) if alto_deseado else alto
+
+
+def camaras():
+    """Nombres de las webcams (DirectShow) que ve FFmpeg."""
+    import re
+    try:
+        r = correr(["ffmpeg", "-hide_banner", "-list_devices", "true", "-f", "dshow", "-i", "dummy"], timeout=20)
+    except Exception:
+        return []
+    texto = r.stderr.decode("utf-8", "replace")
+    nombres = []
+    for linea in texto.splitlines():
+        m = re.search(r'"([^"]+)"\s*\(video\)', linea)
+        if m and m.group(1) not in nombres:
+            nombres.append(m.group(1))
+    return nombres
+
+
+WEBCAM_POS = {"abajo-der": ("main_w-overlay_w-{m}", "main_h-overlay_h-{m}"),
+              "abajo-izq": ("{m}", "main_h-overlay_h-{m}"),
+              "arriba-der": ("main_w-overlay_w-{m}", "{m}"),
+              "arriba-izq": ("{m}", "{m}")}
 
 
 def captura_pantalla(fuente, destino):
@@ -625,6 +662,8 @@ class Sesion:
             nombres_entrada.append(nombre_bonito(exe))
 
         self.especies = especies
+        camara = (cfg.get("webcam") or "").strip().replace('"', "")
+        self.webcam = bool(camara)
         prefijo = f"{APP}_{os.getpid()}_{next(CONTADOR)}"
         entradas = []
         if os.path.exists(AUDIOCAP):
@@ -649,7 +688,20 @@ class Sesion:
                              "-f", "s16le", "-ar", "48000", "-ac", "2",
                              "-i", rf"\\.\pipe\{prefijo}_{i}"]
 
-        filtro = filtro_video(encoder, fps, RESOLUCIONES.get(cfg["resolucion"], 0), self.fuente) + "[v]"
+        alto_deseado = RESOLUCIONES.get(cfg["resolucion"], 0)
+        filtro = filtro_video(encoder, fps, alto_deseado, self.fuente, cpu=self.webcam)
+        if self.webcam:
+            # la webcam entra al final (los índices de las pistas de audio no cambian) y se pone
+            # en una esquina; setpts la alinea con la captura, que también empieza en 0
+            idx_cam = len(especies) if self.audio else 0
+            entradas += ["-f", "dshow", "-rtbufsize", "100M", "-i", f"video={camara}"]
+            alto = alto_salida(self.fuente, alto_deseado)
+            tam = max(90, round(alto * int(cfg.get("webcam_tam", 25)) / 100 / 2) * 2)
+            x, y = WEBCAM_POS.get(cfg.get("webcam_pos"), WEBCAM_POS["abajo-der"])
+            m = max(8, alto // 40)
+            filtro += (f"[vb];[{idx_cam}:v]setpts=PTS-STARTPTS,scale=-2:{tam}:flags=bicubic,format=yuv420p[cam];"
+                       f"[vb][cam]overlay={x.format(m=m)}:{y.format(m=m)}:eof_action=pass:repeatlast=1,format=yuv420p")
+        filtro += "[v]"
         mapas = ["-map", "[v]"]
         if self.audio:
             if cfg["mic"]:
@@ -694,6 +746,19 @@ class Sesion:
         except Exception:
             return False
         return any(c in texto for c in ("887a0026", "887a0005", "887a0007", "acquirenextframe failed"))
+
+    def fallo_webcam(self):
+        """True si FFmpeg se cerró porque no pudo abrir la webcam (p. ej. la usa otra app)."""
+        if not self.webcam:
+            return False
+        try:
+            self.log.flush()
+            with open(self.log.name, encoding="utf-8", errors="replace") as f:
+                texto = f.read()[-4000:].lower()
+        except Exception:
+            return False
+        return any(c in texto for c in ("dshow", "video=", "could not find video device", "error opening input",
+                                        "could not run graph", "i/o error"))
 
     def silenciar_mic(self, mudo):
         """Silencia o reactiva el micrófono sin cortar nada (audiocap manda silencio)."""

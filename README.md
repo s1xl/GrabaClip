@@ -30,6 +30,13 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Compartir:** copia el clip para pegarlo con Ctrl+V en Discord o WhatsApp, o crea una **versión para Discord** de menos de 10 MB que se copia sola.
 - **Editor:** recorta con vista previa (barra, teclas I y O), elige qué pistas de audio van en la copia (por ejemplo, sin Discord) y exporta en **vertical 9:16** para TikTok, Shorts y Reels.
 - **Unir clips:** selecciona varios y GrabaClip los junta en un video con un fundido corto entre cada uno.
+- **Cámara lenta, marca de agua y GIF** en el editor (0.5x / 0.25x, tu @ en una esquina, GIF de hasta 20 s que queda copiado).
+- **Resumen de la semana:** un video con 8 s de cada favorito de los últimos 7 días (*Estadísticas*).
+- **AV1** (NVIDIA RTX 40 o más nueva): archivos ~35 % más ligeros con la misma calidad.
+- **Búfer en RAM** (opcional): los últimos segundos se guardan en memoria en vez de escribir al disco todo el tiempo.
+- **Webcam en el video:** tu cámara en una esquina de los clips y grabaciones.
+- **Silenciar el micrófono** con una tecla (Ctrl+Alt+M) o un botón, sin cortar nada.
+- **Etiquetas** propias para organizar y filtrar tus clips, **respaldo de ajustes** en un archivo y **medidor de impacto** (CPU, GPU, RAM y disco que usa GrabaClip).
 - **Idiomas:** español, inglés, portugués (Brasil), francés, árabe (de derecha a izquierda) y ruso. Usa el idioma de Windows o el que elijas en *Ajustes → Apariencia*.
 - **Tutorial de bienvenida** la primera vez que abres la app (se puede repetir desde Ayuda).
 - **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color más **los tuyos** (eliges cada color), esquinas rectas, normales o redondas, tamaño del texto, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).

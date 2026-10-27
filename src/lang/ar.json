@@ -452,7 +452,7 @@
 "Tamaño del texto": "حجم النص",
 "Pequeño": "صغير",
 "Normal": "عادية",
-"Grande": "كبير",
+"Grande": "كبيرة",
 "Temas": "السمات",
 "Crear tema": "إنشاء سمة",
 "Editar tema": "تعديل السمة",
@@ -582,7 +582,21 @@
 "No se pudo guardar el archivo": "تعذّر حفظ الملف",
 "Desactiva los clips y detén la grabación para cargar ajustes": "أوقف المقاطع والتسجيل لتحميل الإعدادات",
 "No se pudo abrir la ventana para elegir el archivo": "تعذّر فتح نافذة اختيار الملف",
-"Ese archivo no es un respaldo de GrabaClip": "هذا الملف ليس نسخة احتياطية من GrabaClip"
+"Ese archivo no es un respaldo de GrabaClip": "هذا الملف ليس نسخة احتياطية من GrabaClip",
+"Webcam en el video": "كاميرا الويب في الفيديو",
+"Sin webcam": "بدون كاميرا",
+"Buscar webcams": "البحث عن كاميرات",
+"Pone tu cámara en una esquina de los clips y grabaciones, como los streamers. Usa un poco más de procesador, porque el video pasa por la CPU para dibujarla.": "يضع كاميرتك في زاوية المقاطع والتسجيلات مثل صنّاع البث. يستهلك المعالج أكثر قليلًا لأن الفيديو يمر عبره لرسمها.",
+"Abajo a la izquierda": "أسفل اليسار",
+"Abajo a la derecha": "أسفل اليمين",
+"Tamaño": "الحجم",
+"Pequeña": "صغيرة",
+"Mediana": "متوسطة",
+"No se pudo abrir: ¿la usa otra app?": "تعذّر فتحها: هل يستخدمها تطبيق آخر؟",
+"Webcams encontradas": "الكاميرات الموجودة",
+"No encontré ninguna webcam": "لم أجد أي كاميرا ويب",
+"No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella": "تعذّر فتح كاميرا الويب (هل يستخدمها تطبيق آخر؟): تستمر المقاطع بدونها",
+"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "تعذّر فتح كاميرا الويب (هل يستخدمها تطبيق آخر؟): يستمر التسجيل بدونها"
 },
 "patrones": [
 [

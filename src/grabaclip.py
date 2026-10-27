@@ -82,7 +82,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto", "medidor"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto", "medidor", "webcam", "webcam_pos", "webcam_tam"}
 
 
 def sonido_ok():
@@ -127,6 +127,7 @@ class Api:
         self._ram = BR.BuferRAM()
         self._bufer_en_ram = False
         self._mic_mudo = False
+        self._webcam_fallida = False  # la webcam no abrió (otra app la usa): se sigue sin ella
         self._teclas_pausadas = False
         self._minimizado = minimizado
         self._indice = self._leer_indice()
@@ -241,10 +242,14 @@ class Api:
             "codec_activo": "av1" if self._encoder_video() != self._encoder else "h264",
             "en_ram": self._bufer_en_ram and self._bufer is not None,
             "ram_mb": self._ram.megas() if self._bufer_en_ram else 0,
+            "webcam_fallida": self._webcam_fallida,
         }
 
     def estado(self):
         return self._estado()
+
+    def camaras(self):
+        return N.camaras()
 
     # ---------- AV1 y búfer en RAM ----------
     def _encoder_video(self):
@@ -339,6 +344,8 @@ class Api:
                 self._avisar_estado()
             if "discord" in (cambios or {}) or "discord_juego" in (cambios or {}):
                 self._avisar_estado()
+            if any(k.startswith("webcam") for k in (cambios or {})):
+                self._webcam_fallida = False
             if "rendimiento" in (cambios or {}):
                 self._overlay.refrescar()
                 self._avisar_estado()
@@ -378,6 +385,8 @@ class Api:
                     return self._estado()
                 self._clips_on = True
                 self._fallos = []
+                if not self._grab:
+                    self._webcam_fallida = False  # se vuelve a intentar con la webcam
                 fuente = self._fuente_deseada()
                 if fuente:
                     self._iniciar_bufer(fuente)
@@ -633,6 +642,8 @@ class Api:
         exe = ((fuente or {}).get("exe") or "").lower()
         propio = (self._cfg.get("por_juego_cfg") or {}).get(exe) or {}
         cambios = {k: v for k, v in propio.items() if k in ("fps", "calidad", "resolucion") and v}
+        if self._webcam_fallida and self._cfg.get("webcam"):
+            cambios["webcam"] = ""
         return dict(self._cfg, **cambios) if cambios else self._cfg
 
     def _alternar_ventana(self):
@@ -1734,6 +1745,26 @@ class Api:
             time.sleep(0.5)
             with self._lock:
                 cambio = False
+                if self._bufer and not self._bufer.viva() and self._bufer.fallo_webcam() and self._clips_on:
+                    fuente = self._bufer.fuente
+                    self._bufer.cerrar_audio()
+                    self._webcam_fallida = True
+                    self._aviso("No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella", "error")
+                    self._iniciar_bufer(fuente, conservar=True)
+                    cambio = True
+                if self._grab and not self._grab.viva() and self._grab.fallo_webcam():
+                    fuente, pistas, archivo = self._grab.fuente, self._grab.pistas, self._archivo_grab
+                    self._grab.cerrar_audio()
+                    self._webcam_fallida = True
+                    base = os.path.splitext(os.path.basename(archivo))[0].split("_parte")[0]
+                    if os.path.exists(archivo) and os.path.getsize(archivo) > 0:
+                        self._terminar_grabacion(archivo, pistas)
+                        self._parte_grab += 1
+                        self._empezar_grabacion(fuente, base)
+                    else:
+                        self._empezar_grabacion(fuente, base if self._parte_grab > 1 else None)
+                    self._aviso("No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella", "error")
+                    cambio = True
                 if self._bufer and not self._bufer.viva() and self._bufer.perdio_pantalla() \
                         and self._clips_on and self._puede_reintentar():
                     # Windows corto la captura un momento (p. ej. el juego cambio a pantalla completa):
