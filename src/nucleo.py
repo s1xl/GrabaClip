@@ -91,7 +91,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "tecla_captura": "f7", "tecla_marca": "f6",
                   "tecla_clip_largo": "shift+f9", "duracion_larga": 120, "tecla_ventana": "ctrl+shift+g",
                   "por_juego_cfg": {}, "vista_previa": True, "clip_al_cerrar": False, "idioma": "auto",
-                  "perfil": "completo", "perfil_elegido": False,
+                  "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
+                  "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",
                   "funciones": {"clips": True, "grabar": True, "capturas": True, "voz": True,
                                 "overlay": True, "discord": True, "estadisticas": True}, "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
@@ -307,6 +308,26 @@ PERFILES = {
 }
 
 
+def temas_todos(cfg):
+    """Los temas de fábrica más los que creó el usuario."""
+    propios = {k: v for k, v in (cfg.get("temas_propios") or {}).items() if isinstance(v, dict)}
+    return {**TEMAS, **propios}
+
+
+def _luz(hexa):
+    r, g, b = (int(hexa[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def tema_desde_colores(c):
+    """Completa un tema propio: color del texto sobre el acento y si es oscuro o claro."""
+    t = {k: c[k] for k in ("bg", "panel", "campo", "fg", "tenue", "acento", "borde")}
+    t["acento_fg"] = "#000000" if _luz(t["acento"]) > 0.45 else "#ffffff"
+    t["oscuro"] = _luz(t["bg"]) < 0.3
+    return t
+
+
 def captura_pantalla(fuente, destino):
     """Guarda una imagen PNG de lo que se ve ahora (ventana del juego o pantalla)."""
     fuente = fuente or {"tipo": "monitor", "idx": 0}
@@ -462,7 +483,7 @@ def cargar_config():
     cfg["ui_version"] = 6
     if cfg.get("calidad") == "Maxima":
         cfg["calidad"] = "Máxima"
-    if cfg.get("tema") not in TEMAS:
+    if cfg.get("tema") not in temas_todos(cfg):
         cfg["tema"] = "Carmesí"
     if "modo_audio" not in guardado and guardado.get("apps"):
         cfg["modo_audio"] = "separadas"  # quien ya tenia apps en pista propia las conserva

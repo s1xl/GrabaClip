@@ -227,6 +227,48 @@
   .tema { border-radius: 8px; padding: 12px; text-align: left; border: 2px solid transparent; outline: 1px solid var(--borde); }
   .tema:hover { transform: translateY(-1px); }
   .tema.sel { border-color: var(--acento); outline-color: transparent; }
+  .tema { position: relative; }
+  .tema .acc-tema { position: absolute; top: 6px; right: 6px; display: none; gap: 2px; }
+  .tema:hover .acc-tema { display: flex; }
+  .tema .acc-tema span { width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; background: rgba(0,0,0,.35); color: #fff; font-size: 12px; }
+  .tema .acc-tema span:hover { background: rgba(0,0,0,.6); }
+  .tema .propio { font-size: 10px; font-weight: 600; opacity: .7; margin-left: 4px; }
+  .cab-temas { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 10px; }
+  .cab-temas h3 { font-size: 14px; }
+  .campo-texto { background: var(--campo); border: 1px solid var(--borde); border-radius: 6px; color: var(--fg); padding: 9px 12px; font: 600 13px "Segoe UI", sans-serif; outline: none; }
+  .campo-texto:focus { border-color: var(--acento); }
+  .et-colores { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+  .et-color { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 6px; background: var(--campo); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .et-color input { width: 34px; height: 26px; border: 0; padding: 0; background: none; cursor: pointer; }
+  .et-color input::-webkit-color-swatch-wrapper { padding: 0; }
+  .et-color input::-webkit-color-swatch { border: 1px solid rgba(128,128,128,.5); border-radius: 4px; }
+  /* esquinas */
+  body.esq-rectas .tarjeta, body.esq-rectas .tarjeta-video, body.esq-rectas .mini, body.esq-rectas .caja, body.esq-rectas .ed-caja,
+  body.esq-rectas .tema, body.esq-rectas .comp-op, body.esq-rectas .perfiles button, body.esq-rectas .pista, body.esq-rectas .marco,
+  body.esq-rectas .filtro, body.esq-rectas .chips button, body.esq-rectas .mini-boton, body.esq-rectas .play, body.esq-rectas .accion,
+  body.esq-rectas .campo-sel, body.esq-rectas .campo-texto, body.esq-rectas .buscar input, body.esq-rectas .selector select,
+  body.esq-rectas .aviso, body.esq-rectas .guardar, body.esq-rectas .st-cifra, body.esq-rectas .barra-seleccion { border-radius: 2px !important; }
+  body.esq-redondas .tarjeta, body.esq-redondas .tarjeta-video, body.esq-redondas .caja, body.esq-redondas .ed-caja, body.esq-redondas .tema,
+  body.esq-redondas .comp-op, body.esq-redondas .perfiles button, body.esq-redondas .st-cifra, body.esq-redondas .barra-seleccion { border-radius: 16px !important; }
+  body.esq-redondas .mini, body.esq-redondas .pista, body.esq-redondas .campo-sel, body.esq-redondas .campo-texto, body.esq-redondas .buscar input,
+  body.esq-redondas .selector select, body.esq-redondas .aviso { border-radius: 12px !important; }
+  body.esq-redondas .filtro, body.esq-redondas .chips button, body.esq-redondas .mini-boton, body.esq-redondas .play, body.esq-redondas .accion,
+  body.esq-redondas .guardar { border-radius: 10px !important; }
+  /* tutorial */
+  #tutorial { position: fixed; inset: 0; z-index: 20; display: none; }
+  #tutorial.abierto { display: block; }
+  #tutorial .foco { position: absolute; border-radius: 10px; box-shadow: 0 0 0 9999px rgba(0,0,0,.66); transition: all .3s ease; pointer-events: none;
+                    outline: 2px solid var(--acento); outline-offset: 3px; }
+  #tutorial .foco.centro { width: 0; height: 0; left: 50%; top: 45%; outline: 0; }
+  #tutorial .globo { position: absolute; width: 340px; background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 18px 18px 14px;
+                     box-shadow: 0 20px 60px rgba(0,0,0,.5); transition: all .3s ease; }
+  #tutorial .globo h3 { font-size: 16px; margin-bottom: 6px; }
+  #tutorial .globo p { color: var(--tenue); font-size: 13px; line-height: 1.45; }
+  #tutorial .globo .pie-tut { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+  #tutorial .globo .pie-tut .puntos { flex: 1; display: flex; gap: 5px; }
+  #tutorial .globo .puntos i { width: 7px; height: 7px; border-radius: 50%; background: var(--borde); }
+  #tutorial .globo .puntos i.on { background: var(--acento); }
+  #tutorial kbd { font: 700 11px "Segoe UI", sans-serif; padding: 1px 6px; border-radius: 4px; background: var(--campo); border: 1px solid var(--borde); color: var(--fg); }
   .tema .n { font-weight: 700; font-size: 13px; display: block; margin-bottom: 8px; }
   .tema .m { display: flex; gap: 4px; }
   .tema .m i { width: 20px; height: 12px; border-radius: 4px; }
@@ -772,6 +814,20 @@
           <div class="fila"><div class="texto"><h3>Idioma de la app</h3><p>Idioma / Language / Idioma</p></div>
             <select class="campo-sel" id="sel-idioma" style="flex:none;width:auto" translate="no"></select></div>
         </div>
+        <div class="tarjeta" style="margin-bottom:14px">
+          <div class="fila columna"><div class="cab"><h3>Esquinas</h3></div>
+            <div class="chips" id="chips-esquinas"><button data-v="rectas">Rectas</button><button data-v="normales">Normales</button><button data-v="redondas">Redondas</button></div></div>
+          <div class="fila columna"><div class="cab"><h3>Tamaño del texto</h3></div>
+            <div class="chips" id="chips-tamano"><button data-v="pequeno">Pequeño</button><button data-v="normal">Normal</button><button data-v="grande">Grande</button></div></div>
+        </div>
+        <div class="cab-temas"><h3>Temas</h3><button class="mini-boton primario" id="b-nuevo-tema">Crear tema</button></div>
+        <div class="tarjeta oculto" id="editor-tema" style="margin-bottom:14px">
+          <div class="fila columna"><div class="cab"><h3 id="et-titulo">Crear tema</h3></div>
+            <input class="campo-texto" id="et-nombre" maxlength="30" placeholder="Nombre de tu tema" spellcheck="false" translate="no">
+            <div class="et-colores" id="et-colores"></div>
+            <p class="nota">Empieza desde el tema que tengas puesto. Los cambios se ven al instante.</p>
+            <div class="en-linea" style="justify-content:flex-end"><button class="mini-boton" id="et-cancelar">Cancelar</button><button class="mini-boton primario" id="et-guardar">Guardar tema</button></div></div>
+        </div>
         <div class="temas" id="temas"></div>
       </div>
     </div>
@@ -795,7 +851,7 @@
   <section class="vista" id="v-ayuda">
     <div class="contenido desliza">
       <div class="seccion activa" style="max-width:none">
-        <h2>Cómo usar GrabaClip</h2>
+        <div class="cab-temas"><h2 style="margin:0">Cómo usar GrabaClip</h2><button class="mini-boton primario" id="b-ver-tutorial">Ver el tutorial otra vez</button></div>
         <div class="pasos">
           <div class="paso"><div class="num mezcla-acento">1</div><h3>Activa los clips</h3>
             <p>Enciende "Clips instantáneos" abajo a la izquierda o pulsa <kbd class="k-activar">F8</kbd> desde el juego. GrabaClip guarda en segundo plano los últimos segundos.</p></div>
@@ -834,6 +890,10 @@
 </footer>
 
 <div id="avisos"></div>
+<div id="tutorial"><div class="foco" id="tut-foco"></div>
+  <div class="globo" id="tut-globo"><h3 id="tut-t"></h3><p id="tut-p"></p>
+    <div class="pie-tut"><div class="puntos" id="tut-puntos"></div>
+      <button class="mini-boton" id="tut-saltar">Saltar</button><button class="mini-boton primario" id="tut-sig">Siguiente</button></div></div></div>
 <div id="dlg-perfil"><div class="caja">
   <h3>¿Cómo vas a usar GrabaClip?</h3>
   <p>Puedes cambiarlo cuando quieras en Ajustes → General → Perfil.</p>
@@ -1268,13 +1328,139 @@ function pintarTemas() {
   $('#temas').innerHTML = '';
   for (const [n, t] of Object.entries(D.temas)) {
     const b = document.createElement('button');
+    const propio = !(D.temas_fabrica || []).includes(n);
     b.className = 'tema'; b.dataset.t = n; b.style.background = t.bg; b.style.color = t.fg;
-    b.innerHTML = `<span class="n">${n}</span><span class="m"><i style="background:${t.acento}"></i>
-      <i style="background:${t.panel};outline:1px solid ${t.borde}"></i><i style="background:${t.fg}"></i></span>`;
-    b.onclick = () => { cfg.tema = n; aplicarTema(n); api('guardar', {tema: n}); };
+    b.innerHTML = `<span class="n"${propio ? ' translate="no"' : ''}></span><span class="m"><i style="background:${t.acento}"></i>
+      <i style="background:${t.panel};outline:1px solid ${t.borde}"></i><i style="background:${t.fg}"></i></span>` +
+      (propio ? '<span class="acc-tema"><span data-a="editar" title="Editar">✎</span><span data-a="borrar" title="Eliminar">✕</span></span>' : '');
+    b.querySelector('.n').textContent = n;
+    b.onclick = async e => {
+      const accion = e.target.dataset && e.target.dataset.a;
+      if (accion === 'editar') { e.stopPropagation(); abrirEditorTema(n); return; }
+      if (accion === 'borrar') {
+        e.stopPropagation();
+        if (!await confirmar('¿Eliminar este tema?', n)) return;
+        const r = await api('borrar_tema', n);
+        if (r.ok) { D.temas = r.temas; cfg.tema = r.tema; pintarTemas(); aplicarTema(r.tema); }
+        return;
+      }
+      cfg.tema = n; aplicarTema(n); api('guardar', {tema: n});
+    };
     $('#temas').append(b);
   }
 }
+
+// ---------- crear y editar temas ----------
+const CAMPOS_TEMA = [['acento', 'Acento'], ['bg', 'Fondo'], ['panel', 'Paneles'], ['campo', 'Campos'], ['fg', 'Texto'], ['tenue', 'Texto secundario'], ['borde', 'Bordes']];
+let temaEditado = null;
+function abrirEditorTema(nombre) {
+  const base = D.temas[nombre || cfg.tema] || Object.values(D.temas)[0];
+  temaEditado = {nombre: nombre || null, colores: {}};
+  for (const [k] of CAMPOS_TEMA) temaEditado.colores[k] = base[k];
+  $('#et-titulo').textContent = nombre ? 'Editar tema' : 'Crear tema';
+  $('#et-nombre').value = nombre || '';
+  const c = $('#et-colores'); c.innerHTML = '';
+  for (const [k, etiqueta] of CAMPOS_TEMA) {
+    const l = document.createElement('label');
+    l.className = 'et-color';
+    l.innerHTML = '<input type="color"><span></span>';
+    l.querySelector('span').textContent = etiqueta;
+    const inp = l.querySelector('input');
+    inp.value = temaEditado.colores[k];
+    inp.oninput = () => { temaEditado.colores[k] = inp.value; vistaTema(); };
+    c.append(l);
+  }
+  $('#editor-tema').classList.remove('oculto');
+  $('#et-nombre').focus();
+  vistaTema();
+}
+function vistaTema() {
+  const r = document.documentElement.style, c = temaEditado.colores;
+  for (const k of ['bg', 'panel', 'campo', 'fg', 'tenue', 'acento', 'borde']) r.setProperty('--' + k, c[k]);
+  const luz = h => { const v = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; };
+  r.setProperty('--acento-fg', luz(c.acento) > .45 ? '#000000' : '#ffffff');
+  r.colorScheme = luz(c.bg) < .3 ? 'dark' : 'light';
+}
+function cerrarEditorTema() { $('#editor-tema').classList.add('oculto'); temaEditado = null; aplicarTema(cfg.tema); }
+$('#b-nuevo-tema').onclick = () => abrirEditorTema(null);
+$('#et-cancelar').onclick = cerrarEditorTema;
+$('#et-guardar').onclick = async () => {
+  const nombre = $('#et-nombre').value.trim();
+  const r = await api('guardar_tema', nombre, temaEditado.colores);
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  if (temaEditado.nombre && temaEditado.nombre !== nombre && !(D.temas_fabrica || []).includes(temaEditado.nombre)) {
+    const r2 = await api('borrar_tema', temaEditado.nombre);  // se renombró
+    if (r2.ok) r.temas = r2.temas;
+  }
+  D.temas = r.temas; cfg.tema = r.tema;
+  $('#editor-tema').classList.add('oculto'); temaEditado = null;
+  pintarTemas(); aplicarTema(r.tema);
+  aviso('Tema guardado', 'ok');
+};
+// esquinas y tamaño del texto
+function aplicarEstilo() {
+  document.body.classList.toggle('esq-rectas', cfg.esquinas === 'rectas');
+  document.body.classList.toggle('esq-redondas', cfg.esquinas === 'redondas');
+  document.documentElement.style.zoom = {pequeno: .92, normal: 1, grande: 1.1}[cfg.tamano_texto || 'normal'] || 1;
+  $$('#chips-esquinas button').forEach(b => b.classList.toggle('sel', b.dataset.v === (cfg.esquinas || 'normales')));
+  $$('#chips-tamano button').forEach(b => b.classList.toggle('sel', b.dataset.v === (cfg.tamano_texto || 'normal')));
+}
+$$('#chips-esquinas button').forEach(b => b.onclick = () => guardar({esquinas: b.dataset.v}));
+$$('#chips-tamano button').forEach(b => b.onclick = () => guardar({tamano_texto: b.dataset.v}));
+
+// ---------- tutorial para quien recién empieza ----------
+function pasosTutorial() {
+  const f = cfg.funciones || {};
+  const pasos = [{t: '¡Bienvenido a GrabaClip!', p: 'Te muestro lo básico en menos de un minuto.'}];
+  if (f.clips !== false) {
+    pasos.push({sel: '#pie-clips .switch', t: 'Activa los clips', p: 'Con esto GrabaClip guarda en segundo plano los últimos segundos de tu partida. También puedes usar {0} desde el juego.', teclas: ['tecla_activar'], vista: 'grab'});
+    pasos.push({sel: '#b-clip', t: 'Guarda la jugada', p: 'Cuando pase algo bueno, pulsa {0}. El clip se guarda sin pausar el juego.', teclas: ['tecla_clip'], vista: 'grab'});
+  }
+  if (f.grabar !== false) pasos.push({sel: '#b-rec', t: 'Graba partidas completas', p: 'REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.', teclas: ['tecla_grab', 'tecla_marca'], vista: 'grab'});
+  pasos.push({sel: '#rejilla', t: 'Tu biblioteca', p: 'Aquí aparecen tus clips. Puedes verlos, recortarlos, compartirlos o marcarlos como favoritos.', vista: 'grab'});
+  pasos.push({sel: '#nav [data-v="ajustes"]', t: 'Hazlo a tu manera', p: 'En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.', vista: 'grab'});
+  pasos.push({t: '¡Listo!', p: 'Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.'});
+  return pasos;
+}
+let tut = null;
+function iniciarTutorial() { tut = {pasos: pasosTutorial(), i: 0}; $('#tutorial').classList.add('abierto'); pasoTutorial(); }
+function pasoTutorial() {
+  const paso = tut.pasos[tut.i];
+  if (paso.vista && !$('#v-' + paso.vista).classList.contains('activa')) irA(paso.vista);
+  $('#tut-t').textContent = paso.t;
+  const esc = s => s.replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+  $('#tut-p').innerHTML = esc(tr(paso.p)).replace(/\{(\d)\}/g, (x, n) => `<kbd>${esc(bonita(cfg[(paso.teclas || [])[n]] || ''))}</kbd>`);
+  $('#tut-puntos').innerHTML = tut.pasos.map((_, j) => `<i class="${j === tut.i ? 'on' : ''}"></i>`).join('');
+  const ultimo = tut.i === tut.pasos.length - 1;
+  $('#tut-sig').textContent = tut.i === 0 ? 'Empezar' : ultimo ? 'Terminar' : 'Siguiente';
+  $('#tut-saltar').classList.toggle('oculto', ultimo);
+  const foco = $('#tut-foco'), globo = $('#tut-globo');
+  const el = paso.sel && $(paso.sel);
+  // con el tamaño de texto cambiado (zoom), el tutorial se dibuja sin zoom para medir en píxeles reales
+  $('#tutorial').style.zoom = 1 / (parseFloat(document.documentElement.style.zoom) || 1);
+  const W = innerWidth, H = innerHeight;
+  if (!el || !el.offsetParent) {
+    foco.className = 'foco centro'; foco.removeAttribute('style');
+    globo.style.left = (W / 2 - 170) + 'px'; globo.style.top = (H / 2 - 90) + 'px';
+    return;
+  }
+  const r = el.getBoundingClientRect(), m = 6;
+  foco.className = 'foco';
+  Object.assign(foco.style, {left: r.left - m + 'px', top: r.top - m + 'px', width: r.width + 2 * m + 'px', height: Math.min(r.height, H * .6) + 2 * m + 'px'});
+  const abajo = r.top < H / 2;
+  let x = Math.min(Math.max(16, r.left + r.width / 2 - 170), W - 356);
+  globo.style.left = x + 'px';
+  globo.style.top = (abajo ? Math.min(r.top + Math.min(r.height, H * .6) + 18, H - 200) : Math.max(16, r.top - 190)) + 'px';
+}
+function cerrarTutorial() {
+  $('#tutorial').classList.remove('abierto'); tut = null;
+  if (!cfg.tutorial_visto) guardar({tutorial_visto: true});
+}
+$('#tut-sig').onclick = () => { if (tut.i >= tut.pasos.length - 1) cerrarTutorial(); else { tut.i++; pasoTutorial(); } };
+$('#tut-saltar').onclick = cerrarTutorial;
+$('#b-ver-tutorial').onclick = () => { irA('grab'); setTimeout(iniciarTutorial, 200); };
+addEventListener('resize', () => { if (tut) pasoTutorial(); });
+document.addEventListener('keydown', e => { if (tut && e.key === 'Escape') cerrarTutorial(); });
 
 /* ---------- ajustes ---------- */
 function guardar(c) { Object.assign(cfg, c); api('guardar', c); pintarCfg(); }
@@ -1301,6 +1487,7 @@ function pintarCfg() {
   pintarModoAudio();
   document.body.classList.toggle('rendimiento', !!cfg.rendimiento);
   aplicarFunciones();
+  aplicarEstilo();
   $$('[data-sw]').forEach(i => i.checked = !!cfg[i.dataset.sw]);
   $$('.sub-overlay').forEach(f => f.classList.toggle('oculto', !cfg.overlay));
   $$('.sub-discord').forEach(f => f.classList.toggle('oculto', !cfg.discord));
@@ -1698,12 +1885,13 @@ async function elegirPerfil(perfil, funciones) {
 $$('#perfiles button').forEach(b => b.onclick = () => elegirPerfil(b.dataset.perfil));
 $('#b-personalizar').onclick = () => { const c = $('#funciones'); c.classList.toggle('oculto'); if (!c.classList.contains('oculto')) pintarFunciones(); };
 function preguntarPerfil() {
-  if (cfg.perfil_elegido) return;
+  if (cfg.perfil_elegido) { if (!cfg.tutorial_visto) setTimeout(iniciarTutorial, 400); return; }
   const c = $('#perfiles-inicio');
   c.innerHTML = $('#perfiles').innerHTML;
   c.querySelectorAll('button').forEach(b => b.onclick = async () => {
     $('#dlg-perfil').classList.remove('abierto');
     await elegirPerfil(b.dataset.perfil);
+    if (!cfg.tutorial_visto) setTimeout(iniciarTutorial, 300);
   });
   $('#dlg-perfil').classList.add('abierto');
 }

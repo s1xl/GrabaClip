@@ -444,7 +444,50 @@
 "Los clips están apagados en tu perfil (Ajustes → General → Perfil)": "Клипы выключены в вашем профиле (Настройки → Общие → Профиль)",
 "La grabación está apagada en tu perfil (Ajustes → General → Perfil)": "Запись выключена в вашем профиле (Настройки → Общие → Профиль)",
 "Termina la grabación antes de cambiar de perfil": "Завершите запись, прежде чем менять профиль",
-"Perfil desconocido": "Неизвестный профиль"
+"Perfil desconocido": "Неизвестный профиль",
+"Esquinas": "Углы",
+"Rectas": "Прямые",
+"Normales": "Обычные",
+"Redondas": "Скруглённые",
+"Tamaño del texto": "Размер текста",
+"Pequeño": "Мелкий",
+"Normal": "Обычный",
+"Grande": "Крупный",
+"Temas": "Темы",
+"Crear tema": "Создать тему",
+"Editar tema": "Изменить тему",
+"Nombre de tu tema": "Название темы",
+"Empieza desde el tema que tengas puesto. Los cambios se ven al instante.": "Начинается с текущей темы. Изменения видны сразу.",
+"Guardar tema": "Сохранить тему",
+"Acento": "Акцент",
+"Fondo": "Фон",
+"Paneles": "Панели",
+"Campos": "Поля",
+"Texto": "Текст",
+"Texto secundario": "Второстепенный текст",
+"Bordes": "Рамки",
+"Editar": "Изменить",
+"¿Eliminar este tema?": "Удалить эту тему?",
+"Tema guardado": "Тема сохранена",
+"Ponle un nombre a tu tema": "Дайте теме название",
+"Ese nombre ya lo usa un tema de fábrica": "Это название уже у встроенной темы",
+"Algún color no es válido": "Один из цветов неверный",
+"Ese tema no se puede borrar": "Эту тему нельзя удалить",
+"Saltar": "Пропустить",
+"Siguiente": "Далее",
+"Empezar": "Начать",
+"Terminar": "Готово",
+"Ver el tutorial otra vez": "Показать обучение ещё раз",
+"¡Bienvenido a GrabaClip!": "Добро пожаловать в GrabaClip!",
+"Te muestro lo básico en menos de un minuto.": "Покажу основное меньше чем за минуту.",
+"Guarda la jugada": "Сохраните момент",
+"Graba partidas completas": "Записывайте матчи целиком",
+"Tu biblioteca": "Ваша библиотека",
+"Aquí aparecen tus clips. Puedes verlos, recortarlos, compartirlos o marcarlos como favoritos.": "Здесь появляются ваши клипы. Их можно смотреть, обрезать, отправлять и добавлять в избранное.",
+"Hazlo a tu manera": "Под себя",
+"En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.": "В настройках меняются клавиши, качество, звук, профиль и цвета.",
+"¡Listo!": "Готово!",
+"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "Можно начинать делать клипы. Чтобы посмотреть это снова, загляните в «Справку»."
 },
 "patrones": [
 [
@@ -842,6 +885,18 @@
 [
 "Perfil: {0}",
 "Профиль: {0}"
+],
+[
+"Con esto GrabaClip guarda en segundo plano los últimos segundos de tu partida. También puedes usar {0} desde el juego.",
+"Так GrabaClip в фоне хранит последние секунды матча. Также можно нажать {0} прямо в игре."
+],
+[
+"Cuando pase algo bueno, pulsa {0}. El clip se guarda sin pausar el juego.",
+"Когда случится что-то крутое, нажмите {0}. Клип сохранится без паузы в игре."
+],
+[
+"REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.",
+"REC или {0} начинает и заканчивает длинную запись. Клавишей {1} отмечайте лучшие моменты."
 ]
 ]
 }

@@ -76,7 +76,8 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "quitar_mudas", "orden_pistas", "overlay", "overlay_indicador", "overlay_aviso",
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
-                    "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma"}
+                    "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
+                    "esquinas", "tamano_texto", "tutorial_visto"}
 
 
 def sonido_ok():
@@ -152,7 +153,7 @@ class Api:
         self._voz = VZ.Voz(self._por_voz, lambda e: self._emitir("voz", e))
         self._voz_iniciada = False
         self._overlay = OV.Overlay(self._cfg_efectiva,
-                                   lambda: N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
+                                   lambda: N.temas_todos(self._cfg).get(self._cfg.get("tema"), N.TEMAS["Carmesí"]))
         threading.Thread(target=self._hilo_emisor, daemon=True).start()
         threading.Thread(target=self._preparar, daemon=True).start()
         threading.Thread(target=self._al_abrir_updates, daemon=True).start()
@@ -233,7 +234,8 @@ class Api:
         return {
             "cfg": self._cfg,
             "estado": self._estado(),
-            "temas": N.TEMAS,
+            "temas": N.temas_todos(self._cfg),
+            "temas_fabrica": list(N.TEMAS),
             "calidades": list(N.CALIDADES),
             "fps": N.FPS_OPCIONES,
             "resoluciones": list(N.RESOLUCIONES),
@@ -1448,7 +1450,7 @@ class Api:
     def _pintar_barra(self):
         if not self._ventana:
             return
-        t = N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Oscuro"])
+        t = N.temas_todos(self._cfg).get(self._cfg.get("tema"), N.TEMAS["Oscuro"])
         hwnd = None
         try:
             hwnd = int(self._ventana.native.Handle.ToInt64())
@@ -1477,6 +1479,42 @@ class Api:
         if not self._funcion("discord"):
             cambios["discord"] = False
         return dict(self._cfg, **cambios) if cambios else self._cfg
+
+    # ---------- temas propios ----------
+    def guardar_tema(self, nombre, colores):
+        import re as _re
+        nombre = " ".join((nombre or "").split())[:30]
+        if not nombre:
+            return {"ok": False, "msg": "Ponle un nombre a tu tema"}
+        if nombre in N.TEMAS:
+            return {"ok": False, "msg": "Ese nombre ya lo usa un tema de fábrica"}
+        try:
+            if any(not _re.fullmatch(r"#[0-9a-fA-F]{6}", str(colores[k]))
+                   for k in ("bg", "panel", "campo", "fg", "tenue", "acento", "borde")):
+                raise ValueError
+            tema = N.tema_desde_colores({k: str(v).lower() for k, v in colores.items()})
+        except Exception:
+            return {"ok": False, "msg": "Algún color no es válido"}
+        propios = dict(self._cfg.get("temas_propios") or {})
+        propios[nombre] = tema
+        self._cfg["temas_propios"] = propios
+        self._cfg["tema"] = nombre
+        N.guardar_config(self._cfg)
+        self._pintar_barra()
+        self._overlay.refrescar()
+        return {"ok": True, "temas": N.temas_todos(self._cfg), "tema": nombre}
+
+    def borrar_tema(self, nombre):
+        propios = dict(self._cfg.get("temas_propios") or {})
+        if nombre not in propios:
+            return {"ok": False, "msg": "Ese tema no se puede borrar"}
+        del propios[nombre]
+        self._cfg["temas_propios"] = propios
+        if self._cfg.get("tema") == nombre:
+            self._cfg["tema"] = "Carmesí"
+        N.guardar_config(self._cfg)
+        self._pintar_barra()
+        return {"ok": True, "temas": N.temas_todos(self._cfg), "tema": self._cfg["tema"]}
 
     def elegir_perfil(self, perfil, funciones=None):
         """Aplica un perfil (o 'personalizado' con las funciones elegidas una por una)."""
@@ -1515,7 +1553,7 @@ class Api:
                     self._cola_ui.get_nowait()
                 except queue.Empty:
                     break
-            fondo = N.TEMAS.get(self._cfg.get("tema"), N.TEMAS["Carmesí"])["bg"]
+            fondo = N.temas_todos(self._cfg).get(self._cfg.get("tema"), N.TEMAS["Carmesí"])["bg"]
             self._ventana.load_html(f"<html><body style='background:{fondo}'></body></html>")
             self._nivel_memoria(bajo=True)
         except Exception:
@@ -1721,7 +1759,7 @@ def main():
 
     identidad_en_barra()
     api = Api(minimizado)
-    t = N.TEMAS.get(api._cfg.get("tema"), N.TEMAS["Oscuro"])
+    t = N.temas_todos(api._cfg).get(api._cfg.get("tema"), N.TEMAS["Oscuro"])
     ventana = webview.create_window(
         N.APP, url=ARCHIVO_UI, js_api=api, width=1000, height=680, min_size=(820, 560),
         background_color=t["bg"], minimized=minimizado)

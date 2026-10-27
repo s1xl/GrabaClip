@@ -444,7 +444,50 @@
 "Los clips están apagados en tu perfil (Ajustes → General → Perfil)": "المقاطع متوقفة في ملفك الشخصي (الإعدادات ← عام ← الملف الشخصي)",
 "La grabación está apagada en tu perfil (Ajustes → General → Perfil)": "التسجيل متوقف في ملفك الشخصي (الإعدادات ← عام ← الملف الشخصي)",
 "Termina la grabación antes de cambiar de perfil": "أنهِ التسجيل قبل تغيير الملف الشخصي",
-"Perfil desconocido": "ملف شخصي غير معروف"
+"Perfil desconocido": "ملف شخصي غير معروف",
+"Esquinas": "الزوايا",
+"Rectas": "حادة",
+"Normales": "عادية",
+"Redondas": "مستديرة",
+"Tamaño del texto": "حجم النص",
+"Pequeño": "صغير",
+"Normal": "عادي",
+"Grande": "كبير",
+"Temas": "السمات",
+"Crear tema": "إنشاء سمة",
+"Editar tema": "تعديل السمة",
+"Nombre de tu tema": "اسم السمة",
+"Empieza desde el tema que tengas puesto. Los cambios se ven al instante.": "تبدأ من السمة الحالية. تظهر التغييرات فورًا.",
+"Guardar tema": "حفظ السمة",
+"Acento": "اللون المميز",
+"Fondo": "الخلفية",
+"Paneles": "اللوحات",
+"Campos": "الحقول",
+"Texto": "النص",
+"Texto secundario": "النص الثانوي",
+"Bordes": "الحدود",
+"Editar": "تعديل",
+"¿Eliminar este tema?": "هل تريد حذف هذه السمة؟",
+"Tema guardado": "تم حفظ السمة",
+"Ponle un nombre a tu tema": "أعطِ سمتك اسمًا",
+"Ese nombre ya lo usa un tema de fábrica": "هذا الاسم تستخدمه سمة أساسية",
+"Algún color no es válido": "أحد الألوان غير صالح",
+"Ese tema no se puede borrar": "لا يمكن حذف هذه السمة",
+"Saltar": "تخطٍّ",
+"Siguiente": "التالي",
+"Empezar": "ابدأ",
+"Terminar": "إنهاء",
+"Ver el tutorial otra vez": "مشاهدة الدليل مرة أخرى",
+"¡Bienvenido a GrabaClip!": "مرحبًا بك في GrabaClip!",
+"Te muestro lo básico en menos de un minuto.": "سأريك الأساسيات في أقل من دقيقة.",
+"Guarda la jugada": "احفظ اللقطة",
+"Graba partidas completas": "سجّل مباريات كاملة",
+"Tu biblioteca": "مكتبتك",
+"Aquí aparecen tus clips. Puedes verlos, recortarlos, compartirlos o marcarlos como favoritos.": "تظهر مقاطعك هنا. يمكنك مشاهدتها وقصها ومشاركتها ووضعها في المفضلة.",
+"Hazlo a tu manera": "على طريقتك",
+"En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.": "من الإعدادات تغيّر الاختصارات والجودة والصوت وملفك الشخصي والألوان.",
+"¡Listo!": "جاهز!",
+"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "يمكنك البدء بصنع المقاطع. لمشاهدة هذا مرة أخرى، تجده في المساعدة."
 },
 "patrones": [
 [
@@ -842,6 +885,18 @@
 [
 "Perfil: {0}",
 "الملف الشخصي: {0}"
+],
+[
+"Con esto GrabaClip guarda en segundo plano los últimos segundos de tu partida. También puedes usar {0} desde el juego.",
+"بهذا يحتفظ GrabaClip في الخلفية بآخر ثوانٍ من مباراتك. يمكنك أيضًا استخدام {0} من داخل اللعبة."
+],
+[
+"Cuando pase algo bueno, pulsa {0}. El clip se guarda sin pausar el juego.",
+"عندما يحدث شيء رائع، اضغط {0}. يُحفظ المقطع دون إيقاف اللعبة."
+],
+[
+"REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.",
+"REC أو {0} يبدأ التسجيل الطويل وينهيه. وبـ {1} تضع علامات على أفضل اللحظات."
 ]
 ]
 }

@@ -31,7 +31,8 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **Editor:** recorta con vista previa (barra, teclas I y O), elige qué pistas de audio van en la copia (por ejemplo, sin Discord) y exporta en **vertical 9:16** para TikTok, Shorts y Reels.
 - **Unir clips:** selecciona varios y GrabaClip los junta en un video con un fundido corto entre cada uno.
 - **Idiomas:** español, inglés, portugués (Brasil), francés, árabe (de derecha a izquierda) y ruso. Usa el idioma de Windows o el que elijas en *Ajustes → Apariencia*.
-- **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).
+- **Tutorial de bienvenida** la primera vez que abres la app (se puede repetir desde Ayuda).
+- **Ajustes:** FPS (30–240), calidad, resolución, duración del clip, teclas personalizables, 13 temas de color más **los tuyos** (eliges cada color), esquinas rectas, normales o redondas, tamaño del texto, y **ajustes por juego** (por ejemplo, Overwatch a 120 FPS y el resto a 60).
 - **Ctrl+Shift+G** muestra u oculta GrabaClip; en la biblioteca, los clips se reproducen en la miniatura al pasar el mouse.
 - **Iniciar con Windows** (opcional) y activar los clips automáticamente.
 - **Perfiles:** *Completo*, *Esencial*, *Solo clips* o *Solo grabación* (o personalizado): lo que apagas no se carga ni escucha teclas.

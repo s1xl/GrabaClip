@@ -444,7 +444,50 @@
 "Los clips están apagados en tu perfil (Ajustes → General → Perfil)": "Les clips sont désactivés dans ton profil (Paramètres → Général → Profil)",
 "La grabación está apagada en tu perfil (Ajustes → General → Perfil)": "L'enregistrement est désactivé dans ton profil (Paramètres → Général → Profil)",
 "Termina la grabación antes de cambiar de perfil": "Termine l'enregistrement avant de changer de profil",
-"Perfil desconocido": "Profil inconnu"
+"Perfil desconocido": "Profil inconnu",
+"Esquinas": "Coins",
+"Rectas": "Carrés",
+"Normales": "Normaux",
+"Redondas": "Arrondis",
+"Tamaño del texto": "Taille du texte",
+"Pequeño": "Petit",
+"Normal": "Normal",
+"Grande": "Grand",
+"Temas": "Thèmes",
+"Crear tema": "Créer un thème",
+"Editar tema": "Modifier le thème",
+"Nombre de tu tema": "Nom de ton thème",
+"Empieza desde el tema que tengas puesto. Los cambios se ven al instante.": "Il part de ton thème actuel. Les changements s'affichent tout de suite.",
+"Guardar tema": "Enregistrer le thème",
+"Acento": "Accent",
+"Fondo": "Fond",
+"Paneles": "Panneaux",
+"Campos": "Champs",
+"Texto": "Texte",
+"Texto secundario": "Texte secondaire",
+"Bordes": "Bordures",
+"Editar": "Modifier",
+"¿Eliminar este tema?": "Supprimer ce thème ?",
+"Tema guardado": "Thème enregistré",
+"Ponle un nombre a tu tema": "Donne un nom à ton thème",
+"Ese nombre ya lo usa un tema de fábrica": "Un thème intégré utilise déjà ce nom",
+"Algún color no es válido": "Une des couleurs n'est pas valide",
+"Ese tema no se puede borrar": "Ce thème ne peut pas être supprimé",
+"Saltar": "Passer",
+"Siguiente": "Suivant",
+"Empezar": "Commencer",
+"Terminar": "Terminer",
+"Ver el tutorial otra vez": "Revoir le tutoriel",
+"¡Bienvenido a GrabaClip!": "Bienvenue dans GrabaClip !",
+"Te muestro lo básico en menos de un minuto.": "Je te montre l'essentiel en moins d'une minute.",
+"Guarda la jugada": "Garde l'action",
+"Graba partidas completas": "Enregistre des parties entières",
+"Tu biblioteca": "Ta bibliothèque",
+"Aquí aparecen tus clips. Puedes verlos, recortarlos, compartirlos o marcarlos como favoritos.": "Tes clips apparaissent ici. Tu peux les regarder, les couper, les partager ou les mettre en favoris.",
+"Hazlo a tu manera": "À ta façon",
+"En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.": "Dans Paramètres tu changes les raccourcis, la qualité, l'audio, ton profil et les couleurs.",
+"¡Listo!": "C'est prêt !",
+"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "Tu peux commencer à clipper. Pour revoir ceci, c'est dans Aide."
 },
 "patrones": [
 [
@@ -842,6 +885,18 @@
 [
 "Perfil: {0}",
 "Profil : {0}"
+],
+[
+"Con esto GrabaClip guarda en segundo plano los últimos segundos de tu partida. También puedes usar {0} desde el juego.",
+"Avec ça, GrabaClip garde en arrière-plan les dernières secondes de ta partie. Tu peux aussi utiliser {0} depuis le jeu."
+],
+[
+"Cuando pase algo bueno, pulsa {0}. El clip se guarda sin pausar el juego.",
+"Quand il se passe quelque chose de bien, appuie sur {0}. Le clip est enregistré sans mettre le jeu en pause."
+],
+[
+"REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.",
+"REC ou {0} démarre et termine un long enregistrement. Avec {1} tu marques les meilleurs moments."
 ]
 ]
 }
