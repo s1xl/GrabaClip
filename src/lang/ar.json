@@ -487,7 +487,20 @@
 "Hazlo a tu manera": "على طريقتك",
 "En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.": "من الإعدادات تغيّر الاختصارات والجودة والصوت وملفك الشخصي والألوان.",
 "¡Listo!": "جاهز!",
-"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "يمكنك البدء بصنع المقاطع. لمشاهدة هذا مرة أخرى، تجده في المساعدة."
+"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "يمكنك البدء بصنع المقاطع. لمشاهدة هذا مرة أخرى، تجده في المساعدة.",
+"Acceso directo en el escritorio": "اختصار على سطح المكتب",
+"Abre GrabaClip con doble clic, sin entrar a su carpeta.": "افتح GrabaClip بنقرة مزدوجة دون الدخول إلى مجلده.",
+"En el menú Inicio": "في قائمة ابدأ",
+"Para encontrarlo escribiendo \"GrabaClip\" en Inicio. Desde ahí también puedes anclarlo a la barra de tareas.": "لتجده بكتابة \"GrabaClip\" في ابدأ. ومن هناك يمكنك أيضًا تثبيته على شريط المهام.",
+"Crear": "إنشاء",
+"Acceso directo creado en el escritorio": "تم إنشاء اختصار على سطح المكتب",
+"GrabaClip ya aparece en el menú Inicio": "يظهر GrabaClip الآن في قائمة ابدأ",
+"Acceso directo quitado": "تمت إزالة الاختصار",
+"No se pudo crear el acceso directo": "تعذّر إنشاء الاختصار",
+"No se pudo quitar el acceso directo": "تعذّرت إزالة الاختصار",
+"No encontré esa carpeta de Windows": "لم أجد مجلد Windows هذا",
+"Falta GrabaClip.exe en la carpeta de la app": "ملف GrabaClip.exe مفقود من مجلد التطبيق",
+"Crear acceso directo": "إنشاء اختصار"
 },
 "patrones": [
 [

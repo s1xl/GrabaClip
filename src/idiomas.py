@@ -822,6 +822,21 @@ T("Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.", 
 P("Con esto GrabaClip guarda en segundo plano los últimos segundos de tu partida. También puedes usar {0} desde el juego.", "This makes GrabaClip keep the last few seconds of your match in the background. You can also use {0} from the game.", "Com isso o GrabaClip guarda em segundo plano os últimos segundos da partida. Você também pode usar {0} no jogo.")
 P("Cuando pase algo bueno, pulsa {0}. El clip se guarda sin pausar el juego.", "When something good happens, press {0}. The clip is saved without pausing the game.", "Quando acontecer algo bom, pressione {0}. O clipe é salvo sem pausar o jogo.")
 P("REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.", "REC or {0} starts and ends a long recording. With {1} you mark the best moments.", "REC ou {0} começa e termina uma gravação longa. Com {1} você marca os melhores momentos.")
+# ---------- accesos directos ----------
+T("Acceso directo en el escritorio", "Desktop shortcut", "Atalho na área de trabalho")
+T("Abre GrabaClip con doble clic, sin entrar a su carpeta.", "Open GrabaClip with a double-click, without going into its folder.", "Abra o GrabaClip com dois cliques, sem entrar na pasta.")
+T("En el menú Inicio", "In the Start menu", "No menu Iniciar")
+T("Para encontrarlo escribiendo \"GrabaClip\" en Inicio. Desde ahí también puedes anclarlo a la barra de tareas.", "So you can find it by typing \"GrabaClip\" in Start. From there you can also pin it to the taskbar.", "Para encontrá-lo digitando \"GrabaClip\" no Iniciar. Dali você também pode fixá-lo na barra de tarefas.")
+T("Crear", "Create", "Criar")
+T("Quitar", "Remove", "Remover")
+T("Crear acceso directo", "Create shortcut", "Criar atalho")
+T("Acceso directo creado en el escritorio", "Desktop shortcut created", "Atalho criado na área de trabalho")
+T("GrabaClip ya aparece en el menú Inicio", "GrabaClip now shows up in the Start menu", "O GrabaClip já aparece no menu Iniciar")
+T("Acceso directo quitado", "Shortcut removed", "Atalho removido")
+T("No se pudo crear el acceso directo", "Couldn't create the shortcut", "Não foi possível criar o atalho")
+T("No se pudo quitar el acceso directo", "Couldn't remove the shortcut", "Não foi possível remover o atalho")
+T("No encontré esa carpeta de Windows", "I couldn't find that Windows folder", "Não encontrei essa pasta do Windows")
+T("Falta GrabaClip.exe en la carpeta de la app", "GrabaClip.exe is missing from the app folder", "Falta o GrabaClip.exe na pasta do app")
 
 def _por_especificidad(patrones):
     # los patrones con más texto fijo van primero ("Grabando: {0}" antes que "Grabando {0}")

@@ -336,6 +336,7 @@
   .esp-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .3s; }
   .esp-barra i.lleno { background: var(--rojo); }
   .mas-videos { grid-column: 1 / -1; justify-self: center; margin: 8px 0 4px; }
+  #tut-acceso { white-space: nowrap; }
   .mini-boton.primario { background: var(--acento); color: var(--acento-fg); border-color: transparent; }
   .upd-barra { height: 6px; margin: 0 18px 14px; border-radius: 3px; background: var(--borde); overflow: hidden; }
   .upd-barra i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .25s; }
@@ -779,6 +780,12 @@
             <label class="switch"><input type="checkbox" data-sw="discord_juego"><span></span></label></div>
         </div>
         <div class="tarjeta">
+          <div class="fila"><div class="texto"><h3>Acceso directo en el escritorio</h3><p>Abre GrabaClip con doble clic, sin entrar a su carpeta.</p></div>
+            <button class="mini-boton" id="b-acc-escritorio">Crear</button></div>
+          <div class="fila"><div class="texto"><h3>En el menú Inicio</h3><p>Para encontrarlo escribiendo "GrabaClip" en Inicio. Desde ahí también puedes anclarlo a la barra de tareas.</p></div>
+            <button class="mini-boton" id="b-acc-inicio">Crear</button></div>
+        </div>
+        <div class="tarjeta">
           <div class="fila"><div class="texto"><h3>Carpeta de videos</h3><p id="carpeta-txt"></p></div>
             <button class="mini-boton" id="b-carpeta-def">Restablecer</button>
             <button class="mini-boton" id="b-carpeta">Cambiar…</button></div>
@@ -893,6 +900,7 @@
 <div id="tutorial"><div class="foco" id="tut-foco"></div>
   <div class="globo" id="tut-globo"><h3 id="tut-t"></h3><p id="tut-p"></p>
     <div class="pie-tut"><div class="puntos" id="tut-puntos"></div>
+      <button class="mini-boton oculto" id="tut-acceso" title="Acceso directo en el escritorio">Crear acceso directo</button>
       <button class="mini-boton" id="tut-saltar">Saltar</button><button class="mini-boton primario" id="tut-sig">Siguiente</button></div></div></div>
 <div id="dlg-perfil"><div class="caja">
   <h3>¿Cómo vas a usar GrabaClip?</h3>
@@ -1054,7 +1062,7 @@ function seccion(s) {
   if (s === 'audio') cargarApps();
   if (s === 'video') { cargarVentanas(); cargarJuegosPJ(); }
   if (s === 'voz') cargarIdiomasVoz();
-  if (s === 'general') cargarEspacio();
+  if (s === 'general') { cargarEspacio(); cargarAccesos(); }
 }
 $$('#nav button').forEach(b => b.onclick = () => irA(b.dataset.v));
 $$('.lateral button').forEach(b => b.onclick = () => seccion(b.dataset.s));
@@ -1419,11 +1427,11 @@ function pasosTutorial() {
   if (f.grabar !== false) pasos.push({sel: '#b-rec', t: 'Graba partidas completas', p: 'REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.', teclas: ['tecla_grab', 'tecla_marca'], vista: 'grab'});
   pasos.push({sel: '#rejilla', t: 'Tu biblioteca', p: 'Aquí aparecen tus clips. Puedes verlos, recortarlos, compartirlos o marcarlos como favoritos.', vista: 'grab'});
   pasos.push({sel: '#nav [data-v="ajustes"]', t: 'Hazlo a tu manera', p: 'En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.', vista: 'grab'});
-  pasos.push({t: '¡Listo!', p: 'Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.'});
+  pasos.push({t: '¡Listo!', p: 'Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.', acceso: true});
   return pasos;
 }
 let tut = null;
-function iniciarTutorial() { tut = {pasos: pasosTutorial(), i: 0}; $('#tutorial').classList.add('abierto'); pasoTutorial(); }
+async function iniciarTutorial() { try { ACC = await api('accesos') || {}; } catch (e) {} tut = {pasos: pasosTutorial(), i: 0}; $('#tutorial').classList.add('abierto'); pasoTutorial(); }
 function pasoTutorial() {
   const paso = tut.pasos[tut.i];
   if (paso.vista && !$('#v-' + paso.vista).classList.contains('activa')) irA(paso.vista);
@@ -1434,6 +1442,14 @@ function pasoTutorial() {
   const ultimo = tut.i === tut.pasos.length - 1;
   $('#tut-sig').textContent = tut.i === 0 ? 'Empezar' : ultimo ? 'Terminar' : 'Siguiente';
   $('#tut-saltar').classList.toggle('oculto', ultimo);
+  const btnAcc = $('#tut-acceso');
+  btnAcc.classList.toggle('oculto', !(paso.acceso && ACC.escritorio === false));
+  btnAcc.onclick = async () => {
+    const r = await api('crear_acceso', 'escritorio');
+    aviso(r.msg, r.ok ? 'ok' : 'error');
+    if (r.accesos) { ACC = r.accesos; pintarAccesos(); }
+    btnAcc.classList.add('oculto');
+  };
   const foco = $('#tut-foco'), globo = $('#tut-globo');
   const el = paso.sel && $(paso.sel);
   // con el tamaño de texto cambiado (zoom), el tutorial se dibuja sin zoom para medir en píxeles reales
@@ -1841,6 +1857,24 @@ function progresoRecorte(d) {
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
 }
+
+// ---------- accesos directos ----------
+let ACC = {};
+async function cargarAccesos() { ACC = await api('accesos') || {}; pintarAccesos(); }
+function pintarAccesos() {
+  for (const d of ['escritorio', 'inicio']) {
+    const b = $('#b-acc-' + d);
+    if (!b) continue;
+    b.textContent = ACC[d] ? 'Quitar' : 'Crear';
+    b.classList.toggle('primario', !ACC[d]);
+    b.disabled = ACC[d] === null;
+  }
+}
+for (const d of ['escritorio', 'inicio']) $('#b-acc-' + d).onclick = async () => {
+  const r = await api(ACC[d] ? 'quitar_acceso' : 'crear_acceso', d);
+  aviso(r.msg, r.ok ? 'ok' : 'error');
+  if (r.accesos) { ACC = r.accesos; pintarAccesos(); }
+};
 
 // ---------- perfiles ----------
 const NOMBRES_FUNC = {clips: ['Clips instantáneos', 'El búfer que guarda los últimos segundos (F8, F9).'],

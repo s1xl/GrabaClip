@@ -731,6 +731,74 @@ class Api:
         if not self._cfg.get("overlay", True) or not self._cfg.get("overlay_aviso", True):
             self._aviso("El overlay está desactivado, solo sonó el aviso", "info")
 
+    # ---------- accesos directos (escritorio y menú Inicio) ----------
+    @staticmethod
+    def _carpeta_conocida(donde):
+        """Escritorio o menú Inicio del usuario (respeta OneDrive y carpetas movidas)."""
+        import ctypes
+        import uuid as _uuid
+        guid = {"escritorio": "{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}",
+                "inicio": "{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}"}[donde]
+
+        class GUID(ctypes.Structure):
+            _fields_ = [("bytes", ctypes.c_byte * 16)]
+        g = GUID()
+        ctypes.memmove(ctypes.byref(g), _uuid.UUID(guid).bytes_le, 16)
+        ruta = ctypes.c_wchar_p()
+        shell32, ole32 = ctypes.windll.shell32, ctypes.windll.ole32
+        if shell32.SHGetKnownFolderPath(ctypes.byref(g), 0, None, ctypes.byref(ruta)) != 0:
+            raise OSError("no se encontró la carpeta")
+        try:
+            return ruta.value
+        finally:
+            ole32.CoTaskMemFree(ruta)
+
+    def _ruta_acceso(self, donde):
+        return os.path.join(self._carpeta_conocida(donde), "GrabaClip.lnk")
+
+    def accesos(self):
+        estado = {"instalado": os.path.normcase(N.CARPETA_APP).startswith(
+            os.path.normcase(os.path.join(os.environ.get("LOCALAPPDATA", "~~"), "Programs")))}
+        for d in ("escritorio", "inicio"):
+            try:
+                estado[d] = os.path.exists(self._ruta_acceso(d))
+            except Exception:
+                estado[d] = None
+        return estado
+
+    def crear_acceso(self, donde):
+        """Crea GrabaClip.lnk apuntando a GrabaClip.exe (con PowerShell y WScript.Shell, sin ventana)."""
+        try:
+            destino = self._ruta_acceso(donde)
+        except Exception:
+            return {"ok": False, "msg": "No encontré esa carpeta de Windows"}
+        if not os.path.exists(LANZADOR):
+            return {"ok": False, "msg": "Falta GrabaClip.exe en la carpeta de la app"}
+        script = ("$s = (New-Object -ComObject WScript.Shell).CreateShortcut($env:GC_LNK); "
+                  "$s.TargetPath = $env:GC_EXE; $s.WorkingDirectory = $env:GC_DIR; "
+                  "$s.IconLocation = $env:GC_ICO; $s.Description = 'GrabaClip'; $s.Save()")
+        entorno = dict(os.environ, GC_LNK=destino, GC_EXE=LANZADOR, GC_DIR=N.CARPETA_APP,
+                       GC_ICO=(ARCHIVO_ICONO if os.path.exists(ARCHIVO_ICONO) else LANZADOR) + ",0")
+        try:
+            r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                                "-Command", script], env=entorno, capture_output=True, timeout=30,
+                               creationflags=N.SIN_VENTANA)
+        except Exception:
+            return {"ok": False, "msg": "No se pudo crear el acceso directo"}
+        if r.returncode != 0 or not os.path.exists(destino):
+            return {"ok": False, "msg": "No se pudo crear el acceso directo"}
+        return {"ok": True, "msg": "Acceso directo creado en el escritorio" if donde == "escritorio"
+                else "GrabaClip ya aparece en el menú Inicio", "accesos": self.accesos()}
+
+    def quitar_acceso(self, donde):
+        try:
+            ruta = self._ruta_acceso(donde)
+            if os.path.exists(ruta):
+                os.remove(ruta)  # solo el GrabaClip.lnk que crea la app
+        except Exception:
+            return {"ok": False, "msg": "No se pudo quitar el acceso directo"}
+        return {"ok": True, "msg": "Acceso directo quitado", "accesos": self.accesos()}
+
     def abrir_carpeta(self):
         os.makedirs(N.CARPETA_SALIDA, exist_ok=True)
         os.startfile(N.CARPETA_SALIDA)

@@ -487,7 +487,20 @@
 "Hazlo a tu manera": "À ta façon",
 "En Ajustes cambias las teclas, la calidad, el audio, tu perfil y los colores.": "Dans Paramètres tu changes les raccourcis, la qualité, l'audio, ton profil et les couleurs.",
 "¡Listo!": "C'est prêt !",
-"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "Tu peux commencer à clipper. Pour revoir ceci, c'est dans Aide."
+"Ya puedes empezar a clipear. Si quieres ver esto otra vez, está en Ayuda.": "Tu peux commencer à clipper. Pour revoir ceci, c'est dans Aide.",
+"Acceso directo en el escritorio": "Raccourci sur le bureau",
+"Abre GrabaClip con doble clic, sin entrar a su carpeta.": "Ouvre GrabaClip d'un double-clic, sans aller dans son dossier.",
+"En el menú Inicio": "Dans le menu Démarrer",
+"Para encontrarlo escribiendo \"GrabaClip\" en Inicio. Desde ahí también puedes anclarlo a la barra de tareas.": "Pour le trouver en tapant « GrabaClip » dans Démarrer. De là, tu peux aussi l'épingler à la barre des tâches.",
+"Crear": "Créer",
+"Acceso directo creado en el escritorio": "Raccourci créé sur le bureau",
+"GrabaClip ya aparece en el menú Inicio": "GrabaClip apparaît maintenant dans le menu Démarrer",
+"Acceso directo quitado": "Raccourci retiré",
+"No se pudo crear el acceso directo": "Impossible de créer le raccourci",
+"No se pudo quitar el acceso directo": "Impossible de retirer le raccourci",
+"No encontré esa carpeta de Windows": "Je n'ai pas trouvé ce dossier Windows",
+"Falta GrabaClip.exe en la carpeta de la app": "GrabaClip.exe manque dans le dossier de l'appli",
+"Crear acceso directo": "Créer un raccourci"
 },
 "patrones": [
 [

@@ -45,7 +45,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 En [Releases](https://github.com/s1xl/GrabaClip/releases/latest) hay dos opciones (Python, FFmpeg y todo lo demás vienen incluidos):
 
 - **Instalador** (`GrabaClip-vX.Y.Z-instalador.exe`): se instala sin permisos de administrador, con acceso directo en el menú Inicio y desinstalador en *Configuración → Aplicaciones*.
-- **Portable** (`GrabaClip-vX.Y.Z-portable.zip`): descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`.
+- **Portable** (`GrabaClip-vX.Y.Z-portable.zip`): descomprímelo en el Escritorio o en Documentos y abre `GrabaClip.exe`. Después puedes crear sus accesos directos (escritorio y menú Inicio) desde *Ajustes → General* o al final del tutorial, y ya no tienes que entrar a la carpeta.
 
 Las dos se actualizan solas desde *Ajustes → General → Buscar actualizaciones*.
 
