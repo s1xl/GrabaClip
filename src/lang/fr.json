@@ -311,7 +311,7 @@
 "Reemplazar el original": "Remplacer l'original",
 "Guardar recorte": "Enregistrer la coupe",
 "Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.": "Fais glisser les extrémités de la barre ou utilise I et O pendant la lecture. Espace : lire ou mettre en pause. C'est enregistré comme une nouvelle copie à côté de l'original.",
-"Recortando…": "Découpe…",
+"Recortando…": "Découpage…",
 "No se pudo abrir el video en la app. Prueba con Reproducir en la biblioteca.": "Impossible d'ouvrir la vidéo dans l'appli. Essaie Lire dans la bibliothèque.",
 "¿Reemplazar el original?": "Remplacer l'original ?",
 "El video original se enviará a la Papelera y su lugar lo ocupará el recorte.": "La vidéo originale ira à la Corbeille et la coupe prendra sa place.",
@@ -451,7 +451,7 @@
 "Redondas": "Arrondis",
 "Tamaño del texto": "Taille du texte",
 "Pequeño": "Petit",
-"Normal": "Normal",
+"Normal": "Normale",
 "Grande": "Grand",
 "Temas": "Thèmes",
 "Crear tema": "Créer un thème",
@@ -540,7 +540,23 @@
 "Micrófono apagado: no se graba tu voz": "Micro coupé : ta voix n'est pas enregistrée",
 "AV1 por ahora solo funciona con tarjetas NVIDIA RTX 40 o más nuevas.": "Pour l'instant AV1 ne fonctionne qu'avec les cartes NVIDIA RTX 40 ou plus récentes.",
 "Tu tarjeta no puede comprimir en AV1 (hace falta una NVIDIA RTX 40 o más nueva).": "Ta carte ne peut pas encoder en AV1 (il faut une NVIDIA RTX 40 ou plus récente).",
-"Tu FFmpeg no puede guardar AV1 en el búfer.": "Ton FFmpeg ne peut pas stocker AV1 dans le tampon."
+"Tu FFmpeg no puede guardar AV1 en el búfer.": "Ton FFmpeg ne peut pas stocker AV1 dans le tampon.",
+"Velocidad": "Vitesse",
+"Lenta 0.5x": "Lente 0.5x",
+"Muy lenta 0.25x": "Très lente 0.25x",
+"Marca de agua": "Filigrane",
+"@tu_nombre (vacío = sin marca)": "@ton_nom (vide = sans filigrane)",
+"clic para usarla": "clique pour l'utiliser",
+"Exportar GIF": "Exporter en GIF",
+"GIF del tramo elegido (hasta 20 s), queda copiado para pegarlo en Discord": "GIF du passage choisi (jusqu'à 20 s), copié pour le coller dans Discord",
+"Para un GIF elige 20 segundos o menos (pesan mucho)": "Pour un GIF, choisis 20 secondes ou moins (c'est lourd)",
+"Creando el GIF…": "Création du GIF…",
+"Crear resumen de la semana": "Créer le résumé de la semaine",
+"Un video con tus favoritos de los últimos 7 días (o tus clips más nuevos), 8 segundos de cada uno": "Une vidéo avec tes favoris des 7 derniers jours (ou tes clips les plus récents), 8 secondes de chacun",
+"Mi semana en GrabaClip": "Ma semaine avec GrabaClip",
+"Necesitas al menos 2 clips de esta semana para el resumen": "Il te faut au moins 2 clips de cette semaine pour le résumé",
+"El GIF tiene que durar al menos medio segundo": "Le GIF doit durer au moins une demi-seconde",
+"No encontré una fuente de Windows para escribir el texto": "Je n'ai pas trouvé de police Windows pour écrire le texte"
 },
 "patrones": [
 [
@@ -950,6 +966,26 @@
 [
 "REC o {0} empieza y termina una grabación larga. Con {1} marcas los mejores momentos.",
 "REC ou {0} démarre et termine un long enregistrement. Avec {1} tu marques les meilleurs moments."
+],
+[
+"GIF listo ({0} MB): ya está copiado, pégalo con Ctrl+V",
+"GIF prêt ({0} Mo) : il est copié, colle-le avec Ctrl+V"
+],
+[
+"GIF listo ({0} MB)",
+"GIF prêt ({0} Mo)"
+],
+[
+"Resumen listo: {0} clips en {1}",
+"Résumé prêt : {0} clips dans {1}"
+],
+[
+"Armando tu resumen con {0} favoritos…",
+"Préparation de ton résumé avec {0} favoris…"
+],
+[
+"Armando tu resumen con tus {0} clips más nuevos (marca favoritos para elegir tú)…",
+"Préparation de ton résumé avec tes {0} clips les plus récents (mets des favoris pour choisir)…"
 ]
 ]
 }

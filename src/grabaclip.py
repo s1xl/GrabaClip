@@ -78,7 +78,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto"}
 
 
 def sonido_ok():
@@ -987,15 +987,83 @@ class Api:
     def cerrar_editor(self):
         self._servidor_video.olvidar("editor")
 
-    def recortar(self, ruta, inicio, fin, reemplazar=False, pistas=None, vertical=False):
+    def recortar(self, ruta, inicio, fin, reemplazar=False, pistas=None, vertical=False, velocidad=1, marca=""):
         if not self._ruta_valida(ruta):
             return {"ok": False, "msg": "No encuentro ese video"}
         if self._recortando:
             return {"ok": False, "msg": "Ya hay un recorte en marcha"}
         self._recortando = True
-        threading.Thread(target=self._hacer_recorte, args=(ruta, inicio, fin, bool(reemplazar), pistas, bool(vertical)),
+        threading.Thread(target=self._hacer_recorte, args=(ruta, inicio, fin, bool(reemplazar), pistas, bool(vertical),
+                                                           velocidad, str(marca or "")[:60]),
                          daemon=True).start()
         return {"ok": True}
+
+    def exportar_gif(self, ruta, inicio, fin, velocidad=1, marca=""):
+        """GIF del tramo elegido en el editor; queda copiado para pegarlo en Discord."""
+        if not self._ruta_valida(ruta):
+            return {"ok": False, "msg": "No encuentro ese video"}
+        if self._recortando:
+            return {"ok": False, "msg": "Espera a que termine lo que se está preparando"}
+        self._recortando = True
+
+        def tarea():
+            try:
+                gif = RC.a_gif(ruta, inicio, fin, lambda x: self._emitir("recorte", {"pct": round(x * 100)}),
+                               velocidad, str(marca or "")[:60])
+                copiado = True
+                try:
+                    self._al_portapapeles(gif)
+                except Exception:
+                    copiado = False
+                mb = f"{os.path.getsize(gif) / 1e6:.1f}".replace(".", ",")
+                self._emitir("recorte", {"fin": True, "ok": True, "ruta": gif})
+                self._aviso(f"GIF listo ({mb} MB)" + (": ya está copiado, pégalo con Ctrl+V" if copiado else ""), "ok")
+            except Exception as ex:
+                self._emitir("recorte", {"fin": True, "ok": False, "msg": str(ex)})
+                self._aviso(str(ex), "error")
+            finally:
+                self._recortando = False
+        threading.Thread(target=tarea, daemon=True).start()
+        return {"ok": True}
+
+    # ---------- resumen de la semana ----------
+    def resumen_semana(self):
+        """Un video con lo mejor de los últimos 7 días: favoritos primero, si no los más nuevos."""
+        if self._recortando:
+            return {"ok": False, "msg": "Espera a que termine lo que se está preparando"}
+        limite = (time.time() - 7 * 86400) * 1000
+        clips = [v for v in self.biblioteca() if v["tipo"] == "clip" and v["fecha"] >= limite
+                 and not v["nombre"].lower().endswith(("_discord.mp4",))]
+        favs = [v for v in clips if v["fav"]]
+        elegidos = favs[:12] if len(favs) >= 3 else (favs + [v for v in clips if not v["fav"]])[:8]
+        if len(elegidos) < 2:
+            return {"ok": False, "msg": "Necesitas al menos 2 clips de esta semana para el resumen"}
+        elegidos.sort(key=lambda v: v["fecha"])
+        self._recortando = True
+
+        def tarea():
+            import datetime
+            try:
+                etiquetas = []
+                for v in elegidos:
+                    dia = datetime.datetime.fromtimestamp(v["fecha"] / 1000).strftime("%d/%m")
+                    etiquetas.append(f"{v['juego'] or 'GrabaClip'} · {dia}")
+                salida = os.path.join(N.CARPETA_SALIDA, f"resumen_semana_{N.marca_tiempo()}.mp4")
+                nueva = RC.unir([v["ruta"] for v in elegidos], self._encoder, self._cfg.get("calidad"),
+                                lambda x: self._emitir("resumen", {"pct": round(x * 100)}),
+                                ultimos=8, etiquetas=etiquetas, titulo=I18N.t("Mi semana en GrabaClip"),
+                                salida=salida)
+                self._ultimo = nueva
+                self._emitir("resumen", {"fin": True, "ok": True, "ruta": nueva})
+                self._aviso(f"Resumen listo: {len(elegidos)} clips en {os.path.basename(nueva)}", "ok")
+                self._emitir("biblioteca")
+            except Exception as ex:
+                self._emitir("resumen", {"fin": True, "ok": False})
+                self._aviso(str(ex), "error")
+            finally:
+                self._recortando = False
+        threading.Thread(target=tarea, daemon=True).start()
+        return {"ok": True, "n": len(elegidos), "favs": len(favs) >= 3}
 
     def unir(self, rutas):
         rutas = [r for r in (rutas or []) if self._ruta_valida(r) and r.lower().endswith(".mp4")]
@@ -1022,11 +1090,11 @@ class Api:
         threading.Thread(target=tarea, daemon=True).start()
         return {"ok": True}
 
-    def _hacer_recorte(self, ruta, inicio, fin, reemplazar, pistas=None, vertical=False):
+    def _hacer_recorte(self, ruta, inicio, fin, reemplazar, pistas=None, vertical=False, velocidad=1, marca=""):
         try:
             nueva = RC.recortar(ruta, inicio, fin, self._encoder, self._cfg.get("calidad"),
                                 lambda x: self._emitir("recorte", {"pct": round(x * 100)}),
-                                pistas=pistas, vertical=vertical)
+                                pistas=pistas, vertical=vertical, velocidad=velocidad, marca=marca)
             if reemplazar:
                 self._servidor_video.olvidar()
                 time.sleep(0.6)  # que el reproductor suelte el archivo

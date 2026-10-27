@@ -126,10 +126,10 @@ class ServidorVideo:
         self._permitidos = {i: r for i, r in self._lugares.values()}
 
 
-def _nombre_libre(carpeta, base, sufijo="_recorte"):
+def _nombre_libre(carpeta, base, sufijo="_recorte", ext=".mp4"):
     n = 1
     while True:
-        nombre = f"{base}{sufijo}{'' if n == 1 else n}.mp4"
+        nombre = f"{base}{sufijo}{'' if n == 1 else n}{ext}"
         if not os.path.exists(os.path.join(carpeta, nombre)):
             return os.path.join(carpeta, nombre)
         n += 1
@@ -156,18 +156,71 @@ def pistas_video(ruta):
 
 
 VERTICAL = "crop=trunc(ih*9/16/2)*2:ih,scale=1080:1920:flags=lanczos,setsar=1"
+VELOCIDADES = (1.0, 0.5, 0.25)
+
+# ---------- textos dibujados en el video (marca de agua, títulos del resumen) ----------
+# drawtext necesita un archivo de fuente y es delicado con ":" y "\" de las rutas de Windows,
+# así que FFmpeg corre dentro de una carpeta temporal con la fuente copiada y los textos en
+# archivos (textfile=), todo con nombres simples y relativos.
+CARPETA_TEXTOS = os.path.join(N.CARPETA_BUFER, "textos")
+FUENTES = ("segoeuib.ttf", "arialbd.ttf", "seguisb.ttf", "arial.ttf")
 
 
-def recortar(ruta, inicio, fin, encoder, calidad, progreso=None, pistas=None, vertical=False):
+def _preparar_textos(textos):
+    """textos: {nombre_archivo: texto}. Devuelve la carpeta (para cwd) o lanza error si no hay fuente."""
+    import shutil
+    os.makedirs(CARPETA_TEXTOS, exist_ok=True)
+    fuente = os.path.join(CARPETA_TEXTOS, "fuente.ttf")
+    if not os.path.exists(fuente):
+        windir = os.environ.get("WINDIR", r"C:\Windows")
+        for f in FUENTES:
+            origen = os.path.join(windir, "Fonts", f)
+            if os.path.exists(origen):
+                shutil.copyfile(origen, fuente)
+                break
+        else:
+            raise RuntimeError("No encontré una fuente de Windows para escribir el texto")
+    for nombre, texto in textos.items():
+        with open(os.path.join(CARPETA_TEXTOS, nombre), "w", encoding="utf-8") as f:
+            f.write(texto.replace("\r", "").strip()[:80])
+    return CARPETA_TEXTOS
+
+
+def _drawtext(archivo, x, y, tam, extra=""):
+    return (f"drawtext=fontfile=fuente.ttf:textfile={archivo}:fontcolor=white@0.9:fontsize={tam}"
+            f":x={x}:y={y}:shadowcolor=black@0.7:shadowx=2:shadowy=2" + extra)
+
+
+def filtro_marca(texto):
+    """Marca de agua abajo a la derecha (tamaño relativo a la altura del video)."""
+    return _drawtext("marca.txt", "w-tw-h/28", "h-th-h/28", "h/26")
+
+
+def _atempo(velocidad):
+    """atempo solo acepta 0.5..2: 0.25 se hace con dos de 0.5."""
+    if velocidad >= 0.5:
+        return f"atempo={velocidad:g}"
+    return "atempo=0.5,atempo=" + f"{velocidad / 0.5:g}"
+
+
+def recortar(ruta, inicio, fin, encoder, calidad, progreso=None, pistas=None, vertical=False,
+             velocidad=1.0, marca=""):
     """Crea una copia junto al original: recortada, con solo las pistas elegidas
-    (None = todas) y, si se pide, en vertical 9:16 para TikTok/Shorts/Reels."""
+    (None = todas), y si se pide en vertical 9:16, en cámara lenta y con una marca de agua."""
     inicio, fin = max(0.0, float(inicio)), float(fin)
     dur = fin - inicio
     if dur < 0.5:
         raise ValueError("El recorte tiene que durar al menos medio segundo")
+    velocidad = float(velocidad or 1)
+    if velocidad not in VELOCIDADES:
+        velocidad = 1.0
+    marca = (marca or "").strip()
     carpeta = os.path.dirname(ruta)
-    salida = _nombre_libre(carpeta, os.path.splitext(os.path.basename(ruta))[0],
-                           "_vertical" if vertical else "_recorte")
+    sufijo = "_vertical" if vertical else "_lento" if velocidad < 1 else "_recorte"
+    salida = _nombre_libre(carpeta, os.path.splitext(os.path.basename(ruta))[0], sufijo)
+    cwd = _preparar_textos({"marca.txt": marca}) if marca else None
+    filtros_v = ([VERTICAL] if vertical else []) + ([f"setpts=PTS/{velocidad:g}"] if velocidad < 1 else []) \
+        + ([filtro_marca(marca)] if marca else [])
     temporal = salida + ".parcial.mp4"
     if pistas is None:
         mapas_audio = ["-map", "0:a?"]
@@ -178,15 +231,17 @@ def recortar(ruta, inicio, fin, encoder, calidad, progreso=None, pistas=None, ve
 
     def intentar(enc):
         args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-                "-ss", f"{inicio:.3f}", "-i", ruta, "-t", f"{dur:.3f}", "-map", "0:v:0"] + mapas_audio
-        if vertical:
-            args += ["-vf", VERTICAL]
+                "-ss", f"{inicio:.3f}", "-t", f"{dur:.3f}", "-i", ruta, "-map", "0:v:0"] + mapas_audio
+        if filtros_v:
+            args += ["-vf", ",".join(filtros_v)]
         args += N.args_encoder(enc, calidad)
         args += ["-pix_fmt", "yuv420p"]
         if mapas_audio:
+            if velocidad < 1:
+                args += ["-af", _atempo(velocidad)]
             args += ["-c:a", "aac", "-b:a", "160k"]
         args += ["-map_metadata", "0", "-movflags", "+faststart", temporal]
-        return _ffmpeg(args, dur, progreso)
+        return _ffmpeg(args, dur / velocidad, progreso, cwd)
 
     codigo, err = intentar(encoder or "libx264")
     if codigo != 0 and encoder and encoder != "libx264":
@@ -204,14 +259,57 @@ def recortar(ruta, inicio, fin, encoder, calidad, progreso=None, pistas=None, ve
     return salida
 
 
-def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
+def a_gif(ruta, inicio, fin, progreso=None, velocidad=1.0, marca="", ancho=480, fps=15):
+    """GIF animado del tramo elegido, junto al original (paleta propia para que se vea bien)."""
+    inicio, fin = max(0.0, float(inicio)), float(fin)
+    dur = fin - inicio
+    if dur < 0.5:
+        raise ValueError("El GIF tiene que durar al menos medio segundo")
+    if dur / float(velocidad or 1) > 20:
+        raise ValueError("Para un GIF elige 20 segundos o menos (pesan mucho)")
+    velocidad = float(velocidad or 1) if float(velocidad or 1) in VELOCIDADES else 1.0
+    marca = (marca or "").strip()
+    cwd = _preparar_textos({"marca.txt": marca}) if marca else None
+    salida = _nombre_libre(os.path.dirname(ruta), os.path.splitext(os.path.basename(ruta))[0], "", ".gif")
+    temporal = salida + ".parcial.gif"
+    cadena = ([f"setpts=PTS/{velocidad:g}"] if velocidad < 1 else []) + \
+        [f"fps={fps}", f"scale={ancho}:-2:flags=lanczos"] + ([filtro_marca(marca)] if marca else [])
+    filtro = ",".join(cadena) + ",split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4"
+    args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{inicio:.3f}", "-t", f"{dur:.3f}",
+            "-i", ruta, "-filter_complex", filtro, "-loop", "0", "-f", "gif", temporal]
+    codigo, err = _ffmpeg(args, dur / velocidad, progreso, cwd)
+    if codigo != 0 or not os.path.exists(temporal):
+        os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+        with open(os.path.join(N.CARPETA_LOGS, "gif.log"), "wb") as f:
+            f.write(err or b"")
+        raise RuntimeError("FFmpeg no pudo crear el GIF (revisa logs\\gif.log)")
+    os.replace(temporal, salida)
+    return salida
+
+
+def unir(rutas, encoder, calidad, progreso=None, transicion=0.5, ultimos=None, etiquetas=None,
+         titulo="", salida=None):
     """Une varios videos en uno, con un fundido corto entre cada uno.
-    Usa la resolución y los FPS del primero y una sola pista de audio (la mezcla)."""
+    Usa la resolución y los FPS del primero y una sola pista de audio (la mezcla).
+    ultimos: usar solo los últimos N segundos de cada video (la jugada suele estar al final).
+    etiquetas: un texto por video, arriba a la izquierda los primeros segundos.
+    titulo: texto grande en el centro al principio (para el resumen de la semana)."""
     if len(rutas) < 2:
         raise ValueError("Elige al menos dos videos para unir")
     infos = [info_video(r) for r in rutas]  # (dur, alto, fps, indice de la mezcla)
     if any(d <= 0 for d, *_ in infos):
         raise RuntimeError("No pude leer uno de los videos")
+    desde = [0.0] * len(rutas)
+    if ultimos:
+        desde = [max(0.0, d - ultimos) for d, *_ in infos]
+        infos = [(min(d, ultimos), a, f, m) for d, a, f, m in infos]
+    textos = {}
+    for k, et in enumerate(etiquetas or []):
+        if et:
+            textos[f"et{k}.txt"] = et
+    if titulo:
+        textos["titulo.txt"] = titulo
+    cwd = _preparar_textos(textos) if textos else None
     import json
     r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                         "stream=width,height", "-of", "json", rutas[0]],
@@ -224,14 +322,19 @@ def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
     entradas, partes = [], []
     con_audio = [bool(pistas_video(r)) for r in rutas]
     for k, ruta in enumerate(rutas):
-        entradas += ["-i", ruta]
+        entradas += (["-ss", f"{desde[k]:.3f}"] if desde[k] else []) + ["-i", ruta]
     silencio = len(rutas)  # entrada extra de silencio para los videos sin audio
     entradas += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
     for k, (dur, _, _, mezcla) in enumerate(infos):
         fuente_a = f"[{k}:a:{mezcla}]" if con_audio[k] else f"[{silencio}:a]"
         partes.append(f"[{k}:v:0]scale={ancho}:{alto}:force_original_aspect_ratio=decrease,"
                       f"pad={ancho}:{alto}:(ow-iw)/2:(oh-ih)/2,fps={fps},format=yuv420p,setsar=1,"
-                      f"trim=duration={dur:.3f},setpts=PTS-STARTPTS[v{k}]")
+                      f"trim=duration={dur:.3f},setpts=PTS-STARTPTS"
+                      + (f",{_drawtext(f'et{k}.txt', 'h/24', 'h/24', 'h/22', chr(58) + 'enable=lt(t' + chr(92) + ',3)')}"
+                         if f"et{k}.txt" in textos else "")
+                      + (f",{_drawtext('titulo.txt', '(w-tw)/2', '(h-th)/2', 'h/11', chr(58) + 'enable=lt(t' + chr(92) + ',2.5)')}"
+                         if k == 0 and titulo else "")
+                      + f"[v{k}]")
         partes.append(f"{fuente_a}aresample=48000,aformat=channel_layouts=stereo,"
                       f"atrim=duration={dur:.3f},asetpts=PTS-STARTPTS,apad=whole_dur={dur:.3f}[a{k}]")
     v_ant, a_ant, offset = "v0", "a0", 0.0
@@ -241,8 +344,8 @@ def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
         partes.append(f"[{a_ant}][a{k}]acrossfade=d={t:.3f}[ax{k}]")
         v_ant, a_ant = f"vx{k}", f"ax{k}"
     total = sum(d for d, *_ in infos) - t * (len(rutas) - 1)
-    carpeta = os.path.dirname(rutas[0])
-    salida = _nombre_libre(carpeta, f"clip_unido_{N.marca_tiempo()}", "")
+    if not salida:
+        salida = _nombre_libre(os.path.dirname(rutas[0]), f"clip_unido_{N.marca_tiempo()}", "")
     temporal = salida + ".parcial.mp4"
 
     def intentar(enc):
@@ -251,7 +354,7 @@ def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
                 N.args_encoder(enc, calidad) +
                 ["-c:a", "aac", "-b:a", "160k", "-metadata:s:a:0", "handler_name=Mezcla",
                  "-movflags", "+faststart", temporal])
-        return _ffmpeg(args, total, progreso)
+        return _ffmpeg(args, total, progreso, cwd)
 
     codigo, err = intentar(encoder or "libx264")
     if codigo != 0 and encoder and encoder != "libx264":
@@ -271,10 +374,10 @@ def unir(rutas, encoder, calidad, progreso=None, transicion=0.5):
 
 # ---------------- compartir ----------------
 
-def _ffmpeg(args, dur, progreso):
+def _ffmpeg(args, dur, progreso, cwd=None):
     """Corre FFmpeg informando el avance (0..1). Devuelve (codigo, stderr)."""
     args = args[:1] + ["-progress", "pipe:1", "-nostats"] + args[1:]  # opciones globales, antes de la salida
-    p = subprocess.Popen(args, stdout=subprocess.PIPE,
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, cwd=cwd,
                          stderr=subprocess.PIPE, creationflags=N.BAJA_PRIORIDAD)
     errores = []
     hilo = threading.Thread(target=lambda: errores.append(p.stderr.read()), daemon=True)

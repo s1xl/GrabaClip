@@ -451,7 +451,7 @@
   @keyframes sube { from { opacity: 0; transform: translateY(10px); } }
   #editor { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 8; }
   #editor.abierto { display: grid; }
-  .ed-caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 18px 20px; width: min(880px, 94vw);
+  .ed-caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 18px 20px; width: min(1000px, 94vw);
              box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sube .2s ease; }
   .ed-cab { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
   .ed-cab h3 { font-size: 16px; }
@@ -491,6 +491,8 @@
   .ed-controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .ed-controles .mini-boton svg { width: 14px; height: 14px; }
   .ed-espacio { flex: 1; }
+  .ed-controles { flex-wrap: wrap; row-gap: 8px; }
+  .ed-agua { width: 210px; padding: 6px 10px; font-size: 12.5px; }
   .ed-reemplazar { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--tenue); margin-right: 6px; cursor: pointer; }
   #ed-barra { margin: 12px 0 0; }
   #ed-nota { margin-top: 10px; }
@@ -882,7 +884,9 @@
   <section class="vista" id="v-stats">
     <div class="contenido desliza">
       <div class="seccion activa" style="max-width:none">
-        <h2>Tus estadísticas</h2>
+        <div class="cab-temas"><h2 style="margin:0">Tus estadísticas</h2>
+          <button class="mini-boton primario" id="b-resumen" title="Un video con tus favoritos de los últimos 7 días (o tus clips más nuevos), 8 segundos de cada uno">Crear resumen de la semana</button></div>
+        <div class="upd-barra oculto" id="res-barra"><i></i></div>
         <div class="st-cifras" id="st-cifras"></div>
         <div class="st-dos">
           <div class="tarjeta st-caja"><h3>Clips por semana</h3><p class="nota" id="st-mejor"></p><div class="st-barras" id="st-semanas"></div></div>
@@ -974,6 +978,10 @@
   <div class="ed-opciones">
     <div class="ed-grupo"><span>Formato</span>
       <div class="chips" id="ed-formato"><button data-v="0" class="sel">Original</button><button data-v="1">Vertical 9:16</button></div></div>
+    <div class="ed-grupo"><span>Velocidad</span>
+      <div class="chips" id="ed-vel"><button data-v="1" class="sel">Normal</button><button data-v="0.5">Lenta 0.5x</button><button data-v="0.25">Muy lenta 0.25x</button></div></div>
+    <div class="ed-grupo"><span>Marca de agua</span>
+      <input class="campo-texto ed-agua" id="ed-agua" maxlength="40" placeholder="@tu_nombre (vacío = sin marca)" spellcheck="false" translate="no"></div>
     <div class="ed-grupo" id="ed-pistas-g"><span>Pistas de audio</span><div id="ed-pistas" class="ed-pistas"></div></div>
   </div>
   <div class="ed-controles">
@@ -984,6 +992,7 @@
     <button class="mini-boton oculto" id="ed-m-sig" title="Marca siguiente (])">Marca ▶</button>
     <span class="ed-espacio"></span>
     <label class="ed-reemplazar"><label class="switch"><input type="checkbox" id="ed-reemplazar"><span></span></label>Reemplazar el original</label>
+    <button class="mini-boton" id="ed-gif" title="GIF del tramo elegido (hasta 20 s), queda copiado para pegarlo en Discord">Exportar GIF</button>
     <button class="mini-boton primario" id="ed-guardar">Guardar recorte</button>
   </div>
   <div class="upd-barra oculto" id="ed-barra"><i></i></div>
@@ -1194,6 +1203,20 @@ $('#sel-unir').onclick = async () => {
   if (!r.ok) { aviso(r.msg, 'error'); return; }
   uniendo = true; salirSel(); aviso('Uniendo videos… te aviso al terminar');
 };
+$('#b-resumen').onclick = async () => {
+  const r = await api('resumen_semana');
+  if (!r.ok) { aviso(r.msg, 'error'); return; }
+  $('#b-resumen').disabled = true;
+  $('#res-barra').classList.remove('oculto'); $('#res-barra i').style.width = '0';
+  aviso(r.favs ? `Armando tu resumen con ${r.n} favoritos…` : `Armando tu resumen con tus ${r.n} clips más nuevos (marca favoritos para elegir tú)…`);
+};
+function progresoResumen(d) {
+  if (d.pct != null) $('#res-barra i').style.width = d.pct + '%';
+  if (d.fin) {
+    $('#b-resumen').disabled = false; $('#res-barra').classList.add('oculto');
+    if (d.ok && d.ruta) api('reproducir', d.ruta);
+  }
+}
 function progresoUnir(d) {
   const p = $('#prog-unir');
   if (d.pct != null) { p.classList.remove('oculto'); p.textContent = `Uniendo… ${d.pct}%`; }
@@ -1744,8 +1767,13 @@ async function abrirEditor(v) {
   const r = await api('abrir_editor', v.ruta);
   if (!r.ok) { aviso(r.msg, 'error'); return; }
   Object.assign(ED, {v, ini: 0, fin: 0, dur: 0, guardando: false, marcas: (r.marcas || []).slice().sort((a, b) => a - b),
-                     pistas: r.pistas || [], activas: new Set((r.pistas || []).map((_, i) => i)), vertical: false});
+                     pistas: r.pistas || [], activas: new Set((r.pistas || []).map((_, i) => i)), vertical: false,
+                     vel: 1, gif: false});
   $$('#ed-formato button').forEach(b => b.classList.toggle('sel', b.dataset.v === '0'));
+  $$('#ed-vel button').forEach(b => b.classList.toggle('sel', b.dataset.v === '1'));
+  $('#ed-agua').value = '';
+  $('#ed-agua').placeholder = cfg.marca_texto ? cfg.marca_texto + ' (' + tr('clic para usarla') + ')' : tr('@tu_nombre (vacío = sin marca)');
+  edv().playbackRate = 1;
   const cp = $('#ed-pistas'); cp.innerHTML = '';
   $('#ed-pistas-g').classList.toggle('oculto', ED.pistas.length < 1);
   ED.pistas.forEach((nombre, i) => {
@@ -1787,8 +1815,12 @@ function pintarEditor() {
   $('#ed-cabezal').style.left = pct(edv().currentTime);
   $('#ed-t-i').textContent = tiempoFino(ED.ini); $('#ed-t-f').textContent = tiempoFino(ED.fin);
   $('#ed-t-d').textContent = tiempoFino(ED.fin - ED.ini);
-  const cambiado = ED.ini > 0.05 || ED.fin < ED.dur - 0.05 || ED.vertical || (ED.pistas && ED.activas.size < ED.pistas.length);
+  const cambiado = ED.ini > 0.05 || ED.fin < ED.dur - 0.05 || ED.vertical || (ED.pistas && ED.activas.size < ED.pistas.length)
+    || ED.vel !== 1 || !!$('#ed-agua').value.trim();
   $('#ed-guardar').disabled = ED.guardando || !cambiado || ED.fin - ED.ini < 0.5;
+  $('#ed-gif').disabled = ED.guardando || ED.fin - ED.ini < 0.5 || (ED.fin - ED.ini) / ED.vel > 20;
+  $('#ed-gif').title = tr((ED.fin - ED.ini) / ED.vel > 20 ? 'Para un GIF elige 20 segundos o menos (pesan mucho)'
+                                                        : 'GIF del tramo elegido (hasta 20 s), queda copiado para pegarlo en Discord');
 }
 function pintarPlay() {
   const p = !edv().paused;
@@ -1823,6 +1855,23 @@ $$('#ed-formato button').forEach(b => b.onclick = () => {
   $('.ed-video').classList.toggle('vertical', ED.vertical);
   pintarEditor();
 });
+$$('#ed-vel button').forEach(b => b.onclick = () => {
+  ED.vel = Number(b.dataset.v);
+  $$('#ed-vel button').forEach(x => x.classList.toggle('sel', x === b));
+  edv().playbackRate = ED.vel;  // vista previa a la misma velocidad
+  pintarEditor();
+});
+$('#ed-agua').oninput = () => pintarEditor();
+$('#ed-agua').onfocus = () => { if (!$('#ed-agua').value && cfg.marca_texto) { $('#ed-agua').value = cfg.marca_texto; pintarEditor(); } };
+$('#ed-agua').onchange = () => { const m = $('#ed-agua').value.trim(); if (m) guardar({marca_texto: m}); };
+$('#ed-gif').onclick = async () => {
+  edv().pause();
+  ED.guardando = true; ED.gif = true; pintarEditor();
+  $('#ed-barra').classList.remove('oculto'); $('#ed-barra i').style.width = '0';
+  $('#ed-nota').textContent = tr('Creando el GIF…');
+  const r = await api('exportar_gif', ED.v.ruta, ED.ini, ED.fin, ED.vel, $('#ed-agua').value.trim());
+  if (!r.ok) { ED.guardando = false; ED.gif = false; pintarEditor(); aviso(r.msg, 'error'); $('#ed-barra').classList.add('oculto'); }
+};
 $('#ed-cerrar').onclick = cerrarEditor;
 $('#editor').onclick = e => { if (e.target.id === 'editor') cerrarEditor(); };
 function marcar(cual) {
@@ -1886,15 +1935,17 @@ $('#ed-guardar').onclick = async () => {
   $('#ed-barra').classList.remove('oculto'); $('#ed-barra i').style.width = '0';
   $('#ed-nota').textContent = 'Recortando…';
   const pistas = ED.activas.size < ED.pistas.length ? [...ED.activas].sort((a, b) => a - b) : null;
-  const r = await api('recortar', ED.v.ruta, ED.ini, ED.fin, reemplazar, pistas, ED.vertical);
+  ED.gif = false;
+  const r = await api('recortar', ED.v.ruta, ED.ini, ED.fin, reemplazar, pistas, ED.vertical, ED.vel, $('#ed-agua').value.trim());
   if (!r.ok) { ED.guardando = false; pintarEditor(); aviso(r.msg, 'error'); $('#ed-barra').classList.add('oculto'); }
 };
 function progresoRecorte(d) {
-  if (d.pct != null) { $('#ed-barra i').style.width = d.pct + '%'; $('#ed-nota').textContent = `Recortando… ${d.pct}%`; }
+  if (d.pct != null) { $('#ed-barra i').style.width = d.pct + '%'; $('#ed-nota').textContent = `${tr(ED.gif ? 'Creando el GIF…' : 'Recortando…')} ${d.pct}%`; }
   if (d.fin) {
     ED.guardando = false;
     $('#ed-nota').textContent = 'Arrastra los extremos de la barra o usa I y O mientras se reproduce. Espacio: reproducir o pausar. Se guarda como una copia nueva junto al original.';
-    if (d.ok) cerrarEditor();
+    if (d.ok && ED.gif) { ED.gif = false; $('#ed-barra').classList.add('oculto'); pintarEditor(); }
+    else if (d.ok) cerrarEditor();
     else { $('#ed-barra').classList.add('oculto'); pintarEditor(); }
   }
 }
@@ -2487,6 +2538,7 @@ window.recibir = m => {
   else if (m.tipo === 'recorte') progresoRecorte(m.datos);
   else if (m.tipo === 'compartir') progresoCompartir(m.datos);
   else if (m.tipo === 'unir') progresoUnir(m.datos);
+  else if (m.tipo === 'resumen') progresoResumen(m.datos);
   else if (m.tipo === 'espacio') pintarEspacio(m.datos);
   else if (m.tipo === 'update_progreso') progresoUpdate(m.datos);
   else if (m.tipo === 'fatal') { est.fatal = m.datos; pintarEstado(); }
