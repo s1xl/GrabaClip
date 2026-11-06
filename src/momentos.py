@@ -32,7 +32,7 @@ NOMBRES = {"fortnite": "Fortnite", "overwatch": "Overwatch"}
 ZONAS = {"fortnite": ("der", -320, 0, 130, 110),
          "overwatch": ("centro", -260, 700, 520, 200)}
 # segundos sin otra kill para cerrar una racha (Overwatch y Fortnite cuentan rachas rápidas)
-VENTANA_RACHA = {"fortnite": 10.0, "overwatch": 8.0}
+VENTANA_RACHA = {"fortnite": 12.0, "overwatch": 12.0}
 
 
 # ---------------------------------------------------------------- Fortnite: contador ----
@@ -146,7 +146,8 @@ class LectorOverwatch:
     def __init__(self, datos=None):
         import numpy as np
         self.np = np
-        self.vistos = []   # [momento, ancho, firma] de los avisos en pantalla hace poco
+        self.pila = []     # (y, ancho, firma) de los avisos en pantalla, de arriba hacia abajo
+        self.visto = -9.0  # última vez que hubo algún aviso
         self.t = 0.0
 
     def avisos(self, rgb):
@@ -174,24 +175,35 @@ class LectorOverwatch:
                                 n = max(1, txt.shape[1] // 16)
                                 firma = np.array([txt[:, i * n:(i + 1) * n].mean() if txt.size else 0
                                                   for i in range(16)])
-                                out.append((w, firma))
+                                out.append((s, w, firma))
             else:
                 y += 1
         return out
 
+    def _igual(self, a, b):
+        return abs(a[1] - b[1]) <= 6 and self.np.abs(a[2] - b[2]).mean() < 0.15
+
     def procesar(self, rgb):
-        np = self.np
+        """Los avisos forman una pila: el nuevo aparece arriba y empuja a los demás hacia abajo.
+        Se cuentan cuántos avisos nuevos entraron arriba comparando con la pila anterior, así
+        dos kills seguidas al mismo nombre (p. ej. bots) cuentan como dos."""
         self.t += 1 / FPS
-        self.vistos = [v for v in self.vistos if self.t - v[0] < 3.0]
-        nuevas = 0
-        for w, firma in self.avisos(rgb):
-            iguales = [v for v in self.vistos if abs(v[1] - w) <= 6 and np.abs(v[2] - firma).mean() < 0.15]
-            if iguales:
-                for v in iguales:
-                    v[0] = self.t
-            else:
-                nuevas += 1
-                self.vistos.append([self.t, w, firma])
+        actual = sorted(self.avisos(rgb), key=lambda c: c[0])
+        if not actual:
+            if self.t - self.visto > 1.25:  # se fueron todos (no solo tapados un momento)
+                self.pila = []
+            return 0
+        self.visto = self.t
+        antes = self.pila
+        if antes and all(any(abs(c[0] - p[0]) <= 6 and self._igual(c, p) for p in antes) for c in actual):
+            return 0  # los mismos avisos en su lugar (alguno tapado un instante por el cartel)
+        nuevas = len(actual)
+        for k in range(len(actual) + 1):
+            resto = actual[k:]
+            if len(antes) >= len(resto) and all(self._igual(a, b) for a, b in zip(resto, antes)):
+                nuevas = k
+                break
+        self.pila = actual
         return nuevas
 
 

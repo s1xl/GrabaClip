@@ -565,7 +565,7 @@ class Api:
         st["mejor"] = max(st["mejor"], kills)
         minimo = int(self._cfg.get("momentos_minimo", 1) or 1)
         if kills >= minimo:
-            segundos = min(self._segundos_bufer(), int(duracion) + 8)
+            segundos = min(self._segundos_bufer(), int(duracion) + 12)  # unos segundos antes de la primera
             sufijo = {1: "_kill", 2: "_doble", 3: "_triple", 4: "_cuadruple", 5: "_penta"}.get(kills, f"_racha{kills}")
             with self._lock:
                 if self._bufer:
