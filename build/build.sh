@@ -65,7 +65,7 @@ x86_64-w64-mingw32-clang++ -std=c++17 -O2 -municode -static -s \
 rm -rf "$APP"
 mkdir -p "$APP/runtime/ffmpeg"
 cp "$OBJ/GrabaClip.exe" "$OBJ/audiocap.exe" "$APP/"
-cp "$RAIZ"/src/*.py "$RAIZ/src/ui.html" "$RAIZ/src/grabaclip.ico" "$APP/"
+cp "$RAIZ"/src/*.py "$RAIZ/src/ui.html" "$RAIZ/src/grabaclip.ico" "$RAIZ/src/momentos_datos.json" "$APP/"
 mkdir -p "$APP/lang" && cp "$RAIZ"/src/lang/*.json "$APP/lang/"
 cp "$RAIZ/docs/LEEME.txt" "$APP/LEEME.txt"
 cp "$RAIZ/LICENSE" "$APP/LICENSE.txt"

@@ -596,7 +596,30 @@
 "Webcams encontradas": "Найдено веб-камер",
 "No encontré ninguna webcam": "Веб-камеры не найдены",
 "No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella": "Не удалось открыть веб-камеру (её использует другое приложение?): клипы продолжаются без неё",
-"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "Не удалось открыть веб-камеру (её использует другое приложение?): запись идёт без неё"
+"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "Не удалось открыть веб-камеру (её использует другое приложение?): запись идёт без неё",
+"Momentos automáticos": "Автомоменты",
+"Experimental": "Экспериментально",
+"GrabaClip mira solo el pedacito de pantalla donde el juego avisa que hiciste una kill y guarda el clip por ti. Las kills seguidas se juntan en un solo clip (doble, triple…). No toca el juego ni su memoria.": "GrabaClip смотрит только на маленький участок экрана, где игра сообщает о твоём убийстве, и сам сохраняет клип. Убийства подряд объединяются в один клип (дабл, трипл…). Игру и её память он не трогает.",
+"Lee el contador de eliminaciones de arriba a la derecha.": "Читает счётчик устранений справа вверху.",
+"Detecta el aviso amarillo de eliminación bajo la mira (en cualquier idioma).": "Замечает жёлтое уведомление об устранении под прицелом (на любом языке).",
+"Próximamente: necesitamos clips con kills para enseñarle a reconocerlas.": "Скоро: нужны клипы с убийствами, чтобы научить его их узнавать.",
+"Guardar clip desde": "Сохранять клип от",
+"Cada kill": "Каждого убийства",
+"Doble kill": "Дабл килл",
+"Triple kill": "Трипл килл",
+"Cuádruple kill": "Квадра килл",
+"Penta kill": "Пента килл",
+"Kill": "Убийство",
+"Las kills de rachas más cortas igual se cuentan en Estadísticas. Funciona con el HUD normal del juego; si cambias su tamaño o los colores para daltónicos puede fallar.": "Убийства из коротких серий всё равно учитываются в статистике. Работает с обычным HUD игры; изменение его размера или цветов для дальтоников может всё сломать.",
+"Mirando": "Следит за",
+"kills": "убийств",
+"mejor racha": "лучшая серия",
+"dobles": "даблов",
+"triples": "триплов",
+"cuádruples": "квадр",
+"de 5 o más": "из 5 и больше",
+"clips guardados": "клипов сохранено",
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Замечает убийства в Fortnite и Overwatch и сам сохраняет клип."
 },
 "patrones": [
 [
@@ -1034,6 +1057,10 @@
 [
 "Ajustes cargados ({0})",
 "Настройки загружены ({0})"
+],
+[
+"Racha de {0} kills",
+"Серия из {0} убийств"
 ]
 ]
 }

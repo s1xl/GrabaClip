@@ -141,7 +141,8 @@ CONFIG_INICIAL = {"duracion": 30, "fps": "60", "calidad": "Alta", "resolucion": 
                   "perfil": "completo", "perfil_elegido": False, "tutorial_visto": False,
                   "temas_propios": {}, "esquinas": "normales", "tamano_texto": "normal",
                   "avisos": {}, "funciones": {"clips": True, "grabar": True, "capturas": True, "voz": True,
-                                "overlay": True, "discord": True, "estadisticas": True}, "tema": "Carmesí", "ui_version": 6,
+                                "overlay": True, "discord": True, "estadisticas": True, "momentos": True},
+                  "momentos": {"fortnite": False, "overwatch": False}, "momentos_minimo": 1, "tema": "Carmesí", "ui_version": 6,
                   "iniciar_con_windows": False, "clips_al_abrir": False, "sonido_clip": True,
                   "por_juego": True, "encoder": "auto",
                   "captura": "juego", "ventana_exe": "", "escritorio_sin_juego": True, "monitor": 0,
@@ -357,17 +358,17 @@ def aviso_evento(cfg, evento):
     return base
 
 
-FUNCIONES = ["clips", "grabar", "capturas", "voz", "overlay", "discord", "estadisticas"]
+FUNCIONES = ["clips", "grabar", "capturas", "voz", "overlay", "discord", "estadisticas", "momentos"]
 PERFILES = {
     "completo": {"funciones": dict.fromkeys(FUNCIONES, True), "ajustes": {}},
     "esencial": {"funciones": {"clips": True, "grabar": True, "capturas": True, "voz": False, "overlay": False,
-                               "discord": False, "estadisticas": False},
+                               "discord": False, "estadisticas": False, "momentos": False},
                  "ajustes": {"vista_previa": False}},
     "clips": {"funciones": {"clips": True, "grabar": False, "capturas": False, "voz": False, "overlay": True,
-                            "discord": False, "estadisticas": False},
+                            "discord": False, "estadisticas": False, "momentos": True},
               "ajustes": {"vista_previa": False}},
     "grabacion": {"funciones": {"clips": False, "grabar": True, "capturas": False, "voz": False, "overlay": True,
-                                "discord": False, "estadisticas": False},
+                                "discord": False, "estadisticas": False, "momentos": False},
                   "ajustes": {"vista_previa": False, "clips_al_abrir": False}},
 }
 

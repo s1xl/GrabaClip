@@ -596,7 +596,30 @@
 "Webcams encontradas": "الكاميرات الموجودة",
 "No encontré ninguna webcam": "لم أجد أي كاميرا ويب",
 "No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella": "تعذّر فتح كاميرا الويب (هل يستخدمها تطبيق آخر؟): تستمر المقاطع بدونها",
-"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "تعذّر فتح كاميرا الويب (هل يستخدمها تطبيق آخر؟): يستمر التسجيل بدونها"
+"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "تعذّر فتح كاميرا الويب (هل يستخدمها تطبيق آخر؟): يستمر التسجيل بدونها",
+"Momentos automáticos": "لحظات تلقائية",
+"Experimental": "تجريبي",
+"GrabaClip mira solo el pedacito de pantalla donde el juego avisa que hiciste una kill y guarda el clip por ti. Las kills seguidas se juntan en un solo clip (doble, triple…). No toca el juego ni su memoria.": "يراقب GrabaClip فقط الجزء الصغير من الشاشة الذي تُعلن فيه اللعبة عن قتلك لخصم ويحفظ المقطع لك. عمليات القتل المتتالية تُجمع في مقطع واحد (مزدوج، ثلاثي…). لا يلمس اللعبة ولا ذاكرتها.",
+"Lee el contador de eliminaciones de arriba a la derecha.": "يقرأ عداد الإقصاءات في أعلى اليمين.",
+"Detecta el aviso amarillo de eliminación bajo la mira (en cualquier idioma).": "يكتشف إشعار الإقصاء الأصفر تحت علامة التصويب (بأي لغة).",
+"Próximamente: necesitamos clips con kills para enseñarle a reconocerlas.": "قريبًا: نحتاج مقاطع فيها عمليات قتل لنعلّمه التعرّف عليها.",
+"Guardar clip desde": "حفظ مقطع ابتداءً من",
+"Cada kill": "كل عملية قتل",
+"Doble kill": "قتل مزدوج",
+"Triple kill": "قتل ثلاثي",
+"Cuádruple kill": "قتل رباعي",
+"Penta kill": "قتل خماسي",
+"Kill": "قتل",
+"Las kills de rachas más cortas igual se cuentan en Estadísticas. Funciona con el HUD normal del juego; si cambias su tamaño o los colores para daltónicos puede fallar.": "عمليات القتل في السلاسل الأقصر تُحسب أيضًا في الإحصاءات. يعمل مع واجهة اللعبة العادية؛ تغيير حجمها أو ألوان عمى الألوان قد يُفشله.",
+"Mirando": "يراقب",
+"kills": "عمليات قتل",
+"mejor racha": "أفضل سلسلة",
+"dobles": "مزدوجة",
+"triples": "ثلاثية",
+"cuádruples": "رباعية",
+"de 5 o más": "من 5 أو أكثر",
+"clips guardados": "مقاطع محفوظة",
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "يكتشف عمليات القتل في Fortnite وOverwatch ويحفظ المقطع وحده."
 },
 "patrones": [
 [
@@ -1034,6 +1057,10 @@
 [
 "Ajustes cargados ({0})",
 "تم تحميل الإعدادات ({0})"
+],
+[
+"Racha de {0} kills",
+"سلسلة من {0} عمليات قتل"
 ]
 ]
 }

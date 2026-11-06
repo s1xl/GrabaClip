@@ -35,6 +35,7 @@ Guarda los últimos segundos de tu partida con una tecla, como el "Instant Repla
 - **AV1** (NVIDIA RTX 40 o más nueva): archivos ~35 % más ligeros con la misma calidad.
 - **Búfer en RAM** (opcional): los últimos segundos se guardan en memoria en vez de escribir al disco todo el tiempo.
 - **Webcam en el video:** tu cámara en una esquina de los clips y grabaciones.
+- **Momentos automáticos** (experimental): en **Fortnite** lee el contador de eliminaciones y en **Overwatch** detecta el aviso de eliminación; guarda el clip solo y junta las rachas (doble, triple…) en un solo clip. Solo mira esa zona de la pantalla: no toca el juego ni su memoria. Valorant, cuando tengamos clips para enseñarle.
 - **Silenciar el micrófono** con una tecla (Ctrl+Alt+M) o un botón, sin cortar nada.
 - **Etiquetas** propias para organizar y filtrar tus clips, **respaldo de ajustes** en un archivo y **medidor de impacto** (CPU, GPU, RAM y disco que usa GrabaClip).
 - **Idiomas:** español, inglés, portugués (Brasil), francés, árabe (de derecha a izquierda) y ruso. Usa el idioma de Windows o el que elijas en *Ajustes → Apariencia*.

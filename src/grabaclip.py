@@ -28,6 +28,7 @@ import recortes as RC
 import discord_rpc as DR
 import idiomas as I18N
 import bufer_ram as BR
+import momentos as MO
 
 try:
     import keyboard  # teclas rapidas globales
@@ -42,6 +43,7 @@ ARCHIVO_INDICE = os.path.join(CARPETA_MINI, "indice.json")
 ARCHIVO_FAVORITOS = os.path.join(N.CARPETA_APP, "favoritos.json")
 ARCHIVO_MARCAS = os.path.join(N.CARPETA_APP, "marcas.json")
 ARCHIVO_ETIQUETAS = os.path.join(N.CARPETA_APP, "etiquetas.json")
+ARCHIVO_MOMENTOS = os.path.join(N.CARPETA_APP, "momentos.json")
 # en un respaldo de ajustes no van cosas propias de esta PC (carpetas, ventanas, pantallas)
 NO_RESPALDAR = {"carpeta", "ventana_exe", "monitor", "encoder", "mic", "apps", "orden_pistas",
                 "perfil_elegido", "tutorial_visto", "bandeja_aviso_visto", "ui_version", "voz_idioma"}
@@ -82,7 +84,7 @@ CLAVES_EDITABLES = {"duracion", "fps", "calidad", "resolucion", "mic", "apps", "
                     "overlay_pos", "voz", "voz_clip", "voz_grabar", "voz_clips", "voz_idioma",
                     "voz_confianza", "avisar_updates", "bandeja", "modo_audio", "rendimiento", "discord", "discord_juego", "limite_gb", "limite_grabaciones",
                     "duracion_larga", "por_juego_cfg", "vista_previa", "clip_al_cerrar", "idioma",
-                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto", "medidor", "webcam", "webcam_pos", "webcam_tam"}
+                    "esquinas", "tamano_texto", "tutorial_visto", "avisos", "codec", "bufer_ram", "marca_texto", "medidor", "webcam", "webcam_pos", "webcam_tam", "momentos", "momentos_minimo"}
 
 
 def sonido_ok():
@@ -134,6 +136,9 @@ class Api:
         self._favoritos = self._leer_favoritos()
         self._marcas = self._leer_json(ARCHIVO_MARCAS, {})  # ruta de la grabación -> segundos marcados
         self._etiquetas = self._leer_json(ARCHIVO_ETIQUETAS, {})  # ruta -> ["jugadas", "para subir"…]
+        self._detector = None    # momentos automáticos (kills): un FFmpeg mirando el HUD del juego
+        self._rachas = MO.Rachas(self._guardar_racha)
+        self._stats_momentos = self._leer_json(ARCHIVO_MOMENTOS, {})
         self._medidor = None
         self._inicio_parte = None
         self._pendientes = []
@@ -243,6 +248,7 @@ class Api:
             "en_ram": self._bufer_en_ram and self._bufer is not None,
             "ram_mb": self._ram.megas() if self._bufer_en_ram else 0,
             "webcam_fallida": self._webcam_fallida,
+            "momentos_juego": self._detector.juego if self._detector and self._detector.vivo else None,
         }
 
     def estado(self):
@@ -468,6 +474,9 @@ class Api:
         self._aviso(msg + self._bufer.aviso, "error" if self._bufer.aviso else "ok")
 
     def _parar_bufer(self):
+        if self._detector:
+            self._detector.detener()
+            self._detector = None
         if self._bufer:
             self._bufer.detener()
         self._bufer = None
@@ -505,6 +514,64 @@ class Api:
                 self._avisar_estado()
             except Exception:
                 pass
+            finally:
+                try:
+                    self._revisar_momentos()
+                except Exception:
+                    pass
+
+    # ---------- momentos automáticos (kills) ----------
+    def _juego_de_momentos(self):
+        """Qué juego con detector se está grabando ahora (o None)."""
+        if not self._bufer:
+            return None
+        fuente = self._bufer.fuente
+        exe = fuente.get("exe") if fuente.get("tipo") == "ventana" else None
+        if not exe:
+            exe = (VA.en_primer_plano()[0] or "").lower()
+        return MO.JUEGOS.get((exe or "").lower())
+
+    def _revisar_momentos(self):
+        juego = None
+        if self._clips_on and self._bufer and self._funcion("momentos"):
+            juego = self._juego_de_momentos()
+            if juego and not (self._cfg.get("momentos") or {}).get(juego):
+                juego = None
+        det = self._detector
+        fuente = self._bufer.fuente if self._bufer else None
+        if det and (det.juego != juego or det.fuente is not fuente or not det.vivo):
+            det.detener()
+            self._detector = det = None
+        if juego and not det:
+            try:
+                self._detector = MO.Detector(juego, fuente, self._rachas.agregar)
+                self._detector.iniciar()
+            except Exception:
+                self._detector = None
+                try:
+                    with open(os.path.join(N.CARPETA_LOGS, "momentos_error.txt"), "a", encoding="utf-8") as f:
+                        f.write(time.ctime() + "\n" + traceback.format_exc())
+                except Exception:
+                    pass
+
+    def _guardar_racha(self, juego, kills, duracion):
+        """Se cerró una racha: estadísticas y, si alcanza el mínimo, un clip que la cubre entera."""
+        st = self._stats_momentos.setdefault(juego, {"kills": 0, "rachas": {}, "mejor": 0, "clips": 0})
+        st["kills"] += kills
+        st["rachas"][str(min(kills, 5))] = st["rachas"].get(str(min(kills, 5)), 0) + 1
+        st["mejor"] = max(st["mejor"], kills)
+        minimo = int(self._cfg.get("momentos_minimo", 1) or 1)
+        if kills >= minimo:
+            segundos = min(self._segundos_bufer(), int(duracion) + 8)
+            sufijo = {1: "_kill", 2: "_doble", 3: "_triple", 4: "_cuadruple", 5: "_penta"}.get(kills, f"_racha{kills}")
+            with self._lock:
+                if self._bufer:
+                    if self._guardar_tramo(segundos, self._bufer.fuente, self._bufer.pistas,
+                                           MO.titulo_racha(kills), sufijo):
+                        st["clips"] += 1
+            self._emitir("biblioteca")
+        self._guardar_json(ARCHIVO_MOMENTOS, self._stats_momentos)
+        self._avisar_estado()
 
     def guardar_clip_largo(self):
         return self.guardar_clip(int(self._cfg.get("duracion_larga") or 120), "Clip largo")
@@ -1175,6 +1242,7 @@ class Api:
                         "segundos": sum(v.get("duracion") or 0 for v in items),
                         "bytes": sum(v["tamano"] for v in items)},
             "racha": racha,
+            "momentos": [dict(v, juego=MO.NOMBRES.get(k, k)) for k, v in self._stats_momentos.items()],
         }
 
     # ---------- espacio en disco ----------

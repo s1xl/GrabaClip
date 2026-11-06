@@ -350,7 +350,7 @@
   .oculto { display: none !important; }
   body.sin-clips [data-func~="clips"], body.sin-grabar [data-func~="grabar"], body.sin-capturas [data-func~="capturas"],
   body.sin-voz [data-func~="voz"], body.sin-overlay [data-func~="overlay"], body.sin-discord [data-func~="discord"],
-  body.sin-estadisticas [data-func~="estadisticas"] { display: none !important; }
+  body.sin-estadisticas [data-func~="estadisticas"], body.sin-momentos [data-func~="momentos"] { display: none !important; }
   .perfiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .perfiles button { text-align: left; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--borde); background: var(--campo);
                      display: flex; flex-direction: column; gap: 3px; }
@@ -372,6 +372,13 @@
   .esp-barra i.lleno { background: var(--rojo); }
   .mas-videos { grid-column: 1 / -1; justify-self: center; margin: 8px 0 4px; }
   #tut-acceso { white-space: nowrap; }
+  .pildora-exp { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; padding: 2px 7px;
+                 border-radius: 999px; margin-left: 6px; vertical-align: 2px; color: var(--acento);
+                 border: 1px solid color-mix(in srgb, var(--acento) 50%, transparent); }
+  .mom-fila { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid var(--borde); flex-wrap: wrap; }
+  .mom-fila:first-of-type { border-top: none; }
+  .mom-fila b { min-width: 90px; }
+  .mom-fila span { font-size: 12.5px; color: var(--fg2); }
   .aviso-fila { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--borde); }
   .aviso-fila:first-child { border-top: none; }
   .aviso-fila .nombre { flex: 1; min-width: 0; }
@@ -707,7 +714,17 @@
           <div class="fila columna sub-cam"><div class="cab"><h3>Tamaño</h3></div>
             <div class="chips" id="chips-camtam"><button data-t="18">Pequeña</button><button data-t="25">Mediana</button><button data-t="33">Grande</button></div></div>
         </div>
-        <div class="tarjeta">
+        <div class="tarjeta" data-func="momentos">
+          <div class="fila columna"><div class="cab"><h3>Momentos automáticos <span class="pildora-exp">Experimental</span></h3><b id="mom-estado"></b></div>
+            <p class="nota" style="margin-top:0">GrabaClip mira solo el pedacito de pantalla donde el juego avisa que hiciste una kill y guarda el clip por ti. Las kills seguidas se juntan en un solo clip (doble, triple…). No toca el juego ni su memoria.</p></div>
+          <div class="fila"><div class="texto"><h3>Fortnite</h3><p>Lee el contador de eliminaciones de arriba a la derecha.</p></div><label class="switch"><input type="checkbox" data-mom="fortnite"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Overwatch</h3><p>Detecta el aviso amarillo de eliminación bajo la mira (en cualquier idioma).</p></div><label class="switch"><input type="checkbox" data-mom="overwatch"><span></span></label></div>
+          <div class="fila"><div class="texto"><h3>Valorant</h3><p>Próximamente: necesitamos clips con kills para enseñarle a reconocerlas.</p></div><span class="nota">—</span></div>
+          <div class="fila columna"><div class="cab"><h3>Guardar clip desde</h3></div>
+            <div class="chips" id="chips-mom-min"><button data-n="1">Cada kill</button><button data-n="2">Doble kill</button><button data-n="3">Triple kill</button><button data-n="4">Cuádruple kill</button></div>
+            <p class="nota">Las kills de rachas más cortas igual se cuentan en Estadísticas. Funciona con el HUD normal del juego; si cambias su tamaño o los colores para daltónicos puede fallar.</p></div>
+        </div>
+        <div class="tarjeta" data-func="clips">
           <div class="fila"><div class="texto"><h3>Clip automático al cerrar el juego</h3><p>Cuando cierras el juego, GrabaClip guarda solo los últimos segundos (la pantalla final, el resultado de la partida). Ocupa espacio con cada partida.</p></div>
             <label class="switch"><input type="checkbox" data-sw="clip_al_cerrar"><span></span></label></div>
         </div>
@@ -941,6 +958,7 @@
         <div class="st-dos">
           <div class="tarjeta st-caja"><h3>Clips por semana</h3><p class="nota" id="st-mejor"></p><div class="st-barras" id="st-semanas"></div></div>
           <div class="tarjeta st-caja"><h3>Por juego</h3><div id="st-juegos"></div></div>
+          <div class="tarjeta st-caja oculto" id="st-momentos-caja" data-func="momentos"><h3>Momentos automáticos</h3><div id="st-momentos"></div></div>
         </div>
       </div>
     </div>
@@ -1721,6 +1739,7 @@ function pintarCfg() {
   pintarAvisos();
   pintarCodec();
   pintarCamara();
+  pintarMomentos();
   $$('[data-tecla]').forEach(b => { if (!b.classList.contains('esperando')) b.textContent = bonita(cfg[b.dataset.tecla]); });
   $$('.k-clip').forEach(k => k.textContent = bonita(cfg.tecla_clip));
   $$('.k-grab').forEach(k => k.textContent = bonita(cfg.tecla_grab));
@@ -2162,6 +2181,37 @@ function pintarAvisos() {
   });
 }
 
+// ---------- momentos automáticos (kills) ----------
+function pintarMomentos() {
+  const m = cfg.momentos || {};
+  $$('[data-mom]').forEach(i => i.checked = !!m[i.dataset.mom]);
+  $$('#chips-mom-min button').forEach(b => b.classList.toggle('sel', String(cfg.momentos_minimo || 1) === b.dataset.n));
+  const j = est && est.momentos_juego;
+  $('#mom-estado').textContent = j ? tr('Mirando') + ' ' + ({fortnite: 'Fortnite', overwatch: 'Overwatch'}[j] || j) : '';
+}
+$$('[data-mom]').forEach(i => i.onchange = () => guardar({momentos: Object.assign({}, cfg.momentos || {}, {[i.dataset.mom]: i.checked})}));
+$$('#chips-mom-min button').forEach(b => b.onclick = () => guardar({momentos_minimo: Number(b.dataset.n)}));
+function pintarStatsMomentos(lista) {
+  const caja = $('#st-momentos');
+  $('#st-momentos-caja').classList.toggle('oculto', !lista || !lista.length);
+  if (!caja || !lista) return;
+  caja.innerHTML = '';
+  for (const g of lista) {
+    const r = g.rachas || {};
+    const f = document.createElement('div'); f.className = 'mom-fila';
+    const partes = [`${g.kills} ${tr('kills')}`, `${tr('mejor racha')}: ${g.mejor}`];
+    if (r['2']) partes.push(`${r['2']} ${tr('dobles')}`);
+    if (r['3']) partes.push(`${r['3']} ${tr('triples')}`);
+    if (r['4']) partes.push(`${r['4']} ${tr('cuádruples')}`);
+    if (r['5']) partes.push(`${r['5']} ${tr('de 5 o más')}`);
+    partes.push(`${g.clips} ${tr('clips guardados')}`);
+    f.innerHTML = '<b translate="no"></b><span></span>';
+    f.querySelector('b').textContent = g.juego;
+    f.querySelector('span').textContent = partes.join(' · ');
+    caja.append(f);
+  }
+}
+
 // ---------- webcam ----------
 let camaras = null;
 function pintarCamara() {
@@ -2247,7 +2297,8 @@ const NOMBRES_FUNC = {clips: ['Clips instantáneos', 'El búfer que guarda los �
   voz: ['Comandos de voz', '"Jarvis, sácale clip".'],
   overlay: ['Overlay en el juego', 'Avisos encima del juego.'],
   discord: ['Estado en Discord', '"Clipeando con GrabaClip" en tu perfil.'],
-  estadisticas: ['Estadísticas', 'La pestaña de estadísticas.']};
+  estadisticas: ['Estadísticas', 'La pestaña de estadísticas.'],
+  momentos: ['Momentos automáticos', 'Detecta kills en Fortnite y Overwatch y guarda el clip solo.']};
 const NOMBRES_PERFIL = {completo: 'Completo', esencial: 'Esencial', clips: 'Solo clips', grabacion: 'Solo grabación', personalizado: 'Personalizado'};
 function aplicarFunciones() {
   const f = cfg.funciones || {};
@@ -2317,6 +2368,7 @@ function horas(s) {
 }
 async function cargarStats() {
   const e = await api('estadisticas');
+  pintarStatsMomentos(e && e.momentos);
   const T = e.totales;
   const cifra = (n, txt, acento) => `<div class="st-cifra ${acento ? 'acento' : ''}"><b>${n}</b><span>${txt}</span></div>`;
   $('#st-cifras').innerHTML = cifra(T.clips, T.clips === 1 ? 'clip' : 'clips', true) + cifra(T.grabaciones, 'grabaciones') +
@@ -2604,6 +2656,7 @@ function pintarEstado() {
   bm.title = tr(est.mic_mudo ? 'Micrófono apagado: clic para encenderlo' : 'Silenciar el micrófono') + ' (' + bonita(cfg.tecla_mic) + ')';
   pintarCodec();
   pintarCamara();
+  pintarMomentos();
   $('#banner').classList.toggle('visible', !!est.fatal);
   if (est.fatal) $('#banner').innerHTML = '<b>GrabaClip no puede grabar en esta PC</b><span></span>';
   if (est.fatal) $('#banner span').textContent = est.fatal;

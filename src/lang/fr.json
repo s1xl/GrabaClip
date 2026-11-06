@@ -596,7 +596,30 @@
 "Webcams encontradas": "Webcams trouvées",
 "No encontré ninguna webcam": "Je n'ai trouvé aucune webcam",
 "No se pudo abrir la webcam (¿la está usando otra app?): los clips siguen sin ella": "Impossible d'ouvrir la webcam (une autre appli l'utilise ?) : les clips continuent sans elle",
-"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "Impossible d'ouvrir la webcam (une autre appli l'utilise ?) : l'enregistrement continue sans elle"
+"No se pudo abrir la webcam (¿la está usando otra app?): se graba sin ella": "Impossible d'ouvrir la webcam (une autre appli l'utilise ?) : l'enregistrement continue sans elle",
+"Momentos automáticos": "Moments automatiques",
+"Experimental": "Expérimental",
+"GrabaClip mira solo el pedacito de pantalla donde el juego avisa que hiciste una kill y guarda el clip por ti. Las kills seguidas se juntan en un solo clip (doble, triple…). No toca el juego ni su memoria.": "GrabaClip ne regarde que le petit coin de l'écran où le jeu annonce ton élimination et enregistre le clip pour toi. Les éliminations à la suite forment un seul clip (doublé, triplé…). Il ne touche ni au jeu ni à sa mémoire.",
+"Lee el contador de eliminaciones de arriba a la derecha.": "Lit le compteur d'éliminations en haut à droite.",
+"Detecta el aviso amarillo de eliminación bajo la mira (en cualquier idioma).": "Détecte l'avis jaune d'élimination sous le viseur (dans n'importe quelle langue).",
+"Próximamente: necesitamos clips con kills para enseñarle a reconocerlas.": "Bientôt : il nous faut des clips avec des éliminations pour lui apprendre à les reconnaître.",
+"Guardar clip desde": "Enregistrer un clip dès",
+"Cada kill": "Chaque élimination",
+"Doble kill": "Doublé",
+"Triple kill": "Triplé",
+"Cuádruple kill": "Quadruplé",
+"Penta kill": "Penta kill",
+"Kill": "Élimination",
+"Las kills de rachas más cortas igual se cuentan en Estadísticas. Funciona con el HUD normal del juego; si cambias su tamaño o los colores para daltónicos puede fallar.": "Les éliminations des séries plus courtes comptent quand même dans Statistiques. Fonctionne avec le HUD normal du jeu ; changer sa taille ou les couleurs pour daltoniens peut le perturber.",
+"Mirando": "Surveille",
+"kills": "éliminations",
+"mejor racha": "meilleure série",
+"dobles": "doublés",
+"triples": "triplés",
+"cuádruples": "quadruplés",
+"de 5 o más": "de 5 ou plus",
+"clips guardados": "clips enregistrés",
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Détecte les éliminations dans Fortnite et Overwatch et enregistre le clip tout seul."
 },
 "patrones": [
 [
@@ -1034,6 +1057,10 @@
 [
 "Ajustes cargados ({0})",
 "Réglages chargés ({0})"
+],
+[
+"Racha de {0} kills",
+"Série de {0} éliminations"
 ]
 ]
 }

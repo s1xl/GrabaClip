@@ -8,3 +8,5 @@ pycparser
 bottle==0.13.4
 typing_extensions
 keyboard==0.13.5
+# Momentos automáticos (detector de kills): análisis rápido de la imagen
+numpy==2.2.6
