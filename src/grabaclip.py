@@ -548,11 +548,14 @@ class Api:
                 self._detector.iniciar()
             except Exception:
                 self._detector = None
-                try:
-                    with open(os.path.join(N.CARPETA_LOGS, "momentos_error.txt"), "a", encoding="utf-8") as f:
-                        f.write(time.ctime() + "\n" + traceback.format_exc())
-                except Exception:
-                    pass
+                error = traceback.format_exc()
+                if error != getattr(self, "_ultimo_error_momentos", None):  # el mismo error, una sola vez
+                    self._ultimo_error_momentos = error
+                    try:
+                        with open(os.path.join(N.CARPETA_LOGS, "momentos_error.txt"), "a", encoding="utf-8") as f:
+                            f.write(time.ctime() + "\n" + error)
+                    except Exception:
+                        pass
 
     def _guardar_racha(self, juego, kills, duracion):
         """Se cerró una racha: estadísticas y, si alcanza el mínimo, un clip que la cubre entera."""

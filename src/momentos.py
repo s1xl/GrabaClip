@@ -223,7 +223,7 @@ class Detector:
             self.lector = LECTORES[juego](json.load(f))
 
     def _filtro(self):
-        _, _, W, H = ZONAS[self.juego]
+        _, _, _, W, H = ZONAS[self.juego]
         fuente = self.fuente
         if fuente.get("tipo") == "ventana" and N.MODO_GPU.get("ventana"):
             ancho, alto = N.tamano_ventana(fuente["hwnd"])
