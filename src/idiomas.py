@@ -965,6 +965,8 @@ T("de 5 o más", "of 5 or more", "de 5 ou mais")
 T("clips guardados", "clips saved", "clipes salvos")
 T("Detecta kills en Fortnite y Overwatch y guarda el clip solo.", "Detects kills in Fortnite and Overwatch and saves the clip by itself.", "Detecta abates no Fortnite e no Overwatch e salva o clipe sozinho.")
 P("Racha de {0} kills", "{0}-kill streak", "Sequência de {0} abates")
+T("No se pudo leer la carpeta de videos, reintentando…", "Couldn't read the videos folder, retrying…", "Não foi possível ler a pasta de vídeos, tentando de novo…")
+T("Otro programa está bloqueando la conexión local de la app; reinicia la PC o revisa tu antivirus", "Another program is blocking the app's local connection; restart your PC or check your antivirus", "Outro programa está bloqueando a conexão local do app; reinicie o PC ou verifique seu antivírus")
 
 def _por_especificidad(patrones):
     # los patrones con más texto fijo van primero ("Grabando: {0}" antes que "Grabando {0}")

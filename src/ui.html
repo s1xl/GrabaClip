@@ -1215,7 +1215,15 @@ const fecha = ms => new Date(ms).toLocaleString({en: 'en-US', pt: 'pt-BR', fr: '
 
 /* ---------- biblioteca ---------- */
 async function cargarVideos() {
-  videos = await api('biblioteca');
+  try {
+    videos = await api('biblioteca') || [];
+  } catch (e) {
+    // si falla, que no quede la pantalla en blanco: se avisa y se reintenta solo
+    aviso('No se pudo leer la carpeta de videos, reintentando…', 'error');
+    clearTimeout(cargarVideos.t);
+    cargarVideos.t = setTimeout(cargarVideos, 5000);
+    return;
+  }
   pintarVideos();
 }
 let limiteVideos = 48, ultimaLista = [];

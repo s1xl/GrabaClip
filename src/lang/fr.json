@@ -619,7 +619,9 @@
 "cuádruples": "quadruplés",
 "de 5 o más": "de 5 ou plus",
 "clips guardados": "clips enregistrés",
-"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Détecte les éliminations dans Fortnite et Overwatch et enregistre le clip tout seul."
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Détecte les éliminations dans Fortnite et Overwatch et enregistre le clip tout seul.",
+"No se pudo leer la carpeta de videos, reintentando…": "Impossible de lire le dossier des vidéos, nouvelle tentative…",
+"Otro programa está bloqueando la conexión local de la app; reinicia la PC o revisa tu antivirus": "Un autre programme bloque la connexion locale de l'app ; redémarrez le PC ou vérifiez votre antivirus"
 },
 "patrones": [
 [

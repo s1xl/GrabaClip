@@ -619,7 +619,9 @@
 "cuádruples": "رباعية",
 "de 5 o más": "من 5 أو أكثر",
 "clips guardados": "مقاطع محفوظة",
-"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "يكتشف عمليات القتل في Fortnite وOverwatch ويحفظ المقطع وحده."
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "يكتشف عمليات القتل في Fortnite وOverwatch ويحفظ المقطع وحده.",
+"No se pudo leer la carpeta de videos, reintentando…": "تعذّرت قراءة مجلد الفيديوهات، جارٍ إعادة المحاولة…",
+"Otro programa está bloqueando la conexión local de la app; reinicia la PC o revisa tu antivirus": "برنامج آخر يحظر الاتصال المحلي للتطبيق؛ أعد تشغيل الكمبيوتر أو افحص برنامج مكافحة الفيروسات"
 },
 "patrones": [
 [

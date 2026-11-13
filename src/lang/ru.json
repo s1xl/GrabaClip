@@ -619,7 +619,9 @@
 "cuádruples": "квадр",
 "de 5 o más": "из 5 и больше",
 "clips guardados": "клипов сохранено",
-"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Замечает убийства в Fortnite и Overwatch и сам сохраняет клип."
+"Detecta kills en Fortnite y Overwatch y guarda el clip solo.": "Замечает убийства в Fortnite и Overwatch и сам сохраняет клип.",
+"No se pudo leer la carpeta de videos, reintentando…": "Не удалось прочитать папку с видео, повторяю…",
+"Otro programa está bloqueando la conexión local de la app; reinicia la PC o revisa tu antivirus": "Другая программа блокирует локальное подключение приложения; перезагрузите ПК или проверьте антивирус"
 },
 "patrones": [
 [

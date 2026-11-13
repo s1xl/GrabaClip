@@ -737,7 +737,11 @@ class Api:
     def vista_previa(self, ruta):
         if not self._ruta_valida(ruta) or not ruta.lower().endswith(".mp4"):
             return None
-        return self._servidor_video.url(ruta, "vista")
+        try:
+            return self._servidor_video.url(ruta, "vista")
+        except Exception:
+            self._log_biblioteca("servidor de vista previa")
+            return None
 
     def ventanas_juegos(self):
         """Para 'Ajustes por juego': ventanas abiertas y juegos ya configurados."""
@@ -1027,31 +1031,16 @@ class Api:
         for ruta in archivos:
             if en_curso and os.path.normcase(ruta) == os.path.normcase(en_curso):
                 continue
+            if ruta.lower().endswith(".tmp.mp4"):
+                continue  # archivo a medio escribir de un recorte o un clip
             try:
                 st = os.stat(ruta)
             except OSError:
                 continue
-            nombre = os.path.basename(ruta)
-            relativa = os.path.relpath(os.path.dirname(ruta), N.CARPETA_SALIDA)
-            juego = "" if relativa in (".", "") else relativa.split(os.sep)[0]
-            clave = f"{juego}/{nombre}|{int(st.st_mtime)}|{st.st_size}"
-            info = self._indice.get(clave)
-            item = {
-                "ruta": ruta, "nombre": nombre, "clave": clave,
-                "fecha": st.st_mtime * 1000, "tamano": st.st_size,
-                "tipo": ("clip" if nombre.lower().startswith("clip_") else
-                         "captura" if nombre.lower().endswith(".png") else "grabacion"),
-                "marcas": len(self._marcas.get(self._clave_fav(ruta), [])),
-                "fav": self._es_favorito(ruta),
-                "etiquetas": self._etiquetas.get(self._clave_fav(ruta), []),
-                "juego": juego,
-                "duracion": info.get("dur") if info else None,
-                "pistas": info.get("pistas") if info else None,
-                "mini": self._mini_url(info) if info else None,
-            }
-            if not info:
-                faltan.append((ruta, clave))
-            items.append(item)
+            try:
+                items.append(self._item_biblioteca(ruta, st, faltan))
+            except Exception:
+                self._log_biblioteca("video " + os.path.basename(ruta))
         items.sort(key=lambda x: x["fecha"], reverse=True)
         if faltan:
             self._pendientes = faltan
@@ -1059,6 +1048,30 @@ class Api:
                 self._hilo_mini = threading.Thread(target=self._crear_miniaturas, daemon=True)
                 self._hilo_mini.start()
         return items
+
+    def _item_biblioteca(self, ruta, st, faltan):
+        """Datos de un video para la biblioteca (si falta la miniatura, se agrega a faltan)."""
+        nombre = os.path.basename(ruta)
+        relativa = os.path.relpath(os.path.dirname(ruta), N.CARPETA_SALIDA)
+        juego = "" if relativa in (".", "") else relativa.split(os.sep)[0]
+        clave = f"{juego}/{nombre}|{int(st.st_mtime)}|{st.st_size}"
+        info = self._indice.get(clave)
+        item = {
+            "ruta": ruta, "nombre": nombre, "clave": clave,
+            "fecha": st.st_mtime * 1000, "tamano": st.st_size,
+            "tipo": ("clip" if nombre.lower().startswith("clip_") else
+                     "captura" if nombre.lower().endswith(".png") else "grabacion"),
+            "marcas": len(self._marcas.get(self._clave_fav(ruta), [])),
+            "fav": self._es_favorito(ruta),
+            "etiquetas": self._etiquetas.get(self._clave_fav(ruta), []),
+            "juego": juego,
+            "duracion": info.get("dur") if info else None,
+            "pistas": info.get("pistas") if info else None,
+            "mini": self._mini_url(info) if info else None,
+        }
+        if not info:
+            faltan.append((ruta, clave))
+        return item
 
     def reproducir(self, ruta):
         if self._ruta_valida(ruta):
@@ -1068,7 +1081,12 @@ class Api:
     def abrir_editor(self, ruta):
         if not self._ruta_valida(ruta):
             return {"ok": False, "msg": "No encuentro ese video"}
-        return {"ok": True, "url": self._servidor_video.url(ruta),
+        try:
+            url = self._servidor_video.url(ruta)
+        except Exception:
+            self._log_biblioteca("servidor del editor")
+            return {"ok": False, "msg": "Otro programa está bloqueando la conexión local de la app; reinicia la PC o revisa tu antivirus"}
+        return {"ok": True, "url": url,
                 "marcas": self._marcas.get(self._clave_fav(ruta), []),
                 "pistas": RC.pistas_video(ruta)}
 
@@ -1717,10 +1735,33 @@ class Api:
             return {}
 
     def _mini_url(self, info):
-        archivo = os.path.join(CARPETA_MINI, info.get("mini", ""))
+        archivo = os.path.join(CARPETA_MINI, info.get("mini") or "")
         if not info.get("mini") or not os.path.exists(archivo):
             return None
-        return self._servidor_video.url_mini(info["mini"])
+        try:
+            return self._servidor_video.url_mini(info["mini"])
+        except Exception:
+            # el servidor local no pudo arrancar (algún programa bloquea 127.0.0.1): la miniatura va
+            # dentro de la respuesta, así la biblioteca se ve igual
+            self._log_biblioteca("servidor de miniaturas")
+            try:
+                with open(archivo, "rb") as f:
+                    return "data:image/jpeg;base64," + base64.b64encode(f.read()).decode("ascii")
+            except OSError:
+                return None
+
+    def _log_biblioteca(self, donde):
+        """Anota el primer error de cada tipo en logs/biblioteca_error.txt (para poder ayudar)."""
+        vistos = self.__dict__.setdefault("_errores_bib", set())
+        if donde in vistos:
+            return
+        vistos.add(donde)
+        try:
+            os.makedirs(N.CARPETA_LOGS, exist_ok=True)
+            with open(os.path.join(N.CARPETA_LOGS, "biblioteca_error.txt"), "a", encoding="utf-8") as f:
+                f.write(f"{time.ctime()}  {donde}\n{traceback.format_exc()}\n")
+        except Exception:
+            pass
 
     def _crear_miniaturas(self):
         os.makedirs(CARPETA_MINI, exist_ok=True)
